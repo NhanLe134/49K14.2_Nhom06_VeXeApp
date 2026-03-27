@@ -1,19 +1,310 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="#F5F7FA"
+    tools:ignore="HardcodedText,SmallSp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Quản lý Tuyến xe"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="20dp"/>
+    <!-- Header Toolbar -->
+    <RelativeLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#0098D6"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!-- Add your UI components for Managing Routes here -->
+        <ImageView
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:padding="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_back_chevron"
+            app:tint="@android:color/white" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvToolbarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/btnBack"
+            android:layout_marginStart="12dp"
+            android:text="Quản lý tuyến xe"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddRoute"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="12dp"
+            android:backgroundTint="#FFFFFF"
+            android:paddingHorizontal="12dp"
+            android:text="+ Thêm tuyến"
+            android:textAllCaps="false"
+            android:textColor="#0098D6"
+            android:textSize="12sp"
+            app:cornerRadius="20dp" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/scrollContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_nav"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Inline Form (Add/Edit) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/inlineFormCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:visibility="gone"
+                app:cardCornerRadius="25dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+
+                    <TextView
+                        android:id="@+id/tvFormGuide"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textSize="13sp"
+                        android:textColor="#666666"
+                        android:textStyle="bold"/>
+
+                    <!-- Field: Name -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="vertical">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_route_line" app:tint="#7D5FFF"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" Tên tuyến xe " android:textSize="12sp" android:textColor="#333333"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="*" android:textColor="#FF0000" android:textSize="12sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <EditText
+                            android:id="@+id/edtRouteName"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_input_white"
+                            android:hint="Vui lòng nhập tên tuyến"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <!-- Field: Start -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_location_pin" app:tint="#7D5FFF"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" Điểm đi " android:textSize="12sp" android:textColor="#333333"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="*" android:textColor="#FF0000" android:textSize="12sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <EditText
+                            android:id="@+id/edtStartPoint"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_input_white"
+                            android:hint="Vui lòng nhập điểm đi"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <!-- Field: Mid -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_location_pin" app:tint="#7D5FFF"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" Điểm trung gian" android:textSize="12sp" android:textColor="#333333"/>
+                        </LinearLayout>
+                        <EditText
+                            android:id="@+id/edtMidPoint"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_input_white"
+                            android:hint="Vui lòng nhập điểm trung gian"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <!-- Field: End -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical">
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_flag" app:tint="#7D5FFF"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=" Điểm đến " android:textSize="12sp" android:textColor="#333333"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="*" android:textColor="#FF0000" android:textSize="12sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <EditText
+                            android:id="@+id/edtEndPoint"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@drawable/bg_input_white"
+                            android:hint="Vui lòng nhập điểm đến"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Quãng đường (km)"
+                        android:textSize="12sp" />
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="4dp"
+                        android:background="#F0F0F0"
+                        android:enabled="false"
+                        android:text="Tự động"
+                        android:paddingHorizontal="12dp"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Thời gian di chuyển dự kiến"
+                        android:textSize="12sp" />
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="4dp"
+                        android:background="#F0F0F0"
+                        android:enabled="false"
+                        android:text="Tự động"
+                        android:paddingHorizontal="12dp"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:orientation="horizontal">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCancelForm"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:backgroundTint="#858383"
+                            android:text="Hủy"
+                            android:textAllCaps="false"
+                            app:cornerRadius="10dp" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnSaveForm"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:backgroundTint="#3498DB"
+                            android:text="Lưu"
+                            android:textAllCaps="false"
+                            app:cornerRadius="10dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center"
+                        android:text="Quãng đường và thời gian được hệ thống tự động tính từ Google Map"
+                        android:textSize="10sp"
+                        android:textColor="#888888"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- List View (RecyclerView) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRoutes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:visibility="visible" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- BOTTOM NAVIGATION -->
+    <LinearLayout
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:baselineAligned="false"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:id="@+id/nav_home_op_main"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/home" app:tint="#858383"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textSize="10sp" android:textColor="#858383"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/nav_driver_op" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_driver" app:tint="#858383" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tài xế" android:textSize="10sp" android:textColor="#858383"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_vehicle_op" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_car" app:tint="#858383" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phương tiện" android:textSize="10sp" android:textColor="#858383"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_trip_op" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_map" app:tint="#858383" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chuyến xe" android:textSize="10sp" android:textColor="#858383"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_route_op" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_route" app:tint="#0098D6" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tuyến xe" android:textSize="10sp" android:textColor="#0098D6"/></LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

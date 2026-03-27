@@ -1,5 +1,7 @@
 package com.example.nhom7vexeapp.adapters;
 
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,12 +45,20 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
         holder.tvTime.setText(route.getTime());
         holder.tvStatus.setText(route.getStatus());
 
-        // Simple logic for status color
+        // Custom background for status
+        GradientDrawable shape = new GradientDrawable();
+        shape.setCornerRadius(20f);
+        
         if ("Đang hoạt động".equals(route.getStatus())) {
-            holder.tvStatus.setBackgroundColor(holder.itemView.getContext().getResources().getColor(android.R.color.holo_green_light));
+            holder.tvStatus.setText("Đang hoạt động");
+            holder.tvStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
+            shape.setColor(Color.parseColor("#E8F5E9")); // Light Green
         } else {
-            holder.tvStatus.setBackgroundColor(holder.itemView.getContext().getResources().getColor(android.R.color.darker_gray));
+            holder.tvStatus.setText("Ngưng hoạt động");
+            holder.tvStatus.setTextColor(Color.parseColor("#EF6C00")); // Orange
+            shape.setColor(Color.parseColor("#FFF3E0")); // Light Orange
         }
+        holder.tvStatus.setBackground(shape);
 
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(route));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(route));

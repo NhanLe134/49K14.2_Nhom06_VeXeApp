@@ -30,5 +30,14 @@ public class OperatorMainActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+
+        // Tuyến xe navigation
+        LinearLayout navRoute = findViewById(R.id.nav_route_op);
+        if (navRoute != null) {
+            navRoute.setOnClickListener(v -> {
+                Intent intent = new Intent(OperatorMainActivity.this, QLTuyenxeActivity.class);
+                startActivity(intent);
+            });
+        }
     }
 }

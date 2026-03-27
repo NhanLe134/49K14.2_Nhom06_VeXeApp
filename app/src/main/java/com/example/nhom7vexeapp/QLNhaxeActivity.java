@@ -1,5 +1,6 @@
 package com.example.nhom7vexeapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -32,6 +33,7 @@ public class QLNhaxeActivity extends AppCompatActivity {
 
         initViews();
         setupEvents();
+        setupNavigation();
         // Giả lập load dữ liệu ban đầu
         loadInitialData();
     }
@@ -86,6 +88,28 @@ public class QLNhaxeActivity extends AppCompatActivity {
             txtFileName.setText("banner_nhaxe.png");
             Toast.makeText(this, "Đã chọn ảnh thành công", Toast.LENGTH_SHORT).show();
         });
+    }
+
+    private void setupNavigation() {
+        LinearLayout navRoute = findViewById(R.id.nav_route_op);
+        if (navRoute != null) {
+            navRoute.setOnClickListener(v -> {
+                Intent intent = new Intent(this, QLTuyenxeActivity.class);
+                startActivity(intent);
+            });
+        }
+        
+        LinearLayout navHome = findViewById(R.id.nav_home_op);
+        if (navHome == null) {
+            navHome = findViewById(R.id.nav_home_op_main);
+        }
+        if (navHome != null) {
+            navHome.setOnClickListener(v -> {
+                Intent intent = new Intent(this, OperatorMainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            });
+        }
     }
 
     private void loadInitialData() {
