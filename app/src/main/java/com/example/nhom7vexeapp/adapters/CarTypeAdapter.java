@@ -41,7 +41,7 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
     public void onBindViewHolder(@NonNull CarTypeViewHolder holder, int position) {
         CarType car = carList.get(position);
 
-        // Đổ dữ liệu lên Item
+        // Hiển thị dữ liệu lên danh sách chính
         holder.tvName.setText(car.getName());
         holder.tvSeats.setText(car.getSeats() + " chỗ");
         holder.tvPrice.setText(car.getPrice());
@@ -49,38 +49,46 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         holder.vLine.setBackgroundColor(car.getColor());
         holder.tvIcon.setText(car.getName().substring(car.getName().length() - 1));
 
-        // Bắt sự kiện bấm nút Cập nhật giá vé
+        // Nút Cập nhật giá vé
         holder.btnEdit.setOnClickListener(v -> showUpdateDialog(car));
     }
 
     private void showUpdateDialog(CarType car) {
-        // 1. Khởi tạo Dialog nhập liệu
         Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.dialog_update_price);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        // 2. Ánh xạ View từ dialog_update_price.xml
+        // 1. Ánh xạ các View trong Dialog
         TextView tvCarInfo = dialog.findViewById(R.id.tvDialogCarName);
+        TextView tvCurrentPrice = dialog.findViewById(R.id.tvDialogCurrentPrice);
+        TextView tvUnsetLabel = dialog.findViewById(R.id.tvUnsetLabel);
         EditText edtPrice = dialog.findViewById(R.id.edtNewPrice);
         TextView tvError = dialog.findViewById(R.id.tvErrorPrice);
         Button btnSave = dialog.findViewById(R.id.btnSavePrice);
         Button btnCancel = dialog.findViewById(R.id.btnCancelUpdate);
 
+        // 2. Đổ dữ liệu động dựa trên xe người dùng chọn
         tvCarInfo.setText(car.getName() + " (" + car.getSeats() + " chỗ)");
+
+        // KIỂM TRA: Nếu giá là "Chưa thiết lập" thì hiện nhãn cam, ngược lại hiện số tiền
+        if (car.getPrice().equals("Chưa thiết lập") || car.getPrice().isEmpty()) {
+            tvUnsetLabel.setVisibility(View.VISIBLE); // Hiện nhãn màu cam
+            tvCurrentPrice.setVisibility(View.GONE);  // Ẩn text giá tiền
+        } else {
+            tvUnsetLabel.setVisibility(View.GONE);    // Ẩn nhãn màu cam
+            tvCurrentPrice.setVisibility(View.VISIBLE); // Hiện text giá tiền
+            tvCurrentPrice.setText(car.getPrice());
+        }
 
         // 3. Xử lý nút Lưu
         btnSave.setOnClickListener(vSave -> {
             String input = edtPrice.getText().toString().trim();
-
             if (input.isEmpty() || Integer.parseInt(input) <= 0) {
-                // Hiện lỗi nếu nhập sai hoặc để trống
                 tvError.setVisibility(View.VISIBLE);
             } else {
                 tvError.setVisibility(View.GONE);
-                dialog.dismiss(); // Đóng dialog nhập liệu
-
-                // --- HIỆN DIALOG TÍCH XANH THÀNH CÔNG ---
-                showSuccessDialog();
+                dialog.dismiss();
+                showSuccessDialog(); // Hiện thông báo thành công
             }
         });
 
@@ -95,8 +103,7 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         successDialog.setContentView(R.layout.dialog_success);
         successDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        Button btnDone = successDialog.findViewById(R.id.btnDone);
-        btnDone.setOnClickListener(v -> successDialog.dismiss());
+        successDialog.setCanceledOnTouchOutside(true);
 
         successDialog.show();
     }
