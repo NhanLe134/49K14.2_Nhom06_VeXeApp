@@ -14,7 +14,7 @@ public class OperatorProfileActivity extends AppCompatActivity {
 
     private TextView tvOpName, tvOpRep, tvOpAddress, tvOpPhone, tvOpEmail, tvOpNameMain;
     private ImageView btnBack;
-    private MaterialButton btnEdit;
+    private MaterialButton btnEdit, btnLogout;
     private LinearLayout navHome;
 
     @Override
@@ -40,6 +40,20 @@ public class OperatorProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(this, EditOperatorProfileActivity.class);
             startActivityForResult(intent, 400);
         });
+
+        // Xử lý đăng xuất
+        btnLogout.setOnClickListener(v -> {
+            SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean("isLoggedIn", false);
+            editor.remove("op_user");
+            editor.apply();
+
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void initViews() {
@@ -51,6 +65,7 @@ public class OperatorProfileActivity extends AppCompatActivity {
         tvOpEmail = findViewById(R.id.tvOpEmail);
         btnBack = findViewById(R.id.btnBack);
         btnEdit = findViewById(R.id.btnEditOpProfile);
+        btnLogout = findViewById(R.id.btnLogoutOp);
         navHome = findViewById(R.id.navHomeProfile);
     }
 

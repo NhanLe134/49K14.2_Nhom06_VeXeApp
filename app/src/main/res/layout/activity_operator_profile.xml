@@ -138,6 +138,19 @@
                     app:icon="@android:drawable/ic_menu_edit"
                     app:iconGravity="textStart" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLogoutOp"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    app:backgroundTint="#FF5252"
+                    android:text="Đăng xuất"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    app:cornerRadius="8dp"
+                    app:icon="@android:drawable/ic_lock_power_off"
+                    app:iconGravity="textStart" />
+
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </ScrollView>
