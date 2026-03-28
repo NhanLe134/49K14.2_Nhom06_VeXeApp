@@ -93,6 +93,10 @@
             android:name=".CarTypeManagementActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".VietNhanXetActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
     </application>
 
 </manifest>
