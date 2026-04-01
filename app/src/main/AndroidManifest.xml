@@ -33,8 +33,13 @@
             android:name=".MainActivity"
             android:exported="false" />
 
+        <activity android:name=".SearchTicketActivity" />
         <activity
             android:name=".OperatorMainActivity"
+            android:exported="false" />
+        <activity android:name=".PhuongTienManagementActivity"
+            android:exported="false" />
+        <activity android:name=".CarTypeManagementActivity"
             android:exported="false" />
 
         <activity
@@ -89,9 +94,6 @@
             android:name=".PhanHoiActivity"
             android:exported="false" />
 
-        <activity
-            android:name=".CarTypeManagementActivity"
-            android:exported="false" />
 
     </application>
 

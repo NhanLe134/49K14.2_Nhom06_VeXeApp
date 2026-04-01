@@ -24,6 +24,9 @@ public class QLNhaxeActivity extends AppCompatActivity {
     private ImageView btnBack;
     private ImageView imgLogo, imgViewBanner, imgEditPreview;
 
+    // Biến của Xù để điều hướng Phương tiện
+    private LinearLayout navVehicle;
+
     private boolean isEditing = false;
 
     @Override
@@ -31,11 +34,10 @@ public class QLNhaxeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ql_nhaxe);
 
-        initViews();
-        setupEvents();
-        setupNavigation();
-        // Giả lập load dữ liệu ban đầu
-        loadInitialData();
+        initViews();       // Ánh xạ
+        setupEvents();      // Sự kiện chỉnh sửa/lưu
+        setupNavigation();  // Sự kiện thanh Navbar (Quan trọng)
+        loadInitialData();  // Load dữ liệu mẫu
     }
 
     private void initViews() {
@@ -66,15 +68,15 @@ public class QLNhaxeActivity extends AppCompatActivity {
         btnChooseFile = findViewById(R.id.btnChooseFile);
         txtFileName = findViewById(R.id.txtFileName);
         imgEditPreview = findViewById(R.id.imgEditPreview);
+
+        // Ánh xạ nút Phương tiện
+        navVehicle = findViewById(R.id.nav_vehicle_op);
     }
 
     private void setupEvents() {
         btnBack.setOnClickListener(v -> {
-            if (isEditing) {
-                showCancelConfirmationDialog();
-            } else {
-                finish();
-            }
+            if (isEditing) showCancelConfirmationDialog();
+            else finish();
         });
 
         btnEdit.setOnClickListener(v -> enterEditMode());
@@ -84,13 +86,23 @@ public class QLNhaxeActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> validateAndSave());
 
         btnChooseFile.setOnClickListener(v -> {
-            // Logic chọn file ảnh (giả lập chọn thành công)
             txtFileName.setText("banner_nhaxe.png");
             Toast.makeText(this, "Đã chọn ảnh thành công", Toast.LENGTH_SHORT).show();
         });
     }
 
     private void setupNavigation() {
+        // 1. Xử lý nút Phương tiện của Xù (Dùng v.getContext() để không bị lỗi luồng)
+        if (navVehicle != null) {
+            navVehicle.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), PhuongTienManagementActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                v.getContext().startActivity(intent);
+                android.util.Log.d("XU_LOG", "Da bam mo màn hình Phuong Tien!");
+            });
+        }
+
+        // 2. Xử lý nút Tuyến xe (Code của bạn nhóm)
         LinearLayout navRoute = findViewById(R.id.nav_route_op);
         if (navRoute != null) {
             navRoute.setOnClickListener(v -> {
@@ -98,7 +110,8 @@ public class QLNhaxeActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
-        
+
+        // 3. Xử lý nút Trang chủ (Quay lại OperatorMain)
         LinearLayout navHome = findViewById(R.id.nav_home_op);
         if (navHome == null) {
             navHome = findViewById(R.id.nav_home_op_main);
@@ -113,21 +126,18 @@ public class QLNhaxeActivity extends AppCompatActivity {
     }
 
     private void loadInitialData() {
-        // Mock data
         String name = "Nhà xe Đà Nẵng-Huế";
         String rep = "Tôn Thất Huy Phong";
         String address = "K36/12 Lưu Quang Thuận, Đà Nẵng";
         String phone = "0905509767";
         String email = "dananghue@nhaxe.vn";
 
-        // Set text for View Mode
         tvViewBusName.setText(name);
         tvViewRepName.setText(rep);
         tvViewAddress.setText(address);
         tvViewPhone.setText(phone);
         tvViewEmail.setText(email);
 
-        // Set text for Edit Mode
         edtBusName.setText(name);
         edtRepName.setText(rep);
         edtAddress.setText(address);
@@ -163,47 +173,24 @@ public class QLNhaxeActivity extends AppCompatActivity {
         String address = edtAddress.getText().toString().trim();
         String phone = edtPhone.getText().toString().trim();
 
-        // BR-UC-3.5.2: Tất cả trường thông tin không được để trống
-        if (TextUtils.isEmpty(busName)) {
-            showError("Vui lòng nhập Tên nhà xe.");
-            return;
-        }
-        if (TextUtils.isEmpty(repName)) {
-            showError("Vui lòng nhập Họ tên người đại diện.");
-            return;
-        }
-        if (TextUtils.isEmpty(address)) {
-            showError("Vui lòng nhập Địa chỉ trụ sở.");
-            return;
-        }
-        if (TextUtils.isEmpty(phone)) {
-            showError("Vui lòng nhập Số điện thoại.");
-            return;
-        }
+        if (TextUtils.isEmpty(busName)) { showError("Vui lòng nhập Tên nhà xe."); return; }
+        if (TextUtils.isEmpty(repName)) { showError("Vui lòng nhập Họ tên người đại diện."); return; }
+        if (TextUtils.isEmpty(address)) { showError("Vui lòng nhập Địa chỉ trụ sở."); return; }
+        if (TextUtils.isEmpty(phone)) { showError("Vui lòng nhập Số điện thoại."); return; }
 
-        // BR-UC-3.5.2: Không bắt đầu bằng ký tự đặc biệt
-        if (isSpecialCharStart(busName)) {
-            showError("Tên nhà xe không được bắt đầu bằng ký tự đặc biệt.");
-            return;
-        }
-        if (isSpecialCharStart(repName)) {
-            showError("Họ tên người đại diện không được bắt đầu bằng ký tự đặc biệt.");
-            return;
-        }
+        if (isSpecialCharStart(busName)) { showError("Tên nhà xe không được bắt đầu bằng ký tự đặc biệt."); return; }
+        if (isSpecialCharStart(repName)) { showError("Họ tên người đại diện không được bắt đầu bằng ký tự đặc biệt."); return; }
 
-        // BR-UC-3.5.2: Địa chỉ không chứa ký tự đặc biệt không hợp lệ (giả định đơn giản)
         if (address.matches(".*[!@#$%^&*()].*")) {
             showError("Địa chỉ trụ sở chứa ký tự đặc biệt không hợp lệ.");
             return;
         }
 
-        // BR-UC-3.5.2: Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0
         if (!phone.matches("0\\d{9}")) {
             showError("Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0.");
             return;
         }
 
-        // Logic lưu thành công
         updateViewMode(busName, repName, address, phone);
         Toast.makeText(this, "Cập nhật thông tin thành công", Toast.LENGTH_SHORT).show();
         exitEditMode();
@@ -214,7 +201,6 @@ public class QLNhaxeActivity extends AppCompatActivity {
         tvViewRepName.setText(rep);
         tvViewAddress.setText(addr);
         tvViewPhone.setText(phone);
-        // Cập nhật text trong header nếu cần
     }
 
     private boolean isSpecialCharStart(String text) {
