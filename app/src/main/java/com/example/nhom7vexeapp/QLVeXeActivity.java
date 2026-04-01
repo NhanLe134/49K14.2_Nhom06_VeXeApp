@@ -33,6 +33,14 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
         initViews();
         setupRecyclerView();
         loadMockData();
+
+        // Kiểm tra xem có phải vừa đặt vé mới không
+        boolean hasNewTicket = getIntent().getBooleanExtra("new_ticket", false);
+        if (hasNewTicket) {
+            // Thêm một vé mới giả lập vào danh sách "Đã đặt"
+            fullTicketList.add(0, new TicketModel("12:30", "26/02/2026", "Đà Nẵng - Huế", "Long Hùng", "01", "C2", "Booked"));
+        }
+
         filterTickets("Booked"); // Mặc định hiện vé Đã đặt
 
         setupTabListeners();
@@ -54,14 +62,10 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
     }
 
     private void loadMockData() {
-        // Vé đã đặt
+        // Dữ liệu mẫu ban đầu
         fullTicketList.add(new TicketModel("07:00", "26/02/2026", "Đà Nẵng - Huế", "Long Hùng", "01", "B6", "Booked"));
-        
-        // Vé đã đi
         fullTicketList.add(new TicketModel("15:15", "30/01/2026", "Đà Nẵng - Huế", "Long Hùng", "02", "C6 - C7", "Completed"));
         fullTicketList.add(new TicketModel("10:20", "18/01/2026", "Huế - Đà Nẵng", "Châu Thanh", "03", "A1 - A2 - A3", "Completed"));
-        
-        // Vé đã hủy
         fullTicketList.add(new TicketModel("12:30", "26/11/2025", "Đà Nẵng - Huế", "Phương Trang", "01", "C6", "Cancelled"));
     }
 
@@ -149,7 +153,6 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
             dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
-        // Cập nhật dữ liệu vào Dialog
         TextView tvDate = dialog.findViewById(R.id.tvDate);
         TextView tvTime = dialog.findViewById(R.id.tvTime);
         TextView tvSeats = dialog.findViewById(R.id.tvSeatNumber);

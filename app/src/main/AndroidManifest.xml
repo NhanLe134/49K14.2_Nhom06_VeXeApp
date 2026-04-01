@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!-- Quyền Bluetooth để tránh lỗi hệ thống khi thu thập thông tin năng lượng -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -16,18 +21,27 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Nhom7VeXeApp" >
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCjKLkqL_kcIQcltdubSO4SLD_VhDYbilo" />
-
+        <!-- Hiển thị MainActivity (Trang chủ khách hàng) làm màn hình khởi đầu -->
         <activity
             android:name=".MainActivity"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".DatVeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ThongTinChiTietActivity"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCjKLkqL_kcIQcltdubSO4SLD_VhDYbilo" />
 
         <activity
             android:name=".LoginActivity"
@@ -97,6 +111,10 @@
             android:name=".VietNhanXetActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".PhuongTienManagementActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
