@@ -1,9 +1,14 @@
 package com.example.nhom7vexeapp;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,6 +42,7 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
     private CardView inlineFormCard;
     private TextView tvFormGuide;
     private EditText edtRouteName, edtStartPoint, edtMidPoint, edtEndPoint;
+    private TextView tvErrorRouteName, tvErrorStartPoint, tvErrorEndPoint;
     private MaterialButton btnSaveForm, btnCancelForm;
 
     private Route editingRoute = null;
@@ -64,6 +70,11 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
         edtStartPoint = findViewById(R.id.edtStartPoint);
         edtMidPoint = findViewById(R.id.edtMidPoint);
         edtEndPoint = findViewById(R.id.edtEndPoint);
+        
+        tvErrorRouteName = findViewById(R.id.tvErrorRouteName);
+        tvErrorStartPoint = findViewById(R.id.tvErrorStartPoint);
+        tvErrorEndPoint = findViewById(R.id.tvErrorEndPoint);
+        
         btnSaveForm = findViewById(R.id.btnSaveForm);
         btnCancelForm = findViewById(R.id.btnCancelForm);
     }
@@ -84,35 +95,34 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
     private void setupEvents() {
         btnBack.setOnClickListener(v -> {
             if (inlineFormCard.getVisibility() == View.VISIBLE) {
-                hideRouteForm();
+                String msg = (editingRoute == null) ? "Bạn có thông tin thêm mới chưa lưu, xác nhận hủy?" : "Bạn có thông tin chỉnh sửa chưa lưu, xác nhận hủy?";
+                showRouteConfirmDialog(msg, this::hideRouteForm);
             } else {
-                finish();
+                backToHome();
             }
         });
 
         btnAddRoute.setOnClickListener(v -> showRouteForm(null));
 
         btnCancelForm.setOnClickListener(v -> {
-            String message = (editingRoute == null) ? "Bạn có thông tin thêm mới chưa lưu, xác nhận hủy?" : "Bạn có thông tin chỉnh sửa chưa lưu, xác nhận hủy?";
-            new AlertDialog.Builder(this)
-                    .setTitle("Thông báo")
-                    .setMessage(message)
-                    .setPositiveButton("Đồng ý", (dialog, which) -> hideRouteForm())
-                    .setNegativeButton("Không", null)
-                    .show();
+            String msg = (editingRoute == null) ? "Bạn có thông tin thêm mới chưa lưu, xác nhận hủy?" : "Bạn có thông tin chỉnh sửa chưa lưu, xác nhận hủy?";
+            showRouteConfirmDialog(msg, this::hideRouteForm);
         });
 
         btnSaveForm.setOnClickListener(v -> validateAndSave());
     }
 
+    private void backToHome() {
+        Intent intent = new Intent(this, OperatorMainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
+    }
+
     private void setupNavigation() {
         LinearLayout navHome = findViewById(R.id.nav_home_op_main);
         if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OperatorMainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            });
+            navHome.setOnClickListener(v -> backToHome());
         }
 
         LinearLayout navVehicle = findViewById(R.id.nav_vehicle_op);
@@ -140,11 +150,31 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
         }
     }
 
+    private void showRouteConfirmDialog(String message, Runnable onConfirm) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_delete_route, null);
+        TextView tvMsg = dialogView.findViewById(R.id.tvDialogMessageRoute);
+        tvMsg.setText(message);
+
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        dialogView.findViewById(R.id.btnNoRoute).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnYesRoute).setOnClickListener(v -> {
+            dialog.dismiss();
+            onConfirm.run();
+        });
+
+        dialog.show();
+    }
+
     private void showRouteForm(Route route) {
         editingRoute = route;
         rvRoutes.setVisibility(View.GONE);
         btnAddRoute.setVisibility(View.GONE);
         inlineFormCard.setVisibility(View.VISIBLE);
+        clearErrors();
 
         if (route == null) {
             tvToolbarTitle.setText("Thêm Tuyến xe");
@@ -176,29 +206,78 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
     }
 
     private void validateAndSave() {
+        clearErrors();
+        boolean isValid = true;
+
         String name = edtRouteName.getText().toString().trim();
         String start = edtStartPoint.getText().toString().trim();
         String end = edtEndPoint.getText().toString().trim();
 
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(start) || TextUtils.isEmpty(end)) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin bắt buộc!", Toast.LENGTH_SHORT).show();
-            return;
+        // Kiểm tra Tên tuyến xe
+        if (name.isEmpty()) {
+            showFieldError(edtRouteName, tvErrorRouteName, "Vui lòng nhập tên tuyến xe.");
+            isValid = false;
+        } else if (isSpecialCharStart(name)) {
+            showFieldError(edtRouteName, tvErrorRouteName, "Tên tuyến xe không bắt đầu bằng ký tự đặc biệt.");
+            isValid = false;
         }
+
+        // Kiểm tra Điểm đi
+        if (start.isEmpty()) {
+            showFieldError(edtStartPoint, tvErrorStartPoint, "Vui lòng nhập điểm đi.");
+            isValid = false;
+        } else if (isSpecialCharStart(start)) {
+            showFieldError(edtStartPoint, tvErrorStartPoint, "Điểm đi không bắt đầu bằng ký tự đặc biệt.");
+            isValid = false;
+        }
+
+        // Kiểm tra Điểm đến
+        if (end.isEmpty()) {
+            showFieldError(edtEndPoint, tvErrorEndPoint, "Vui lòng nhập điểm đến.");
+            isValid = false;
+        } else if (isSpecialCharStart(end)) {
+            showFieldError(edtEndPoint, tvErrorEndPoint, "Điểm đến không bắt đầu bằng ký tự đặc biệt.");
+            isValid = false;
+        }
+
+        if (!isValid) return;
 
         if (editingRoute == null) {
             Route newRoute = new Route(UUID.randomUUID().toString(), name, start, edtMidPoint.getText().toString(), end, "100 km", "≈ 2.5 giờ", "Đang hoạt động");
             routeList.add(newRoute);
-            Toast.makeText(this, "Thêm tuyến xe thành công", Toast.LENGTH_SHORT).show();
+            showActionSuccessPopup("Thêm thông tin Tuyến xe thành công");
         } else {
             editingRoute.setName(name);
             editingRoute.setStartPoint(start);
             editingRoute.setMidPoint(edtMidPoint.getText().toString());
             editingRoute.setEndPoint(end);
-            Toast.makeText(this, "Cập nhật tuyến xe thành công", Toast.LENGTH_SHORT).show();
+            showActionSuccessPopup("Cập nhật thông tin Tuyến xe thành công");
         }
 
         adapter.notifyDataSetChanged();
         hideRouteForm();
+    }
+
+    private void showFieldError(EditText editText, TextView errorTextView, String message) {
+        editText.setBackgroundResource(R.drawable.bg_input_error);
+        errorTextView.setText(message);
+        errorTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void clearErrors() {
+        edtRouteName.setBackgroundResource(R.drawable.bg_input_white);
+        edtStartPoint.setBackgroundResource(R.drawable.bg_input_white);
+        edtEndPoint.setBackgroundResource(R.drawable.bg_input_white);
+
+        tvErrorRouteName.setVisibility(View.GONE);
+        tvErrorStartPoint.setVisibility(View.GONE);
+        tvErrorEndPoint.setVisibility(View.GONE);
+    }
+
+    private boolean isSpecialCharStart(String text) {
+        if (text == null || text.isEmpty()) return false;
+        char firstChar = text.charAt(0);
+        return !Character.isLetterOrDigit(firstChar);
     }
 
     @Override
@@ -206,22 +285,37 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
 
     @Override
     public void onDelete(Route route) {
-        new AlertDialog.Builder(this)
-                .setTitle("Thông báo")
-                .setMessage("Bạn có chắc muốn xóa Tuyến xe này không?\nHành động này không thể hoàn tác.")
-                .setPositiveButton("Đồng ý", (dialog, which) -> {
-                    if ("Đang hoạt động".equals(route.getStatus())) {
-                        new AlertDialog.Builder(this)
-                                .setTitle("Lỗi")
-                                .setMessage("Không thể xóa tuyến xe, có chuyến đang hoạt động")
-                                .setIcon(android.R.drawable.ic_delete)
-                                .setPositiveButton("Đóng", null).show();
-                    } else {
-                        routeList.remove(route);
-                        adapter.notifyDataSetChanged();
-                        Toast.makeText(this, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Không", null).show();
+        showRouteConfirmDialog("Bạn có chắc muốn xóa Tuyến xe này không?\nHành động này không thể hoàn tác.", () -> {
+            if ("Đang hoạt động".equals(route.getStatus())) {
+                showActionErrorPopup("Không thể xóa tuyến xe,\ncó chuyến đang hoạt động");
+            } else {
+                routeList.remove(route);
+                adapter.notifyDataSetChanged();
+                showActionSuccessPopup("Xóa Tuyến xe thành công");
+            }
+        });
+    }
+
+    private void showActionSuccessPopup(String message) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_route_success, null);
+        TextView tvMsg = dialogView.findViewById(R.id.tvRouteSuccessMessage);
+        tvMsg.setText(message);
+        
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        dialog.show();
+        new Handler().postDelayed(dialog::dismiss, 2000);
+    }
+
+    private void showActionErrorPopup(String message) {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_delete_error, null);
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        dialog.show();
+        new Handler().postDelayed(dialog::dismiss, 2000);
     }
 }

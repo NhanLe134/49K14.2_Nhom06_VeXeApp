@@ -119,6 +119,14 @@
                             android:hint="Vui lòng nhập tên tuyến"
                             android:paddingHorizontal="12dp"
                             android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/tvErrorRouteName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vui lòng nhập tên tuyến xe."
+                            android:textColor="#F44336"
+                            android:textSize="11sp"
+                            android:visibility="gone" />
                     </LinearLayout>
 
                     <!-- Field: Start -->
@@ -145,6 +153,14 @@
                             android:hint="Vui lòng nhập điểm đi"
                             android:paddingHorizontal="12dp"
                             android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/tvErrorStartPoint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vui lòng nhập điểm đi."
+                            android:textColor="#F44336"
+                            android:textSize="11sp"
+                            android:visibility="gone" />
                     </LinearLayout>
 
                     <!-- Field: Mid -->
@@ -196,6 +212,14 @@
                             android:hint="Vui lòng nhập điểm đến"
                             android:paddingHorizontal="12dp"
                             android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/tvErrorEndPoint"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vui lòng nhập điểm đến."
+                            android:textColor="#F44336"
+                            android:textSize="11sp"
+                            android:visibility="gone" />
                     </LinearLayout>
 
                     <TextView
