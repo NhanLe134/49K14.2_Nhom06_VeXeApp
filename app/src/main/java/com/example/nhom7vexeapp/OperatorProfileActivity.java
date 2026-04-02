@@ -7,15 +7,14 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 
 public class OperatorProfileActivity extends AppCompatActivity {
 
-    private TextView tvOpName, tvOpRep, tvOpAddress, tvOpPhone, tvOpEmail, tvOpNameMain;
-    private ImageView btnBack;
+    private TextView tvOpNameHeader, tvOpNameDetail, tvOpRep, tvOpAddress, tvOpPhone, tvOpEmail;
     private MaterialButton btnEdit, btnLogout;
+    private ImageView btnBack;
     private LinearLayout navHome;
 
     @Override
@@ -24,23 +23,24 @@ public class OperatorProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_operator_profile);
 
         initViews();
+<<<<<<< Updated upstream
         loadOperatorData();
         setupBottomNavigation();
+=======
+        loadData();
+>>>>>>> Stashed changes
 
-        // Nút Back ở Header
         btnBack.setOnClickListener(v -> finish());
 
         btnEdit.setOnClickListener(v -> {
             Intent intent = new Intent(this, EditOperatorProfileActivity.class);
-            startActivityForResult(intent, 400);
+            startActivityForResult(intent, 100);
         });
 
-        // Xử lý đăng xuất
         btnLogout.setOnClickListener(v -> {
             SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
             SharedPreferences.Editor editor = pref.edit();
-            editor.putBoolean("isLoggedIn", false);
-            editor.remove("op_user");
+            editor.clear();
             editor.apply();
 
             Intent intent = new Intent(this, LoginActivity.class);
@@ -51,18 +51,18 @@ public class OperatorProfileActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        tvOpNameMain = findViewById(R.id.tvOpNameMain);
-        tvOpName = findViewById(R.id.tvOpName);
+        tvOpNameHeader = findViewById(R.id.tvOpBusName);
+        tvOpNameDetail = findViewById(R.id.tvOpNameDetail);
         tvOpRep = findViewById(R.id.tvOpRep);
         tvOpAddress = findViewById(R.id.tvOpAddress);
         tvOpPhone = findViewById(R.id.tvOpPhone);
         tvOpEmail = findViewById(R.id.tvOpEmail);
-        btnBack = findViewById(R.id.btnBack);
-        btnEdit = findViewById(R.id.btnEditOpProfile);
+        btnEdit = findViewById(R.id.btnEditProfile);
         btnLogout = findViewById(R.id.btnLogoutOp);
-        navHome = findViewById(R.id.navHomeProfile);
+        btnBack = findViewById(R.id.btnBack);
     }
 
+<<<<<<< Updated upstream
     private void setupBottomNavigation() {
         // Nút Home
         if (navHome != null) {
@@ -112,21 +112,23 @@ public class OperatorProfileActivity extends AppCompatActivity {
     }
 
     private void loadOperatorData() {
+=======
+    private void loadData() {
+>>>>>>> Stashed changes
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        String name = pref.getString("op_name", "Nhà xe Đà Nẵng-Huế");
-        tvOpNameMain.setText(name);
-        tvOpName.setText(name);
+        tvOpNameHeader.setText(pref.getString("op_name", "Nhà xe Đà Nẵng-Huế"));
+        tvOpNameDetail.setText(pref.getString("op_name", "Nhà xe Đà Nẵng-Huế"));
         tvOpRep.setText(pref.getString("op_rep", "Tôn Thất Huy Phong"));
-        tvOpAddress.setText(pref.getString("op_address", "K36/12 Lưu Quang Thuận, Đà Nẵng"));
+        tvOpAddress.setText(pref.getString("op_address", "K36/1 Lưu Quang Thuận, Đà Nẵng"));
         tvOpPhone.setText(pref.getString("op_phone", "0905509767"));
         tvOpEmail.setText(pref.getString("op_email", "dananghue@nhaxe.vn"));
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 400 && resultCode == RESULT_OK) {
-            loadOperatorData();
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            loadData();
         }
     }
 }

@@ -53,72 +53,120 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tên nhà xe"
-                    android:textSize="12sp" />
-                <EditText
-                    android:id="@+id/edtEditOpName"
+                <!-- Tên nhà xe -->
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="45dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/bg_input_white"
-                    android:paddingHorizontal="15dp"
-                    android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/tvErrorOpName"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Vui lòng nhập tên nhà xe"
-                    android:textColor="#F44336"
-                    android:textSize="11sp"
-                    android:visibility="gone" />
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tên nhà xe"
+                        android:textSize="12sp" />
+                    <EditText
+                        android:id="@+id/edtEditOpName"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_input_white"
+                        android:paddingHorizontal="15dp"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/tvErrorOpName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vui lòng nhập tên nhà xe"
+                        android:textColor="#F44336"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
+                </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Họ tên người đại diện -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:text="Họ tên người đại diện"
-                    android:textSize="12sp" />
-                <EditText
-                    android:id="@+id/edtEditOpRep"
-                    android:layout_width="match_parent"
-                    android:layout_height="45dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/bg_input_white"
-                    android:paddingHorizontal="15dp"
-                    android:textSize="14sp" />
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Họ tên người đại diện"
+                        android:textSize="12sp" />
+                    <EditText
+                        android:id="@+id/edtEditOpRep"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_input_white"
+                        android:paddingHorizontal="15dp"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/tvErrorOpRep"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vui lòng nhập họ tên người đại diện"
+                        android:textColor="#F44336"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
+                </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Địa chỉ trụ sở -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:text="Địa chỉ trụ sở"
-                    android:textSize="12sp" />
-                <EditText
-                    android:id="@+id/edtEditOpAddress"
-                    android:layout_width="match_parent"
-                    android:layout_height="45dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/bg_input_white"
-                    android:paddingHorizontal="15dp"
-                    android:textSize="14sp" />
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Địa chỉ trụ sở"
+                        android:textSize="12sp" />
+                    <EditText
+                        android:id="@+id/edtEditOpAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_input_white"
+                        android:paddingHorizontal="15dp"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/tvErrorOpAddress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vui lòng nhập địa chỉ trụ sở"
+                        android:textColor="#F44336"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
+                </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Số điện thoại -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:text="Số điện thoại"
-                    android:textSize="12sp" />
-                <EditText
-                    android:id="@+id/edtEditOpPhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="45dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/bg_input_white"
-                    android:paddingHorizontal="15dp"
-                    android:textSize="14sp" />
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Số điện thoại"
+                        android:textSize="12sp" />
+                    <EditText
+                        android:id="@+id/edtEditOpPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_input_white"
+                        android:paddingHorizontal="15dp"
+                        android:textSize="14sp" />
+                    <TextView
+                        android:id="@+id/tvErrorOpPhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vui lòng nhập số điện thoại"
+                        android:textColor="#F44336"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="wrap_content"

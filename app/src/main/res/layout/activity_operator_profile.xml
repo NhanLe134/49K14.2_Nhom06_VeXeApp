@@ -20,7 +20,7 @@
             android:id="@+id/btnBack"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@android:drawable/ic_menu_revert"
+            android:src="@drawable/ic_back_chevron"
             app:tint="@color/white" />
 
         <TextView
@@ -45,78 +45,106 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             app:cardCornerRadius="15dp"
-            app:cardElevation="4dp">
+            app:cardElevation="2dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <ImageView
+                <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/imgOpLogo"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/logo" />
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/logo"
+                    app:civ_border_color="#EEEEEE"
+                    app:civ_border_width="2dp" />
 
                 <TextView
-                    android:id="@+id/tvOpNameMain"
+                    android:id="@+id/tvOpBusName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
                     android:layout_marginTop="10dp"
                     android:text="Nhà xe Đà Nẵng-Huế"
                     android:textColor="#000000"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="“Kết nối hành trình di sản”"
-                    android:textColor="#666666"
+                    android:text="&quot;Kết nối hành trình di sản&quot;"
+                    android:textColor="#757575"
                     android:textSize="14sp"
                     android:textStyle="italic" />
 
-                <TableLayout
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="20dp"
+                    android:background="#EEEEEE" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:stretchColumns="1">
+                    android:orientation="vertical">
 
-                    <TableRow android:paddingVertical="5dp">
-                        <TextView android:text="Tên nhà xe: " android:textColor="#666666" android:textSize="14sp"/>
-                        <TextView android:id="@+id/tvOpName" android:text="Nhà xe Đà Nẵng-Huế" android:textColor="#000000" android:textStyle="bold" android:textSize="14sp"/>
-                    </TableRow>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp">
+                        <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Tên nhà xe:" android:textColor="#757575" />
+                        <TextView android:id="@+id/tvOpNameDetail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Nhà xe Đà Nẵng-Huế" android:textColor="#000000" android:textStyle="bold" />
+                    </LinearLayout>
 
-                    <TableRow android:paddingVertical="5dp">
-                        <TextView android:text="Người đại diện: " android:textColor="#666666" android:textSize="14sp"/>
-                        <TextView android:id="@+id/tvOpRep" android:text="Tôn Thất Huy Phong" android:textColor="#000000" android:textStyle="bold" android:textSize="14sp"/>
-                    </TableRow>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp">
+                        <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Người đại diện:" android:textColor="#757575" />
+                        <TextView android:id="@+id/tvOpRep" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tôn Thất Huy Phong" android:textColor="#000000" android:textStyle="bold" />
+                    </LinearLayout>
 
-                    <TableRow android:paddingVertical="5dp">
-                        <TextView android:text="Địa chỉ: " android:textColor="#666666" android:textSize="14sp"/>
-                        <TextView android:id="@+id/tvOpAddress" android:text="K36/12 Lưu Quang Thuận, Đà Nẵng" android:textColor="#000000" android:textStyle="bold" android:textSize="14sp" android:singleLine="false"/>
-                    </TableRow>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp">
+                        <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Địa chỉ:" android:textColor="#757575" />
+                        <TextView android:id="@+id/tvOpAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="K36/1 Lưu Quang Thuận, Đà Nẵng" android:textColor="#000000" android:textStyle="bold" />
+                    </LinearLayout>
 
-                    <TableRow android:paddingVertical="5dp">
-                        <TextView android:text="Số điện thoại: " android:textColor="#666666" android:textSize="14sp"/>
-                        <TextView android:id="@+id/tvOpPhone" android:text="0905509767" android:textColor="#000000" android:textStyle="bold" android:textSize="14sp"/>
-                    </TableRow>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp">
+                        <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Số điện thoại:" android:textColor="#757575" />
+                        <TextView android:id="@+id/tvOpPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0905509767" android:textColor="#000000" android:textStyle="bold" />
+                    </LinearLayout>
 
-                    <TableRow android:paddingVertical="5dp">
-                        <TextView android:text="Email: " android:textColor="#666666" android:textSize="14sp"/>
-                        <TextView android:id="@+id/tvOpEmail" android:text="dananghue@nhaxe.vn" android:textColor="#000000" android:textStyle="bold" android:textSize="14sp"/>
-                    </TableRow>
-                </TableLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="8dp">
+                        <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Email:" android:textColor="#757575" />
+                        <TextView android:id="@+id/tvOpEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="dananghue@nhaxe.vn" android:textColor="#000000" android:textStyle="bold" />
+                    </LinearLayout>
+
+                </LinearLayout>
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:layout_marginTop="20dp"
-                    app:cardCornerRadius="10dp">
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="0dp">
                     <ImageView
                         android:id="@+id/imgOpBanner"
                         android:layout_width="match_parent"
@@ -126,30 +154,32 @@
                 </androidx.cardview.widget.CardView>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnEditOpProfile"
+                    android:id="@+id/btnEditProfile"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_height="55dp"
+                    android:layout_marginTop="25dp"
                     app:backgroundTint="#00B0FF"
                     android:text="Chỉnh sửa"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    app:cornerRadius="8dp"
+                    app:cornerRadius="10dp"
                     app:icon="@android:drawable/ic_menu_edit"
-                    app:iconGravity="textStart" />
+                    app:iconGravity="textStart"
+                    app:iconPadding="10dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogoutOp"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="55dp"
+                    android:layout_marginTop="15dp"
                     app:backgroundTint="#FF5252"
                     android:text="Đăng xuất"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    app:cornerRadius="8dp"
+                    app:cornerRadius="10dp"
                     app:icon="@android:drawable/ic_lock_power_off"
-                    app:iconGravity="textStart" />
+                    app:iconGravity="textStart"
+                    app:iconPadding="10dp" />
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -166,7 +196,6 @@
         android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent">
         <LinearLayout
-            android:id="@+id/navHomeProfile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

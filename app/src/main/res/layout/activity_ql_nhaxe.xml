@@ -88,7 +88,8 @@
                         android:text="Nhà xe Đà Nẵng-Huế"
                         android:textColor="@android:color/black"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:paddingBottom="4dp" />
 
                     <TextView
                         android:id="@+id/txtSlogan"
@@ -109,51 +110,57 @@
                         android:orientation="vertical"
                         android:visibility="visible">
 
+                        <!-- Tên nhà xe -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:paddingVertical="3dp">
+                            android:paddingVertical="6dp">
                             <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Tên nhà xe:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewBusName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Nhà xe Đà Nẵng-Huế" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvViewBusName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Nhà xe Đà Nẵng-Huế" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false"/>
                         </LinearLayout>
 
+                        <!-- Người đại diện -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:paddingVertical="3dp">
+                            android:paddingVertical="6dp">
                             <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Người đại diện:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewRepName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tôn Thất Huy Phong" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvViewRepName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tôn Thất Huy Phong" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false"/>
                         </LinearLayout>
 
+                        <!-- Địa chỉ -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:paddingVertical="3dp">
+                            android:paddingVertical="6dp">
                             <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Địa chỉ:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewAddress" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="K36/12 Lưu Quang Thuận, Đà Nẵng" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvViewAddress" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="K36/1 Lưu Quang Thuận, Ngũ Hành Sơn, Đà Nẵng" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false" android:maxLines="5"/>
                         </LinearLayout>
 
+                        <!-- Số điện thoại -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:paddingVertical="3dp">
+                            android:paddingVertical="6dp">
                             <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Số điện thoại:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewPhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0905509767" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvViewPhone" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="0905509767" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false"/>
                         </LinearLayout>
 
+                        <!-- Email -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:paddingVertical="3dp">
+                            android:paddingVertical="6dp">
                             <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Email:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="dananghue@nhaxe.vn" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp"/>
+                            <TextView android:id="@+id/tvViewEmail" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="dananghue@nhaxe.vn" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false"/>
                         </LinearLayout>
 
+                        <!-- Banner -->
                         <androidx.cardview.widget.CardView
                             android:layout_width="280dp"
                             android:layout_height="145dp"
@@ -195,65 +202,121 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Tên nhà xe"
-                            app:boxStrokeColor="#0098D6">
-                            <com.google.android.material.textfield.TextInputEditText
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Tên nhà xe"
+                                android:textColor="#858383"
+                                android:textSize="12sp" />
+                            <EditText
                                 android:id="@+id/edtBusName"
                                 android:layout_width="match_parent"
+                                android:layout_height="45dp"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/bg_input_white"
+                                android:paddingHorizontal="12dp"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/tvErrorBusName"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="14sp"
-                                android:text="Nhà xe Đà Nẵng - Huế" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                                android:text="Vui lòng nhập tên nhà xe"
+                                android:textColor="#F44336"
+                                android:textSize="11sp"
+                                android:visibility="gone" />
+                        </LinearLayout>
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="Họ tên người đại diện"
-                            app:boxStrokeColor="#0098D6">
-                            <com.google.android.material.textfield.TextInputEditText
+                            android:layout_marginTop="12dp"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Họ tên người đại diện"
+                                android:textColor="#858383"
+                                android:textSize="12sp" />
+                            <EditText
                                 android:id="@+id/edtRepName"
                                 android:layout_width="match_parent"
+                                android:layout_height="45dp"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/bg_input_white"
+                                android:paddingHorizontal="12dp"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/tvErrorRepName"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="14sp"
-                                android:text="Tôn Thất Huy Phong" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                                android:text="Vui lòng nhập họ tên người đại diện"
+                                android:textColor="#F44336"
+                                android:textSize="11sp"
+                                android:visibility="gone" />
+                        </LinearLayout>
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="Địa chỉ trụ sở"
-                            app:boxStrokeColor="#0098D6">
-                            <com.google.android.material.textfield.TextInputEditText
+                            android:layout_marginTop="12dp"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Địa chỉ trụ sở"
+                                android:textColor="#858383"
+                                android:textSize="12sp" />
+                            <EditText
                                 android:id="@+id/edtAddress"
                                 android:layout_width="match_parent"
+                                android:layout_height="45dp"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/bg_input_white"
+                                android:paddingHorizontal="12dp"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/tvErrorAddress"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="14sp"
-                                android:text="K36/12 Lưu Quang Thuận, Đà Nẵng" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                                android:text="Vui lòng nhập địa chỉ trụ sở"
+                                android:textColor="#F44336"
+                                android:textSize="11sp"
+                                android:visibility="gone" />
+                        </LinearLayout>
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:hint="Số điện thoại"
-                            app:boxStrokeColor="#0098D6">
-                            <com.google.android.material.textfield.TextInputEditText
+                            android:layout_marginTop="12dp"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Số điện thoại"
+                                android:textColor="#858383"
+                                android:textSize="12sp" />
+                            <EditText
                                 android:id="@+id/edtPhone"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="45dp"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/bg_input_white"
                                 android:inputType="phone"
-                                android:textSize="14sp"
-                                android:text="0905509767" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                                android:paddingHorizontal="12dp"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/tvErrorPhone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Vui lòng nhập số điện thoại hợp lệ"
+                                android:textColor="#F44336"
+                                android:textSize="11sp"
+                                android:visibility="gone" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -314,8 +377,8 @@
                                 android:id="@+id/btnCancel"
                                 android:layout_width="0dp"
                                 android:layout_height="48dp"
-                                android:layout_marginEnd="8dp"
                                 android:layout_weight="1"
+                                android:layout_marginEnd="8dp"
                                 android:backgroundTint="#858383"
                                 android:text="Hủy"
                                 android:textAllCaps="false"
@@ -325,8 +388,8 @@
                                 android:id="@+id/btnSave"
                                 android:layout_width="0dp"
                                 android:layout_height="48dp"
-                                android:layout_marginStart="8dp"
                                 android:layout_weight="1"
+                                android:layout_marginStart="8dp"
                                 android:backgroundTint="#0098D6"
                                 android:text="Lưu"
                                 android:textAllCaps="false"
@@ -339,7 +402,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- BOTTOM NAVIGATION (Synchronized with activity_operator_main.xml) -->
+    <!-- BOTTOM NAVIGATION -->
     <LinearLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
