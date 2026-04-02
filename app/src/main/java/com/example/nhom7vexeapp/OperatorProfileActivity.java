@@ -23,12 +23,8 @@ public class OperatorProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_operator_profile);
 
         initViews();
-<<<<<<< Updated upstream
         loadOperatorData();
         setupBottomNavigation();
-=======
-        loadData();
->>>>>>> Stashed changes
 
         btnBack.setOnClickListener(v -> finish());
 
@@ -60,11 +56,13 @@ public class OperatorProfileActivity extends AppCompatActivity {
         btnEdit = findViewById(R.id.btnEditProfile);
         btnLogout = findViewById(R.id.btnLogoutOp);
         btnBack = findViewById(R.id.btnBack);
+        navHome = findViewById(R.id.navHomeEditProfile);
     }
 
-<<<<<<< Updated upstream
     private void setupBottomNavigation() {
         // Nút Home
+        View navHome = findViewById(R.id.nav_home_op);
+        if (navHome == null) navHome = findViewById(R.id.nav_home_op_main);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OperatorMainActivity.class);
@@ -105,16 +103,12 @@ public class OperatorProfileActivity extends AppCompatActivity {
         View navDriver = findViewById(R.id.nav_driver_op);
         if (navDriver != null) {
             navDriver.setOnClickListener(v -> {
-                Intent intent = new Intent(this, QLNhaxeActivity.class);
-                startActivity(intent);
+                // Logic tài xế nếu có
             });
         }
     }
 
     private void loadOperatorData() {
-=======
-    private void loadData() {
->>>>>>> Stashed changes
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         tvOpNameHeader.setText(pref.getString("op_name", "Nhà xe Đà Nẵng-Huế"));
         tvOpNameDetail.setText(pref.getString("op_name", "Nhà xe Đà Nẵng-Huế"));
@@ -128,7 +122,7 @@ public class OperatorProfileActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100 && resultCode == RESULT_OK) {
-            loadData();
+            loadOperatorData();
         }
     }
 }
