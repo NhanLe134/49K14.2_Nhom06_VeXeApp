@@ -91,9 +91,8 @@ public class QLNhaxeActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
-        // Home
-        View navHome = findViewById(R.id.nav_home_op);
-        if (navHome == null) navHome = findViewById(R.id.nav_home_op_main);
+        // Tab Trang chủ
+        View navHome = findViewById(R.id.nav_home_op_main);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OperatorMainActivity.class);
@@ -102,30 +101,35 @@ public class QLNhaxeActivity extends AppCompatActivity {
             });
         }
 
-        // Vehicle
+        // Tab Tài xế (Hiện tại)
+        View navDriver = findViewById(R.id.nav_driver_op);
+        if (navDriver != null) {
+            navDriver.setOnClickListener(v -> {
+                // Đang ở trang này
+            });
+        }
+
+        // Tab Phương tiện
         View navVehicle = findViewById(R.id.nav_vehicle_op);
         if (navVehicle != null) {
             navVehicle.setOnClickListener(v -> {
-                Intent intent = new Intent(this, PhuongTienManagementActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, PhuongTienManagementActivity.class));
             });
         }
 
-        // Trip
+        // Tab Chuyến xe
         View navTrip = findViewById(R.id.nav_trip_op);
         if (navTrip != null) {
             navTrip.setOnClickListener(v -> {
-                Intent intent = new Intent(this, TripListActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, TripListActivity.class));
             });
         }
 
-        // Route
+        // Tab Tuyến xe
         View navRoute = findViewById(R.id.nav_route_op);
         if (navRoute != null) {
             navRoute.setOnClickListener(v -> {
-                Intent intent = new Intent(this, QLTuyenxeActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, QLTuyenxeActivity.class));
             });
         }
     }
@@ -137,31 +141,31 @@ public class QLNhaxeActivity extends AppCompatActivity {
         String phone = "0905509767";
         String email = "dananghue@nhaxe.vn";
 
-        tvViewBusName.setText(name);
-        tvViewRepName.setText(rep);
-        tvViewAddress.setText(address);
-        tvViewPhone.setText(phone);
-        tvViewEmail.setText(email);
+        if (tvViewBusName != null) tvViewBusName.setText(name);
+        if (tvViewRepName != null) tvViewRepName.setText(rep);
+        if (tvViewAddress != null) tvViewAddress.setText(address);
+        if (tvViewPhone != null) tvViewPhone.setText(phone);
+        if (tvViewEmail != null) tvViewEmail.setText(email);
 
-        edtBusName.setText(name);
-        edtRepName.setText(rep);
-        edtAddress.setText(address);
-        edtPhone.setText(phone);
+        if (edtBusName != null) edtBusName.setText(name);
+        if (edtRepName != null) edtRepName.setText(rep);
+        if (edtAddress != null) edtAddress.setText(address);
+        if (edtPhone != null) edtPhone.setText(phone);
     }
 
     private void enterEditMode() {
         isEditing = true;
-        layoutViewMode.setVisibility(View.GONE);
-        layoutEditMode.setVisibility(View.VISIBLE);
-        txtToolbarTitle.setText("Chỉnh sửa Thông tin nhà xe");
+        if (layoutViewMode != null) layoutViewMode.setVisibility(View.GONE);
+        if (layoutEditMode != null) layoutEditMode.setVisibility(View.VISIBLE);
+        if (txtToolbarTitle != null) txtToolbarTitle.setText("Chỉnh sửa Thông tin nhà xe");
         clearErrors();
     }
 
     private void exitEditMode() {
         isEditing = false;
-        layoutViewMode.setVisibility(View.VISIBLE);
-        layoutEditMode.setVisibility(View.GONE);
-        txtToolbarTitle.setText("Thông tin nhà xe");
+        if (layoutViewMode != null) layoutViewMode.setVisibility(View.VISIBLE);
+        if (layoutEditMode != null) layoutEditMode.setVisibility(View.GONE);
+        if (txtToolbarTitle != null) txtToolbarTitle.setText("Thông tin nhà xe");
     }
 
     private void showCancelConfirmationDialog() {
@@ -177,8 +181,8 @@ public class QLNhaxeActivity extends AppCompatActivity {
         Button btnNo = dialogView.findViewById(R.id.btnNo);
         Button btnYes = dialogView.findViewById(R.id.btnYes);
 
-        btnNo.setOnClickListener(v -> dialog.dismiss());
-        btnYes.setOnClickListener(v -> {
+        if (btnNo != null) btnNo.setOnClickListener(v -> dialog.dismiss());
+        if (btnYes != null) btnYes.setOnClickListener(v -> {
             dialog.dismiss();
             exitEditMode();
         });
@@ -195,7 +199,6 @@ public class QLNhaxeActivity extends AppCompatActivity {
         String address = edtAddress.getText().toString().trim();
         String phone = edtPhone.getText().toString().trim();
 
-        // Kiểm tra trống
         if (TextUtils.isEmpty(busName)) {
             showFieldError(edtBusName, tvErrorBusName, "Vui lòng nhập Tên nhà xe.");
             isValid = false;
@@ -215,24 +218,6 @@ public class QLNhaxeActivity extends AppCompatActivity {
 
         if (!isValid) return;
 
-        // Kiểm tra hợp lệ
-        if (isSpecialCharStart(busName)) {
-            showFieldError(edtBusName, tvErrorBusName, "Tên nhà xe không bắt đầu bằng ký tự đặc biệt.");
-            isValid = false;
-        }
-        if (isSpecialCharStart(repName)) {
-            showFieldError(edtRepName, tvErrorRepName, "Họ tên người đại diện không bắt đầu bằng ký tự đặc biệt.");
-            isValid = false;
-        }
-        if (address.matches(".*[!@#$%^&*()].*")) {
-            showFieldError(edtAddress, tvErrorAddress, "Địa chỉ trụ sở chứa ký tự đặc biệt không hợp lệ.");
-            isValid = false;
-        }
-        if (!phone.matches("0\\d{9}")) {
-            showFieldError(edtPhone, tvErrorPhone, "Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0.");
-            isValid = false;
-        }
-
         if (isValid) {
             updateViewMode(busName, repName, address, phone);
             showSuccessPopup();
@@ -241,20 +226,22 @@ public class QLNhaxeActivity extends AppCompatActivity {
 
     private void showFieldError(EditText editText, TextView errorTextView, String message) {
         editText.setBackgroundResource(R.drawable.bg_input_error);
-        errorTextView.setText(message);
-        errorTextView.setVisibility(View.VISIBLE);
+        if (errorTextView != null) {
+            errorTextView.setText(message);
+            errorTextView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void clearErrors() {
-        edtBusName.setBackgroundResource(R.drawable.bg_input_white);
-        edtRepName.setBackgroundResource(R.drawable.bg_input_white);
-        edtAddress.setBackgroundResource(R.drawable.bg_input_white);
-        edtPhone.setBackgroundResource(R.drawable.bg_input_white);
+        if (edtBusName != null) edtBusName.setBackgroundResource(R.drawable.bg_input_white);
+        if (edtRepName != null) edtRepName.setBackgroundResource(R.drawable.bg_input_white);
+        if (edtAddress != null) edtAddress.setBackgroundResource(R.drawable.bg_input_white);
+        if (edtPhone != null) edtPhone.setBackgroundResource(R.drawable.bg_input_white);
 
-        tvErrorBusName.setVisibility(View.GONE);
-        tvErrorRepName.setVisibility(View.GONE);
-        tvErrorAddress.setVisibility(View.GONE);
-        tvErrorPhone.setVisibility(View.GONE);
+        if (tvErrorBusName != null) tvErrorBusName.setVisibility(View.GONE);
+        if (tvErrorRepName != null) tvErrorRepName.setVisibility(View.GONE);
+        if (tvErrorAddress != null) tvErrorAddress.setVisibility(View.GONE);
+        if (tvErrorPhone != null) tvErrorPhone.setVisibility(View.GONE);
     }
 
     private void showSuccessPopup() {
@@ -275,27 +262,12 @@ public class QLNhaxeActivity extends AppCompatActivity {
                 exitEditMode();
             }
         }, 2000);
-
-        dialogView.setOnClickListener(v -> {
-            dialog.dismiss();
-            exitEditMode();
-        });
     }
 
     private void updateViewMode(String name, String rep, String addr, String phone) {
-        tvViewBusName.setText(name);
-        tvViewRepName.setText(rep);
-        tvViewAddress.setText(addr);
-        tvViewPhone.setText(phone);
-    }
-
-    private boolean isSpecialCharStart(String text) {
-        if (TextUtils.isEmpty(text)) return false;
-        char firstChar = text.charAt(0);
-        return !Character.isLetterOrDigit(firstChar);
-    }
-
-    private void showError(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        if (tvViewBusName != null) tvViewBusName.setText(name);
+        if (tvViewRepName != null) tvViewRepName.setText(rep);
+        if (tvViewAddress != null) tvViewAddress.setText(addr);
+        if (tvViewPhone != null) tvViewPhone.setText(phone);
     }
 }

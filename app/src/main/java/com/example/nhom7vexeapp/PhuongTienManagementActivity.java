@@ -2,7 +2,9 @@ package com.example.nhom7vexeapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -13,59 +15,60 @@ public class PhuongTienManagementActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phuongtien_management);
 
-        // Bấm vào nút Quản lý loại xe
+        // 1. Nút "Quản lý Loại xe"
         CardView btnCarType = findViewById(R.id.btnGoToCarType);
         if (btnCarType != null) {
             btnCarType.setOnClickListener(v -> {
-                Intent intent = new Intent(this, CarTypeManagementActivity.class);
+                Intent intent = new Intent(PhuongTienManagementActivity.this, CarTypeManagementActivity.class);
                 startActivity(intent);
             });
         }
 
-        // Nút quay lại trên Toolbar
-        if (findViewById(R.id.btnBack) != null) {
-            findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        // 2. NÚT "QUẢN LÝ PHƯƠNG TIỆN" - Sửa lỗi chuyển màn hình
+        CardView btnManageVehicle = findViewById(R.id.btnManageVehicleMain);
+        if (btnManageVehicle != null) {
+            btnManageVehicle.setOnClickListener(v -> {
+                try {
+                    Intent intent = new Intent(PhuongTienManagementActivity.this, QLPhuongTienActivity.class);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Không thể mở danh sách xe: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        // 3. Nút quay lại trên Toolbar
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
         }
 
         setupBottomNavigation();
     }
 
     private void setupBottomNavigation() {
-        // Trang chủ
         LinearLayout navHome = findViewById(R.id.nav_home_op_main);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OperatorMainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             });
         }
-
-        // Tài xế
+        
         LinearLayout navDriver = findViewById(R.id.nav_driver_op);
         if (navDriver != null) {
-            navDriver.setOnClickListener(v -> {
-                Intent intent = new Intent(this, QLNhaxeActivity.class);
-                startActivity(intent);
-            });
+            navDriver.setOnClickListener(v -> startActivity(new Intent(this, QLNhaxeActivity.class)));
         }
 
-        // Chuyến xe
         LinearLayout navTrip = findViewById(R.id.nav_trip_op);
         if (navTrip != null) {
-            navTrip.setOnClickListener(v -> {
-                Intent intent = new Intent(this, TripListActivity.class);
-                startActivity(intent);
-            });
+            navTrip.setOnClickListener(v -> startActivity(new Intent(this, TripListActivity.class)));
         }
 
-        // Tuyến xe
         LinearLayout navRoute = findViewById(R.id.nav_route_op);
         if (navRoute != null) {
-            navRoute.setOnClickListener(v -> {
-                Intent intent = new Intent(this, QLTuyenxeActivity.class);
-                startActivity(intent);
-            });
+            navRoute.setOnClickListener(v -> startActivity(new Intent(this, QLTuyenxeActivity.class)));
         }
     }
 }

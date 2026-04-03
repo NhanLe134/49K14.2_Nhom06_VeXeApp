@@ -48,27 +48,29 @@ public class VietNhanXetActivity extends AppCompatActivity {
                 return;
             }
 
-            // Lưu dữ liệu vào danh sách static để hiển thị ở Tab Đã đánh giá
+            // Lưu dữ liệu vào danh sách static trong PhanHoiActivity
             PhanHoiActivity.listDaDanhGia.add(new PhanHoiActivity.FeedbackModel(
                 tvBusName.getText().toString(),
                 rating,
                 comment,
-                "28/03/2026", // Ngày hiện tại giả lập
+                "28/03/2026",
                 tvRoute.getText().toString()
             ));
 
             Toast.makeText(this, "Cảm ơn bạn đã đánh giá " + rating + " sao!", Toast.LENGTH_SHORT).show();
             
-            // Quay lại màn hình trước đó (PhanHoiActivity)
+            // Quay lại màn hình trước đó
             finish();
         });
 
         // Nút quay lại trang chủ
-        navHome.setOnClickListener(v -> {
-            Intent homeIntent = new Intent(VietNhanXetActivity.this, MainActivity.class);
-            homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(homeIntent);
-            finish();
-        });
+        if (navHome != null) {
+            navHome.setOnClickListener(v -> {
+                Intent homeIntent = new Intent(VietNhanXetActivity.this, MainActivity.class);
+                homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(homeIntent);
+                finish();
+            });
+        }
     }
 }
