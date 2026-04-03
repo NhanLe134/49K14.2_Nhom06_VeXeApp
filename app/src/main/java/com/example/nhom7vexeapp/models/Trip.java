@@ -1,50 +1,57 @@
 package com.example.nhom7vexeapp.models;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Trip implements Serializable {
+    @SerializedName("ChuyenXeID")
     private String id;
-    private String routeName;
-    private String date;
-    private String time;
-    private String vehicleType;
-    private int seats;
-    private String price;
-    private String status;
-    private Driver assignedDriver;
-    private List<Passenger> passengers;
 
-    public Trip(String id, String routeName, String date, String time, String vehicleType, int seats, String price, String status) {
+    @SerializedName("Xe")
+    private String xeID;
+
+    @SerializedName("TuyenXe")
+    private String tuyenXeID;
+
+    @SerializedName("NgayKhoiHanh")
+    private String date;
+
+    @SerializedName("GioDi")
+    private String startTime;
+
+    @SerializedName("TrangThai")
+    private String status;
+
+    // Các trường phục vụ hiển thị trên App
+    private int seats = 4; // Mặc định 4 chỗ nếu server chưa trả về
+    private Driver assignedDriver;
+    private List<Passenger> passengers = new ArrayList<>();
+
+    public Trip(String id, String tuyenXeID, String date, String startTime, String status) {
         this.id = id;
-        this.routeName = routeName;
+        this.tuyenXeID = tuyenXeID;
         this.date = date;
-        this.time = time;
-        this.vehicleType = vehicleType;
-        this.seats = seats;
-        this.price = price;
+        this.startTime = startTime;
         this.status = status;
-        this.passengers = new ArrayList<>();
     }
 
     public String getId() { return id; }
-    public String getRouteName() { return routeName; }
-    public void setRouteName(String routeName) { this.routeName = routeName; }
     public String getDate() { return date; }
-    public void setDate(String date) { this.date = date; }
-    public String getTime() { return time; }
-    public void setTime(String time) { this.time = time; }
-    public String getVehicleType() { return vehicleType; }
-    public void setVehicleType(String vehicleType) { this.vehicleType = vehicleType; }
+    public String getTime() { return startTime; }
+    public String getStatus() { return status; }
+    public String getRouteName() { return "Tuyến: " + tuyenXeID; }
+    
+    // Các phương thức mà TripDetailActivity đang yêu cầu
     public int getSeats() { return seats; }
     public void setSeats(int seats) { this.seats = seats; }
-    public String getPrice() { return price; }
-    public void setPrice(String price) { this.price = price; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public Driver getAssignedDriver() { return assignedDriver; }
-    public void setAssignedDriver(Driver assignedDriver) { this.assignedDriver = assignedDriver; }
+    
     public List<Passenger> getPassengers() { return passengers; }
     public void setPassengers(List<Passenger> passengers) { this.passengers = passengers; }
+    
+    public Driver getAssignedDriver() { return assignedDriver; }
+    public void setAssignedDriver(Driver assignedDriver) { this.assignedDriver = assignedDriver; }
+
+    public String getVehicleType() { return "Mã xe: " + (xeID != null ? xeID : "Chưa gán"); }
 }

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
@@ -19,9 +20,15 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.nhom7vexeapp.api.ApiClient;
+import com.example.nhom7vexeapp.api.ApiService;
 import com.example.nhom7vexeapp.models.Trip;
 
 import java.util.Calendar;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CreateTripActivity extends AppCompatActivity {
     private Spinner spRoute, spTime, spVehicle;
@@ -36,12 +43,14 @@ public class CreateTripActivity extends AppCompatActivity {
 
     private Trip editTrip;
     private int position = -1;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_trip);
 
+        apiService = ApiClient.getClient().create(ApiService.class);
         initViews();
         setupSpinners();
         setupDatePicker();
@@ -62,20 +71,18 @@ public class CreateTripActivity extends AppCompatActivity {
         etDate = findViewById(R.id.etDate);
         tvSeats = findViewById(R.id.tvSeats);
         tvPrice = findViewById(R.id.tvPrice);
-        tvFormTitle = findViewById(R.id.tvFormTitle); // Added to layout if possible, or just use a generic one
+        tvFormTitle = findViewById(R.id.tvFormTitle);
         layoutInfo = findViewById(R.id.layoutInfo);
         btnSave = findViewById(R.id.btnSave);
         btnCancel = findViewById(R.id.btnCancel);
     }
 
     private void setupSpinners() {
-        // Route Spinner
         String[] routes = {"Chọn nơi xuất phát", "Huế-Đà Nẵng", "Đà Nẵng-Huế"};
         ArrayAdapter<String> routeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, routes);
         routeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spRoute.setAdapter(routeAdapter);
 
-        // Time Spinner (4h-22h)
         String[] times = new String[20];
         times[0] = "Chọn giờ xuất phát";
         for (int i = 4; i <= 22; i++) {
@@ -85,7 +92,6 @@ public class CreateTripActivity extends AppCompatActivity {
         timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spTime.setAdapter(timeAdapter);
 
-        // Vehicle Spinner
         String[] vehicles = {"Chọn loại xe", "xe 4 chỗ", "xe 7 chỗ", "xe limousine"};
         ArrayAdapter<String> vehicleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, vehicles);
         vehicleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -94,26 +100,18 @@ public class CreateTripActivity extends AppCompatActivity {
 
     private void populateFields() {
         if (tvFormTitle != null) tvFormTitle.setText("FORM CHỈNH SỬA THÔNG TIN CHUYẾN XE");
-        
-        // Populate Route
         setSpinnerSelection(spRoute, editTrip.getRouteName());
-        
-        // Populate Date
         etDate.setText(editTrip.getDate());
-        
-        // Populate Time
         setSpinnerSelection(spTime, editTrip.getTime());
-        
-        // Populate Vehicle
+        // Hiển thị loại xe nếu có
         setSpinnerSelection(spVehicle, editTrip.getVehicleType());
-        
-        // The selection listeners will handle selectedSeats and selectedPrice
     }
 
     private void setSpinnerSelection(Spinner spinner, String value) {
+        if (value == null) return;
         ArrayAdapter adapter = (ArrayAdapter) spinner.getAdapter();
         for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equalsIgnoreCase(value)) {
+            if (value.contains(adapter.getItem(i).toString())) {
                 spinner.setSelection(i);
                 break;
             }
@@ -123,16 +121,10 @@ public class CreateTripActivity extends AppCompatActivity {
     private void setupDatePicker() {
         etDate.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
             DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year1, month1, dayOfMonth) -> {
-                String date = String.format("%02d/%02d/%d", dayOfMonth, month1 + 1, year1);
+                String date = String.format("%d-%02d-%02d", year1, month1 + 1, dayOfMonth);
                 etDate.setText(date);
-            }, year, month, day);
-
-            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.show();
         });
     }
@@ -160,22 +152,15 @@ public class CreateTripActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 selectedVehicle = parent.getItemAtPosition(position).toString();
-                if (position == 0) {
-                    layoutInfo.setVisibility(View.GONE);
-                } else {
+                if (position > 0) {
                     layoutInfo.setVisibility(View.VISIBLE);
-                    if (position == 1) { // 4 chỗ
-                        selectedSeats = 4;
-                        selectedPrice = "150K";
-                    } else if (position == 2) { // 7 chỗ
-                        selectedSeats = 7;
-                        selectedPrice = "180K";
-                    } else { // limousine
-                        selectedSeats = 9;
-                        selectedPrice = "200K";
-                    }
+                    if (position == 1) { selectedSeats = 4; selectedPrice = "150K"; }
+                    else if (position == 2) { selectedSeats = 7; selectedPrice = "180K"; }
+                    else { selectedSeats = 9; selectedPrice = "200K"; }
                     tvSeats.setText("Số ghế: " + selectedSeats);
                     tvPrice.setText("Giá vé: " + selectedPrice);
+                } else {
+                    layoutInfo.setVisibility(View.GONE);
                 }
             }
             @Override
@@ -183,23 +168,47 @@ public class CreateTripActivity extends AppCompatActivity {
         });
 
         btnSave.setOnClickListener(v -> validateAndSave());
-        
         btnCancel.setOnClickListener(v -> finish());
     }
 
     private void validateAndSave() {
-        String date = etDate.getText().toString();
-
-        if (selectedRoute.equals("Chọn nơi xuất phát") || date.isEmpty() || 
-            selectedTime.equals("Chọn giờ xuất phát") || selectedVehicle.equals("Chọn loại xe")) {
+        if (selectedRoute.equals("Chọn nơi xuất phát") || etDate.getText().toString().isEmpty() || 
+            selectedTime.equals("Chọn giờ xuất phát")) {
             Toast.makeText(this, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        showSuccessDialog();
+        Trip trip = new Trip(
+            editTrip != null ? editTrip.getId() : "C" + (int)(Math.random() * 9000),
+            selectedRoute,
+            etDate.getText().toString(),
+            selectedTime,
+            editTrip != null ? editTrip.getStatus() : "Active"
+        );
+
+        saveTripToApi(trip);
     }
 
-    private void showSuccessDialog() {
+    private void saveTripToApi(Trip trip) {
+        Toast.makeText(this, "Đang lưu lên server...", Toast.LENGTH_SHORT).show();
+        apiService.createTrip(trip).enqueue(new Callback<Trip>() {
+            @Override
+            public void onResponse(Call<Trip> call, Response<Trip> response) {
+                if (response.isSuccessful()) {
+                    showSuccessDialog(trip);
+                } else {
+                    Toast.makeText(CreateTripActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Trip> call, Throwable t) {
+                Toast.makeText(CreateTripActivity.this, "Lỗi kết nối Render!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showSuccessDialog(Trip trip) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_success);
@@ -207,26 +216,13 @@ public class CreateTripActivity extends AppCompatActivity {
         dialog.setCancelable(false);
 
         TextView tvMsg = dialog.findViewById(R.id.tvMessage);
-        String successMsg = (editTrip == null) ? "Tạo chuyến xe thành công" : "Cập nhật chuyến xe thành công";
-        tvMsg.setText(successMsg);
-
+        tvMsg.setText(editTrip == null ? "Tạo chuyến xe thành công" : "Cập nhật thành công");
         dialog.show();
 
-        // Delay and finish
         new android.os.Handler().postDelayed(() -> {
             dialog.dismiss();
-            
-            Trip resultTrip = new Trip(
-                editTrip != null ? editTrip.getId() : "D" + (int)(Math.random() * 900 + 100),
-                selectedRoute, etDate.getText().toString(), selectedTime, 
-                selectedVehicle, selectedSeats, selectedPrice, 
-                editTrip != null ? editTrip.getStatus() : "Chưa hoàn thành"
-            );
-
             Intent intent = new Intent();
-            intent.putExtra("resultTrip", resultTrip);
-            intent.putExtra("updatedTrip", resultTrip);
-            intent.putExtra("position", position);
+            intent.putExtra("resultTrip", trip);
             setResult(RESULT_OK, intent);
             finish();
         }, 1500);
