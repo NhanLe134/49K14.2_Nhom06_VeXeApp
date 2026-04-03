@@ -1,16 +1,15 @@
 plugins {
     alias(libs.plugins.android.application)
-    // alias(libs.plugins.google.services) // Tạm thời đóng để fix lỗi thiếu file json
 }
 
 android {
     namespace = "com.example.nhom7vexeapp"
-    compileSdk = 36
+    compileSdk = 36 // Phải để 36 để tương thích với các thư viện AndroidX mới nhất
 
     defaultConfig {
         applicationId = "com.example.nhom7vexeapp"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 36 // Cập nhật đồng bộ với compileSdk
         versionCode = 1
         versionName = "1.0"
 
@@ -37,11 +36,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
 
     // Retrofit & GSON
     implementation(libs.retrofit)

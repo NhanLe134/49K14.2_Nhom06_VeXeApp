@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F7FA"
-    tools:ignore="HardcodedText,ContentDescription,SmallSp">
+    android:background="#F5F7FA">
 
     <!-- Header Toolbar -->
     <RelativeLayout
@@ -22,9 +21,6 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:padding="10dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_back_chevron"
             app:tint="@android:color/white" />
 
@@ -50,150 +46,77 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="8dp">
+            android:padding="16dp">
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardUseCompatPadding="true">
+                app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp">
+                    android:padding="16dp">
 
-                    <!-- Profile Header (Logo & Name) -->
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/imgLogo"
                         android:layout_width="85dp"
                         android:layout_height="85dp"
                         android:layout_gravity="center_horizontal"
-                        android:src="@drawable/logo"
-                        app:civ_border_color="#EEEEEE"
-                        app:civ_border_width="1dp" />
+                        android:src="@drawable/logo" />
 
-                    <TextView
-                        android:id="@+id/txtBusNameHeader"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:gravity="center"
-                        android:text="Nhà xe Đà Nẵng-Huế"
-                        android:textColor="@android:color/black"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:paddingBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/txtSlogan"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="“Kết nối hành trình di sản”"
-                        android:textColor="#858383"
-                        android:textSize="14sp"
-                        android:textStyle="italic" />
-
-                    <!-- VIEW MODE LAYOUT -->
+                    <!-- VIEW MODE -->
                     <LinearLayout
                         android:id="@+id/layoutViewMode"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:orientation="vertical"
-                        android:visibility="visible">
+                        android:orientation="vertical">
 
-                        <!-- Tên nhà xe -->
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/tvViewBusName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="6dp">
-                            <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Tên nhà xe:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewBusName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Nhà xe Đà Nẵng-Huế" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false"/>
-                        </LinearLayout>
+                            android:gravity="center"
+                            android:text="Nhà xe Đà Nẵng-Huế"
+                            android:textColor="@android:color/black"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:layout_marginTop="10dp"/>
 
-                        <!-- Người đại diện -->
-                        <LinearLayout
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Người đại diện:" android:layout_marginTop="15dp" android:textSize="12sp" android:textColor="#888888"/>
+                        <TextView android:id="@+id/tvViewRepName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tôn Thất Huy Phong" android:textColor="#333333" android:textStyle="bold"/>
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Địa chỉ:" android:layout_marginTop="10dp" android:textSize="12sp" android:textColor="#888888"/>
+                        <TextView android:id="@+id/tvViewAddress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="K36/1 Lưu Quang Thuận, Đà Nẵng" android:textColor="#333333" android:textStyle="bold"/>
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Số điện thoại:" android:layout_marginTop="10dp" android:textSize="12sp" android:textColor="#888888"/>
+                        <TextView android:id="@+id/tvViewPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0905509767" android:textColor="#333333" android:textStyle="bold"/>
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email:" android:layout_marginTop="10dp" android:textSize="12sp" android:textColor="#888888"/>
+                        <TextView android:id="@+id/tvViewEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="dananghue@nhaxe.vn" android:textColor="#333333" android:textStyle="bold"/>
+
+                        <ImageView
+                            android:id="@+id/imgViewBanner"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="6dp">
-                            <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Người đại diện:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewRepName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tôn Thất Huy Phong" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false"/>
-                        </LinearLayout>
-
-                        <!-- Địa chỉ -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="6dp">
-                            <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Địa chỉ:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewAddress" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="K36/1 Lưu Quang Thuận, Ngũ Hành Sơn, Đà Nẵng" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false" android:maxLines="5"/>
-                        </LinearLayout>
-
-                        <!-- Số điện thoại -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="6dp">
-                            <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Số điện thoại:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewPhone" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="0905509767" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false"/>
-                        </LinearLayout>
-
-                        <!-- Email -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingVertical="6dp">
-                            <TextView android:layout_width="110dp" android:layout_height="wrap_content" android:text="Email:" android:textColor="#858383" android:textSize="13sp"/>
-                            <TextView android:id="@+id/tvViewEmail" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="dananghue@nhaxe.vn" android:textColor="@android:color/black" android:textStyle="bold" android:textSize="13sp" android:lineSpacingMultiplier="1.2" android:paddingBottom="4dp" android:singleLine="false"/>
-                        </LinearLayout>
-
-                        <!-- Banner -->
-                        <androidx.cardview.widget.CardView
-                            android:layout_width="280dp"
-                            android:layout_height="145dp"
-                            android:layout_marginTop="24dp"
-                            android:layout_gravity="center_horizontal"
-                            app:cardCornerRadius="15dp"
-                            app:cardElevation="0dp">
-                            <ImageView
-                                android:id="@+id/imgViewBanner"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="centerCrop"
-                                android:src="@drawable/banner_nhaxe" />
-                        </androidx.cardview.widget.CardView>
+                            android:layout_height="150dp"
+                            android:layout_marginTop="20dp"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/banner_nhaxe" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnEdit"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:layout_marginTop="12dp"
+                            android:layout_height="50dp"
+                            android:layout_marginTop="20dp"
                             android:backgroundTint="#0098D6"
                             android:text="Chỉnh sửa"
-                            app:icon="@android:drawable/ic_menu_edit"
-                            app:iconGravity="textStart"
-                            app:iconPadding="8dp"
-                            app:iconTint="@android:color/white"
                             android:textAllCaps="false"
-                            android:textColor="@android:color/white"
-                            android:textSize="15sp"
                             app:cornerRadius="8dp" />
                     </LinearLayout>
 
-                    <!-- EDIT MODE LAYOUT -->
+                    <!-- EDIT MODE -->
                     <LinearLayout
                         android:id="@+id/layoutEditMode"
                         android:layout_width="match_parent"
@@ -202,199 +125,30 @@
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Tên nhà xe"
-                                android:textColor="#858383"
-                                android:textSize="12sp" />
-                            <EditText
-                                android:id="@+id/edtBusName"
-                                android:layout_width="match_parent"
-                                android:layout_height="45dp"
-                                android:layout_marginTop="4dp"
-                                android:background="@drawable/bg_input_white"
-                                android:paddingHorizontal="12dp"
-                                android:textSize="14sp" />
-                            <TextView
-                                android:id="@+id/tvErrorBusName"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Vui lòng nhập tên nhà xe"
-                                android:textColor="#F44336"
-                                android:textSize="11sp"
-                                android:visibility="gone" />
-                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tên nhà xe" android:textSize="12sp"/>
+                        <EditText android:id="@+id/edtBusName" android:layout_width="match_parent" android:layout_height="45dp" android:background="@drawable/bg_input_white" android:paddingHorizontal="10dp" android:layout_marginTop="4dp"/>
+                        <TextView android:id="@+id/tvErrorBusName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lỗi" android:textColor="#F44336" android:textSize="11sp" android:visibility="gone"/>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Họ tên người đại diện"
-                                android:textColor="#858383"
-                                android:textSize="12sp" />
-                            <EditText
-                                android:id="@+id/edtRepName"
-                                android:layout_width="match_parent"
-                                android:layout_height="45dp"
-                                android:layout_marginTop="4dp"
-                                android:background="@drawable/bg_input_white"
-                                android:paddingHorizontal="12dp"
-                                android:textSize="14sp" />
-                            <TextView
-                                android:id="@+id/tvErrorRepName"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Vui lòng nhập họ tên người đại diện"
-                                android:textColor="#F44336"
-                                android:textSize="11sp"
-                                android:visibility="gone" />
-                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Họ tên người đại diện" android:textSize="12sp" android:layout_marginTop="10dp"/>
+                        <EditText android:id="@+id/edtRepName" android:layout_width="match_parent" android:layout_height="45dp" android:background="@drawable/bg_input_white" android:paddingHorizontal="10dp" android:layout_marginTop="4dp"/>
+                        <TextView android:id="@+id/tvErrorRepName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lỗi" android:textColor="#F44336" android:textSize="11sp" android:visibility="gone"/>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Địa chỉ trụ sở"
-                                android:textColor="#858383"
-                                android:textSize="12sp" />
-                            <EditText
-                                android:id="@+id/edtAddress"
-                                android:layout_width="match_parent"
-                                android:layout_height="45dp"
-                                android:layout_marginTop="4dp"
-                                android:background="@drawable/bg_input_white"
-                                android:paddingHorizontal="12dp"
-                                android:textSize="14sp" />
-                            <TextView
-                                android:id="@+id/tvErrorAddress"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Vui lòng nhập địa chỉ trụ sở"
-                                android:textColor="#F44336"
-                                android:textSize="11sp"
-                                android:visibility="gone" />
-                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Địa chỉ trụ sở" android:textSize="12sp" android:layout_marginTop="10dp"/>
+                        <EditText android:id="@+id/edtAddress" android:layout_width="match_parent" android:layout_height="45dp" android:background="@drawable/bg_input_white" android:paddingHorizontal="10dp" android:layout_marginTop="4dp"/>
+                        <TextView android:id="@+id/tvErrorAddress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lỗi" android:textColor="#F44336" android:textSize="11sp" android:visibility="gone"/>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Số điện thoại"
-                                android:textColor="#858383"
-                                android:textSize="12sp" />
-                            <EditText
-                                android:id="@+id/edtPhone"
-                                android:layout_width="match_parent"
-                                android:layout_height="45dp"
-                                android:layout_marginTop="4dp"
-                                android:background="@drawable/bg_input_white"
-                                android:inputType="phone"
-                                android:paddingHorizontal="12dp"
-                                android:textSize="14sp" />
-                            <TextView
-                                android:id="@+id/tvErrorPhone"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Vui lòng nhập số điện thoại hợp lệ"
-                                android:textColor="#F44336"
-                                android:textSize="11sp"
-                                android:visibility="gone" />
-                        </LinearLayout>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Số điện thoại" android:textSize="12sp" android:layout_marginTop="10dp"/>
+                        <EditText android:id="@+id/edtPhone" android:layout_width="match_parent" android:layout_height="45dp" android:background="@drawable/bg_input_white" android:paddingHorizontal="10dp" android:layout_marginTop="4dp" android:inputType="phone"/>
+                        <TextView android:id="@+id/tvErrorPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Lỗi" android:textColor="#F44336" android:textSize="11sp" android:visibility="gone"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Hình ảnh nhà xe"
-                            android:textColor="#858383"
-                            android:textSize="13sp" />
+                        <Button android:id="@+id/btnChooseFile" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chọn ảnh" android:layout_marginTop="15dp" android:textAllCaps="false"/>
+                        <TextView android:id="@+id/txtFileName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chưa chọn tệp"/>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:background="@android:drawable/editbox_background"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal"
-                            android:padding="6dp">
-                            <Button
-                                android:id="@+id/btnChooseFile"
-                                android:layout_width="wrap_content"
-                                android:layout_height="36dp"
-                                android:backgroundTint="#EEEEEE"
-                                android:text="Chọn tệp"
-                                android:textAllCaps="false"
-                                android:textColor="@android:color/black"
-                                android:textSize="11sp" />
-                            <TextView
-                                android:id="@+id/txtFileName"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Chưa chọn tệp nào"
-                                android:textColor="#858383"
-                                android:textSize="11sp" />
-                        </LinearLayout>
+                        <ImageView android:id="@+id/imgEditPreview" android:layout_width="match_parent" android:layout_height="120dp" android:layout_marginTop="10dp" android:scaleType="centerCrop" android:src="@drawable/banner_nhaxe"/>
 
-                        <androidx.cardview.widget.CardView
-                            android:layout_width="280dp"
-                            android:layout_height="145dp"
-                            android:layout_marginTop="20dp"
-                            android:layout_gravity="center_horizontal"
-                            app:cardCornerRadius="15dp"
-                            app:cardElevation="0dp">
-                            <ImageView
-                                android:id="@+id/imgEditPreview"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="centerCrop"
-                                android:src="@drawable/banner_nhaxe" />
-                        </androidx.cardview.widget.CardView>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:orientation="horizontal">
-                            <Button
-                                android:id="@+id/btnCancel"
-                                android:layout_width="0dp"
-                                android:layout_height="48dp"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="8dp"
-                                android:backgroundTint="#858383"
-                                android:text="Hủy"
-                                android:textAllCaps="false"
-                                android:textColor="@android:color/white"
-                                app:cornerRadius="8dp" />
-                            <Button
-                                android:id="@+id/btnSave"
-                                android:layout_width="0dp"
-                                android:layout_height="48dp"
-                                android:layout_weight="1"
-                                android:layout_marginStart="8dp"
-                                android:backgroundTint="#0098D6"
-                                android:text="Lưu"
-                                android:textAllCaps="false"
-                                android:textColor="@android:color/white"
-                                app:cornerRadius="8dp" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:orientation="horizontal">
+                            <Button android:id="@+id/btnCancel" android:layout_width="0dp" android:layout_height="50dp" android:layout_weight="1" android:text="Hủy" android:backgroundTint="#888888" android:layout_marginEnd="5dp"/>
+                            <Button android:id="@+id/btnSave" android:layout_width="0dp" android:layout_height="50dp" android:layout_weight="1" android:text="Lưu" android:backgroundTint="#0098D6" android:layout_marginStart="5dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -407,32 +161,20 @@
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="65dp"
-        android:background="@android:color/white"
+        android:background="@color/white"
         android:elevation="8dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:baselineAligned="false"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
-            android:id="@+id/nav_home_op"
+            android:id="@+id/nav_home_op_main"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/home"
-                app:tint="#858383"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Trang chủ"
-                android:textSize="10sp"
-                android:textColor="#858383"
-                android:layout_marginTop="2dp"/>
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/home" app:tint="#757575"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textSize="10sp" android:textColor="#333333" android:layout_marginTop="2dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -442,18 +184,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_driver"
-                app:tint="#858383" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tài xế"
-                android:textSize="10sp"
-                android:textColor="#858383"
-                android:layout_marginTop="2dp" />
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_driver" app:tint="#1A73E8" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tài xế" android:textSize="10sp" android:textColor="#333333" android:textStyle="bold" android:layout_marginTop="2dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -463,18 +195,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_car"
-                app:tint="#858383" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Phương tiện"
-                android:textSize="10sp"
-                android:textColor="#858383"
-                android:layout_marginTop="2dp" />
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_car" app:tint="#757575" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Phương tiện" android:textSize="10sp" android:textColor="#333333" android:layout_marginTop="2dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -484,18 +206,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_map"
-                app:tint="#858383" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Chuyến xe"
-                android:textSize="10sp"
-                android:textColor="#858383"
-                android:layout_marginTop="2dp" />
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_map" app:tint="#757575" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Chuyến xe" android:textSize="10sp" android:textColor="#333333" android:layout_marginTop="2dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -505,18 +217,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_route"
-                app:tint="#858383" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tuyến xe"
-                android:textSize="10sp"
-                android:textColor="#858383"
-                android:layout_marginTop="2dp" />
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_route" app:tint="#757575" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tuyến xe" android:textSize="10sp" android:textColor="#333333" android:layout_marginTop="2dp" />
         </LinearLayout>
     </LinearLayout>
 

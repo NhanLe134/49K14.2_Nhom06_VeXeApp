@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F7FA">
 
-    <!-- TOOLBAR -->
+    <!-- HEADER -->
     <RelativeLayout
-        android:id="@+id/toolbar"
+        android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="#0098D6"
         app:layout_constraintTop_toTopOf="parent">
+
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="40dp"
@@ -22,115 +24,63 @@
             android:src="@drawable/ic_back_chevron"
             app:tint="@android:color/white"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Thông Tin Phương tiện"
+            android:text="Thông tin Phương tiện"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <LinearLayout
+    <!-- TIÊU ĐỀ DANH SÁCH -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardTitle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
-
-        <!-- NÚT QUẢN LÝ LOẠI XE -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/btnGoToCarType"
+        android:layout_height="45dp"
+        android:layout_marginHorizontal="25dp"
+        android:layout_marginTop="15dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/header">
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="75dp"
-            android:layout_marginBottom="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="3dp">
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingHorizontal="20dp"
-                android:clickable="false"
-                android:focusable="false">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="Quản lý Loại xe"
-                    android:textColor="#111827"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:clickable="false"
-                    android:focusable="false"/>
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@android:drawable/ic_media_play"
-                    app:tint="#858383"
-                    android:clickable="false"
-                    android:focusable="false"/>
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Danh sách phương tiện"
+            android:textColor="#000000"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </androidx.cardview.widget.CardView>
 
-        <!-- NÚT QUẢN LÝ PHƯƠNG TIỆN -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/btnManageVehicleMain"
-            android:layout_width="match_parent"
-            android:layout_height="75dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="3dp">
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingHorizontal="20dp"
-                android:clickable="false"
-                android:focusable="false">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="Quản lý Phương tiện"
-                    android:textColor="#111827"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:clickable="false"
-                    android:focusable="false"/>
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:src="@android:drawable/ic_media_play"
-                    app:tint="#858383"
-                    android:clickable="false"
-                    android:focusable="false"/>
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
+    <!-- RECYCLERVIEW -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvVehicles"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:paddingBottom="10dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/cardTitle"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        tools:listitem="@layout/item_phuong_tien" />
 
     <!-- BOTTOM NAVIGATION -->
     <LinearLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
         android:layout_height="65dp"
-        android:background="@color/white"
+        android:background="@android:color/white"
         android:elevation="8dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
-            android:id="@+id/nav_home_op_main"
+            android:id="@+id/nav_home_op"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -146,7 +96,7 @@
                 android:layout_height="wrap_content"
                 android:text="Trang chủ"
                 android:textSize="10sp"
-                android:textColor="#333333"
+                android:textColor="#757575"
                 android:layout_marginTop="2dp"/>
         </LinearLayout>
 
@@ -167,12 +117,12 @@
                 android:layout_height="wrap_content"
                 android:text="Tài xế"
                 android:textSize="10sp"
-                android:textColor="#333333"
+                android:textColor="#757575"
                 android:layout_marginTop="2dp" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/nav_vehicle_op_bottom"
+            android:id="@+id/nav_vehicle_op"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -210,7 +160,7 @@
                 android:layout_height="wrap_content"
                 android:text="Chuyến xe"
                 android:textSize="10sp"
-                android:textColor="#333333"
+                android:textColor="#757575"
                 android:layout_marginTop="2dp" />
         </LinearLayout>
 
@@ -231,7 +181,7 @@
                 android:layout_height="wrap_content"
                 android:text="Tuyến xe"
                 android:textSize="10sp"
-                android:textColor="#333333"
+                android:textColor="#757575"
                 android:layout_marginTop="2dp" />
         </LinearLayout>
     </LinearLayout>

@@ -39,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         initViews();
+        // Đảm bảo sử dụng ApiService từ package .api
         apiService = ApiClient.getClient().create(ApiService.class);
 
         tvSwitchMode.setOnClickListener(v -> {
@@ -90,47 +91,52 @@ public class LoginActivity extends AppCompatActivity {
 
     private void handleCustomerLogin() {
         final String phoneInput = edtPhoneLogin.getText().toString().trim();
-        if (phoneInput.length() >= 10) {
-            Toast.makeText(this, "Đang kiểm tra...", Toast.LENGTH_SHORT).show();
-            
-            apiService.checkUserRole(phoneInput).enqueue(new Callback<List<CustomerResponse>>() {
-                @Override
-                public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        List<CustomerResponse> users = response.body();
-                        CustomerResponse foundUser = null;
+        if (phoneInput.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập số điện thoại!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-                        // Quét danh sách để tìm đúng người có SĐT khớp
-                        for (CustomerResponse u : users) {
-                            if (u.getSdt() != null && u.getSdt().equals(phoneInput)) {
-                                foundUser = u;
-                                break;
-                            }
-                        }
+        Toast.makeText(this, "Đang kết nối server...", Toast.LENGTH_SHORT).show();
+        
+        apiService.checkUserRole(phoneInput).enqueue(new Callback<List<CustomerResponse>>() {
+            @Override
+            public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<CustomerResponse> users = response.body();
+                    CustomerResponse foundUser = null;
 
-                        if (foundUser != null) {
-                            String role = foundUser.getVaitro();
-                            Log.d("LOGIN_DEBUG", "Phone: " + phoneInput + " | Role: " + role);
-
-                            if (role != null && role.equalsIgnoreCase("KhachHang")) {
-                                proceedCustomerLogin(foundUser.getSdt(), foundUser.getTenKhachHang(), foundUser.getNgaySinh());
-                            } else {
-                                Toast.makeText(LoginActivity.this, "Đây là tài khoản Nhà xe, vui lòng đăng nhập mục Nhà xe!", Toast.LENGTH_LONG).show();
-                            }
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Số điện thoại chưa được đăng ký!", Toast.LENGTH_SHORT).show();
+                    // Tìm chính xác user theo SĐT trong danh sách trả về
+                    for (CustomerResponse u : users) {
+                        if (u.getSdt() != null && u.getSdt().equals(phoneInput)) {
+                            foundUser = u;
+                            break;
                         }
                     }
-                }
 
-                @Override
-                public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {
-                    Toast.makeText(LoginActivity.this, "Lỗi kết nối máy chủ!", Toast.LENGTH_SHORT).show();
+                    if (foundUser != null) {
+                        String role = foundUser.getVaitro();
+                        Log.d("LOGIN_DEBUG", "Phone: " + phoneInput + " | Role từ server: " + role);
+
+                        if (role != null && role.equalsIgnoreCase("KhachHang")) {
+                            proceedCustomerLogin(foundUser.getSdt(), foundUser.getTenKhachHang(), foundUser.getNgaySinh());
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Đây là tài khoản Nhà xe (" + role + "). Hãy đăng nhập bên mục Nhà xe!", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Số điện thoại " + phoneInput + " chưa đăng ký!", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(LoginActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
-            });
-        } else {
-            Toast.makeText(this, "Vui lòng nhập số điện thoại hợp lệ!", Toast.LENGTH_SHORT).show();
-        }
+            }
+
+            @Override
+            public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {
+                // Hiển thị lỗi thật sự để debug (ví dụ: Connection Refused, Timeout...)
+                Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                Log.e("LOGIN_DEBUG", "Connection error", t);
+            }
+        });
     }
 
     private void proceedCustomerLogin(String phone, String name, String dob) {
@@ -142,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("customerDob", dob);
         editor.apply();
 
-        Toast.makeText(this, "Đăng nhập khách hàng thành công!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Chào mừng " + name, Toast.LENGTH_SHORT).show();
         startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();
     }
@@ -152,12 +158,11 @@ public class LoginActivity extends AppCompatActivity {
         String pass = edtPassword.getText().toString().trim();
 
         if (user.isEmpty() || pass.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Vui lòng nhập tài khoản/mật khẩu!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        LoginRequest loginRequest = new LoginRequest(user, pass);
-        apiService.login(loginRequest).enqueue(new Callback<LoginResponse>() {
+        apiService.login(new LoginRequest(user, pass)).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -172,13 +177,13 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(new Intent(LoginActivity.this, OperatorMainActivity.class));
                     finish();
                 } else {
-                    Toast.makeText(LoginActivity.this, "Sai tài khoản hoặc mật khẩu nhà xe!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Sai thông tin nhà xe!", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "Lỗi kết nối máy chủ!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Lỗi: " + t.getLocalizedMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

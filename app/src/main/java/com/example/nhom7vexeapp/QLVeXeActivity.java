@@ -1,13 +1,10 @@
 package com.example.nhom7vexeapp;
 
-import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,160 +16,129 @@ import java.util.List;
 public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.OnTicketClickListener {
 
     private RecyclerView rvTickets;
-    private TicketAdapter ticketAdapter;
-    private List<TicketModel> fullTicketList = new ArrayList<>();
-    private List<TicketModel> displayedList = new ArrayList<>();
+    private TicketAdapter adapter;
+    private List<TicketModel> allTickets; // Lưu toàn bộ vé
+    private List<TicketModel> currentDisplayList; // Vé đang hiển thị theo tab
     
     private TextView tabBooked, tabCompleted, tabCancelled, tvListTitle;
+    private LinearLayout navHome, navSearch, navTickets, navFeedback;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ql_ve_xe);
 
+        sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+
         initViews();
+        prepareData(); // Tạo dữ liệu mẫu
         setupRecyclerView();
-        loadMockData();
-
-        // Kiểm tra xem có phải vừa đặt vé mới không
-        boolean hasNewTicket = getIntent().getBooleanExtra("new_ticket", false);
-        if (hasNewTicket) {
-            // Thêm một vé mới giả lập vào danh sách "Đã đặt"
-            fullTicketList.add(0, new TicketModel("12:30", "26/02/2026", "Đà Nẵng - Huế", "Long Hùng", "01", "C2", "Booked"));
-        }
-
-        filterTickets("Booked"); // Mặc định hiện vé Đã đặt
-
-        setupTabListeners();
-        setupNavigationListeners();
+        setupTabEvents(); // Xử lý nhấn tab
+        setupBottomNavigation();
+        
+        // Mặc định chọn tab "Đã đặt"
+        switchTab("Booked");
     }
 
     private void initViews() {
         rvTickets = findViewById(R.id.rvTickets);
+        tvListTitle = findViewById(R.id.tvListTitle);
+        
+        // Tabs
         tabBooked = findViewById(R.id.tab_booked);
         tabCompleted = findViewById(R.id.tab_completed);
         tabCancelled = findViewById(R.id.tab_cancelled);
-        tvListTitle = findViewById(R.id.tvListTitle);
+        
+        // Footer Views
+        navHome = findViewById(R.id.nav_home);
+        navSearch = findViewById(R.id.nav_search);
+        navTickets = findViewById(R.id.nav_tickets_btn);
+        navFeedback = findViewById(R.id.nav_feedback);
+    }
+
+    private void prepareData() {
+        allTickets = new ArrayList<>();
+        // Vé Đã đặt
+        allTickets.add(new TicketModel("07:00", "26/02/2026", "Đà Nẵng - Huế", "Long Hùng", "Số lượng ghế: 01", "Mã số ghế: B6", "Booked"));
+        allTickets.add(new TicketModel("14:30", "28/02/2026", "Huế - Đà Nẵng", "Thành Công", "Số lượng ghế: 02", "Mã số ghế: A1, A2", "Booked"));
+        
+        // Vé Đã đi
+        allTickets.add(new TicketModel("08:00", "20/02/2026", "Đà Nẵng - Huế", "Hải Vân", "Số lượng ghế: 01", "Mã số ghế: C3", "Completed"));
+        
+        // Vé Đã hủy
+        allTickets.add(new TicketModel("10:00", "15/02/2026", "Đà Nẵng - Hội An", "Hùng Đức", "Số lượng ghế: 01", "Mã số ghế: D4", "Cancelled"));
+        
+        currentDisplayList = new ArrayList<>();
     }
 
     private void setupRecyclerView() {
-        ticketAdapter = new TicketAdapter(this, displayedList, this);
         rvTickets.setLayoutManager(new LinearLayoutManager(this));
-        rvTickets.setAdapter(ticketAdapter);
+        adapter = new TicketAdapter(this, currentDisplayList, this);
+        rvTickets.setAdapter(adapter);
     }
 
-    private void loadMockData() {
-        // Dữ liệu mẫu ban đầu
-        fullTicketList.add(new TicketModel("07:00", "26/02/2026", "Đà Nẵng - Huế", "Long Hùng", "01", "B6", "Booked"));
-        fullTicketList.add(new TicketModel("15:15", "30/01/2026", "Đà Nẵng - Huế", "Long Hùng", "02", "C6 - C7", "Completed"));
-        fullTicketList.add(new TicketModel("10:20", "18/01/2026", "Huế - Đà Nẵng", "Châu Thanh", "03", "A1 - A2 - A3", "Completed"));
-        fullTicketList.add(new TicketModel("12:30", "26/11/2025", "Đà Nẵng - Huế", "Phương Trang", "01", "C6", "Cancelled"));
+    private void setupTabEvents() {
+        tabBooked.setOnClickListener(v -> switchTab("Booked"));
+        tabCompleted.setOnClickListener(v -> switchTab("Completed"));
+        tabCancelled.setOnClickListener(v -> switchTab("Cancelled"));
     }
 
-    private void filterTickets(String status) {
-        displayedList.clear();
-        for (TicketModel ticket : fullTicketList) {
-            if (ticket.getStatus().equals(status)) {
-                displayedList.add(ticket);
+    private void switchTab(String status) {
+        currentDisplayList.clear();
+        
+        // Reset màu các tab
+        tabBooked.setTextColor(Color.parseColor("#888888"));
+        tabBooked.setBackground(null);
+        tabCompleted.setTextColor(Color.parseColor("#888888"));
+        tabCompleted.setBackground(null);
+        tabCancelled.setTextColor(Color.parseColor("#888888"));
+        tabCancelled.setBackground(null);
+
+        // Lọc dữ liệu và cập nhật giao diện tab được chọn
+        if (status.equals("Booked")) {
+            tvListTitle.setText("Danh sách vé đã đặt");
+            tabBooked.setTextColor(Color.BLACK);
+            tabBooked.setBackgroundResource(R.drawable.tab_selected_border);
+        } else if (status.equals("Completed")) {
+            tvListTitle.setText("Danh sách vé đã đi");
+            tabCompleted.setTextColor(Color.BLACK);
+            tabCompleted.setBackgroundResource(R.drawable.tab_selected_border);
+        } else {
+            tvListTitle.setText("Danh sách vé đã hủy");
+            tabCancelled.setTextColor(Color.BLACK);
+            tabCancelled.setBackgroundResource(R.drawable.tab_selected_border);
+        }
+
+        for (TicketModel t : allTickets) {
+            if (t.getStatus().equals(status)) {
+                currentDisplayList.add(t);
             }
         }
-        ticketAdapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
     }
 
-    private void setupTabListeners() {
-        tabBooked.setOnClickListener(v -> {
-            updateTabUI(tabBooked, tabCompleted, tabCancelled);
-            tvListTitle.setText("Danh sách vé đã đặt");
-            filterTickets("Booked");
-        });
-
-        tabCompleted.setOnClickListener(v -> {
-            updateTabUI(tabCompleted, tabBooked, tabCancelled);
-            tvListTitle.setText("Danh sách vé đã đi");
-            filterTickets("Completed");
-        });
-
-        tabCancelled.setOnClickListener(v -> {
-            updateTabUI(tabCancelled, tabBooked, tabCompleted);
-            tvListTitle.setText("Danh sách vé đã hủy");
-            filterTickets("Cancelled");
-        });
+    @Override
+    public void onTicketClick(TicketModel ticket) {
+        // Xử lý khi nhấn vào vé
     }
 
-    private void updateTabUI(TextView selected, TextView o1, TextView o2) {
-        selected.setTextColor(Color.BLACK);
-        selected.setTypeface(null, Typeface.BOLD);
-        selected.setBackgroundResource(R.drawable.tab_selected_border);
-
-        o1.setTextColor(Color.GRAY);
-        o1.setTypeface(null, Typeface.NORMAL);
-        o1.setBackground(null);
-
-        o2.setTextColor(Color.GRAY);
-        o2.setTypeface(null, Typeface.NORMAL);
-        o2.setBackground(null);
-    }
-
-    private void setupNavigationListeners() {
-        LinearLayout navHome = findViewById(R.id.nav_home);
-        LinearLayout navFeedback = findViewById(R.id.nav_feedback);
-        ImageView btnProfile = findViewById(R.id.btnProfileHeader);
-
+    private void setupBottomNavigation() {
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
                 startActivity(new Intent(this, MainActivity.class));
                 finish();
             });
         }
-
+        if (navSearch != null) {
+            navSearch.setOnClickListener(v -> {
+                startActivity(new Intent(this, SearchTicketActivity.class));
+            });
+        }
         if (navFeedback != null) {
             navFeedback.setOnClickListener(v -> {
                 startActivity(new Intent(this, PhanHoiActivity.class));
-                finish();
             });
         }
-        
-        if (btnProfile != null) {
-            btnProfile.setOnClickListener(v -> {
-                startActivity(new Intent(this, CustomerProfileActivity.class));
-            });
-        }
-    }
-
-    @Override
-    public void onTicketClick(TicketModel ticket) {
-        showTicketDetailDialog(ticket);
-    }
-
-    private void showTicketDetailDialog(TicketModel ticket) {
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.dialog_ticket_detail);
-        
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
-
-        TextView tvDate = dialog.findViewById(R.id.tvDate);
-        TextView tvTime = dialog.findViewById(R.id.tvTime);
-        TextView tvSeats = dialog.findViewById(R.id.tvSeatNumber);
-        TextView tvStatus = dialog.findViewById(R.id.tvStatusDetail);
-        
-        if (tvDate != null) tvDate.setText("Ngày khởi hành: " + ticket.getDate());
-        if (tvTime != null) tvTime.setText("Giờ khởi hành: " + ticket.getTime());
-        if (tvSeats != null) tvSeats.setText("Mã số ghế: " + ticket.getSeats());
-        
-        if (tvStatus != null) {
-            String statusText = "";
-            if (ticket.getStatus().equals("Booked")) statusText = "Trạng thái: Đã đặt";
-            else if (ticket.getStatus().equals("Completed")) statusText = "Trạng thái: Đã đi";
-            else if (ticket.getStatus().equals("Cancelled")) statusText = "Trạng thái: Đã hủy";
-            tvStatus.setText(statusText);
-        }
-
-        ImageView btnClose = dialog.findViewById(R.id.btnClose);
-        if (btnClose != null) btnClose.setOnClickListener(v -> dialog.dismiss());
-
-        dialog.show();
     }
 }
