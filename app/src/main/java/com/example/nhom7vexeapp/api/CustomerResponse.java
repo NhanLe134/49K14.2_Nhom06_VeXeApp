@@ -3,21 +3,21 @@ package com.example.nhom7vexeapp.api;
 import com.google.gson.annotations.SerializedName;
 
 public class CustomerResponse {
-    @SerializedName(value = "TenDangNhap", alternate = {"tendangnhap", "ten_khach_hang", "username"})
+    @SerializedName(value = "TENDANGNHAP", alternate = {"TenDangNhap", "tendangnhap", "ten_khach_hang"})
     private String TenDangNhap;
     
-    @SerializedName(value = "Vaitro", alternate = {"vaitro", "vai_tro", "VAITRO"})
+    @SerializedName(value = "VAITRO", alternate = {"Vaitro", "vaitro", "vai_tro"})
     private String Vaitro;
     
-    @SerializedName(value = "SoDienThoai", alternate = {"sodienthoai", "sdt", "phone"})
+    @SerializedName(value = "SODIENTHOAI", alternate = {"SoDienThoai", "sodienthoai", "sdt"})
     private String SoDienThoai;
 
-    @SerializedName(value = "NgaySinh", alternate = {"ngaysinh", "ngay_sinh", "dob"})
-    private String NgaySinh;
+    @SerializedName(value = "MATKHAU", alternate = {"MatKhau", "matkhau"})
+    private String MatKhau;
 
-    // Các Getter khớp chính xác với LoginActivity đang gọi
     public String getVaitro() { return Vaitro; }
     public String getSdt() { return SoDienThoai; }
-    public String getTenKhachHang() { return TenDangNhap != null ? TenDangNhap : "Khách hàng"; }
-    public String getNgaySinh() { return NgaySinh != null ? NgaySinh : "Chưa cập nhật"; }
+    public String getTenKhachHang() { return TenDangNhap; }
+    public String getMatKhau() { return MatKhau; }
+    public String getNgaySinh() { return "Chưa cập nhật"; }
 }

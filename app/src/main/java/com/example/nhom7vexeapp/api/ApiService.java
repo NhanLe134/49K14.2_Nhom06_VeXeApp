@@ -11,7 +11,7 @@ public interface ApiService {
     @POST("api/user-auth/")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
-    // Thử dùng đúng tên cột SODIENTHOAI (viết hoa) để Django nhận diện filter
+    // Lấy danh sách để kiểm tra vai trò và đăng nhập
     @GET("api/user-auth/")
-    Call<List<CustomerResponse>> checkUserRole(@Query("SODIENTHOAI") String phone);
+    Call<List<CustomerResponse>> getUsers();
 }
