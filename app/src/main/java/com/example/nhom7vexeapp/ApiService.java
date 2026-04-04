@@ -1,5 +1,6 @@
 package com.example.nhom7vexeapp;
 
+import com.example.nhom7vexeapp.models.Loaixe;
 import com.example.nhom7vexeapp.models.LoginRequest;
 import com.example.nhom7vexeapp.models.Trip;
 import java.util.List;
@@ -21,4 +22,8 @@ public interface ApiService {
     // Thêm các endpoint khác tại đây
     // @GET("tuyenxe/")
     // Call<List<Route>> getTuyenXe();
+
+    // Cập nhật lấy danh sách loại xe (đồng bộ với Django model Loaixe)
+    @GET("api/loaixe/")
+    Call<List<Loaixe>> getLoaixe();
 }

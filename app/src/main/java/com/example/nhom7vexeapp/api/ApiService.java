@@ -1,5 +1,6 @@
 package com.example.nhom7vexeapp.api;
 
+import com.example.nhom7vexeapp.models.Loaixe;
 import com.example.nhom7vexeapp.models.Trip;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -7,6 +8,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 import java.util.List;
+
 
 public interface ApiService {
     @POST("api/user-auth/")
@@ -21,4 +23,8 @@ public interface ApiService {
 
     @POST("api/chuyenxe/")
     Call<Trip> createTrip(@Body Trip trip);
+
+    // Cập nhật lấy danh sách loại xe (đồng bộ với Django model Loaixe)
+    @GET("api/loaixe/")
+    Call<List<Loaixe>> getLoaixe();
 }
