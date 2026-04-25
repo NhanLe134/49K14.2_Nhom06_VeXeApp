@@ -4,12 +4,10 @@ import com.example.nhom7vexeapp.models.Loaixe;
 import com.example.nhom7vexeapp.models.NhaXe;
 import com.example.nhom7vexeapp.models.Route;
 import com.example.nhom7vexeapp.models.Trip;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.PUT;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
+import retrofit2.http.*;
 import java.util.List;
 import java.util.Map;
 
@@ -20,13 +18,13 @@ public interface ApiService {
     @GET("api/user-auth/")
     Call<List<CustomerResponse>> getUsers();
 
-    // Lấy thông tin chi tiết Auth (để lấy SĐT)
     @GET("api/user-auth/{id}/")
     Call<CustomerResponse> getUserAuthDetail(@Path("id") String id);
 
     @POST("api/user-auth/")
     Call<Void> registerAuth(@Body Map<String, String> data);
 
+    // QUẢN LÝ NHÀ XE
     @POST("api/nhaxe/")
     Call<Void> createNhaXeProfile(@Body Map<String, String> data);
 
@@ -39,12 +37,33 @@ public interface ApiService {
     @PUT("api/nhaxe/{id}/")
     Call<Void> updateNhaXeProfile(@Path("id") String id, @Body Map<String, String> data);
 
+    // QUẢN LÝ KHÁCH HÀNG
+    @Multipart
     @POST("api/khachhang/")
-    Call<Void> createKhachHangProfile(@Body Map<String, String> data);
+    Call<Void> createKhachHangProfile(
+            @Part("KhachHangID") RequestBody id,
+            @Part("hoTen") RequestBody name,
+            @Part("Email") RequestBody email,
+            @Part("Ngaysinh") RequestBody dob,
+            @Part MultipartBody.Part imageFile
+    );
 
     @GET("api/khachhang/{id}/")
     Call<Map<String, Object>> getKhachHangDetail(@Path("id") String id);
 
+    @DELETE("api/khachhang/{id}/")
+    Call<Void> deleteKhachHang(@Path("id") String id);
+
+    @Multipart
+    @PUT("api/khachhang/{id}/")
+    Call<Void> updateKhachHang(
+            @Path("id") String id,
+            @Part("hoTen") RequestBody name,
+            @Part("Ngaysinh") RequestBody dob,
+            @Part MultipartBody.Part imageFile
+    );
+
+    // CÁC CHỨC NĂNG KHÁC
     @GET("api/chuyenxe/")
     Call<List<Trip>> getTrips();
 

@@ -34,89 +34,115 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        app:cardCornerRadius="15dp"
-        app:cardElevation="4dp"
-        app:layout_constraintTop_toBottomOf="@+id/header">
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/header"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_nav">
 
-        <LinearLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="30dp">
+            android:layout_margin="20dp"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="4dp">
 
-            <RelativeLayout
-                android:layout_width="120dp"
-                android:layout_height="120dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="30dp">
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/imgProfileAvatar"
+                <RelativeLayout
+                    android:layout_width="120dp"
+                    android:layout_height="120dp">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/imgProfileAvatar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/account_circle"
+                        app:civ_border_color="#DDDDDD"
+                        app:civ_border_width="2dp" />
+
+                    <ImageView
+                        android:id="@+id/btnEditProfileImage"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentEnd="true"
+                        android:background="@drawable/bg_shift_item"
+                        android:backgroundTint="#00B0FF"
+                        android:padding="8dp"
+                        android:src="@android:drawable/ic_menu_edit"
+                        app:tint="@color/white" />
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tvProfileName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:text="Nguyễn Văn An"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/account_circle"
-                    app:civ_border_color="#DDDDDD"
-                    app:civ_border_width="2dp" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Số điện thoại" android:textColor="#666666"/>
+                    <TextView android:id="@+id/tvProfilePhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0916441979" android:textColor="#333333" android:textStyle="bold"/>
+                </LinearLayout>
 
-                <ImageView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+                    <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Ngày sinh" android:textColor="#666666"/>
+                    <TextView android:id="@+id/tvProfileDob" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20/11/2004" android:textColor="#333333" android:textStyle="bold"/>
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEditProfile"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentEnd="true"
-                    android:background="@drawable/bg_shift_item"
-                    android:backgroundTint="#00B0FF"
-                    android:padding="8dp"
-                    android:src="@android:drawable/ic_menu_edit"
-                    app:tint="@color/white" />
-            </RelativeLayout>
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="30dp"
+                    android:text="Chỉnh sửa thông tin"
+                    android:textAllCaps="false"
+                    app:cornerRadius="8dp" />
 
-            <TextView
-                android:id="@+id/tvProfileName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:text="Nguyễn Văn An"
-                android:textColor="#000000"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLogout"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="12dp"
+                    app:backgroundTint="#858383"
+                    android:text="Đăng xuất"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    app:cornerRadius="8dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:orientation="horizontal">
-                <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Số điện thoại" android:textColor="#666666"/>
-                <TextView android:id="@+id/tvProfilePhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0916441979" android:textColor="#333333" android:textStyle="bold"/>
+                <TextView
+                    android:id="@+id/btnDeleteAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Xóa tài khoản"
+                    android:textColor="#F44336"
+                    android:textSize="14sp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </ScrollView>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-                <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Ngày sinh" android:textColor="#666666"/>
-                <TextView android:id="@+id/tvProfileDob" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20/11/2004" android:textColor="#333333" android:textStyle="bold"/>
-            </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLogout"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="30dp"
-                app:backgroundTint="#F44336"
-                android:text="Đăng xuất"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                app:cornerRadius="8dp" />
-
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- BOTTOM NAVIGATION (STAYING CONSISTENT) -->
+    <!-- BOTTOM NAVIGATION -->
     <LinearLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"

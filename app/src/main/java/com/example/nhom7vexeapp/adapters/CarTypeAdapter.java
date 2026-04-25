@@ -94,51 +94,55 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         Button btnCancel = dialog.findViewById(R.id.btnCancelUpdate);
         ImageView btnClose = dialog.findViewById(R.id.btnCancelUpdateTop);
 
-        tvCarInfo.setText(getDisplayNameBySeats(car.getSoCho()) + " (" + car.getSoCho() + " chỗ)");
+        if (tvCarInfo != null) tvCarInfo.setText(getDisplayNameBySeats(car.getSoCho()) + " (" + car.getSoCho() + " chỗ)");
         
         // Hiển thị giá hiện tại an toàn
-        try {
-            double gia = Double.parseDouble(car.getGiaVe());
-            tvCurrentPrice.setText(String.format(Locale.getDefault(), "%,.0f đ", gia));
-        } catch (Exception e) {
-            tvCurrentPrice.setText(car.getGiaVe() + " đ");
-        }
-        tvCurrentPrice.setVisibility(View.VISIBLE);
-
-        btnSave.setOnClickListener(vSave -> {
-            String newPrice = edtPrice.getText().toString().trim();
-            if (newPrice.isEmpty()) {
-                Toast.makeText(context, "Vui lòng nhập giá mới", Toast.LENGTH_SHORT).show();
-                return;
+        if (tvCurrentPrice != null) {
+            try {
+                double gia = Double.parseDouble(car.getGiaVe());
+                tvCurrentPrice.setText(String.format(Locale.getDefault(), "%,.0f đ", gia));
+            } catch (Exception e) {
+                tvCurrentPrice.setText(car.getGiaVe() + " đ");
             }
+            tvCurrentPrice.setVisibility(View.VISIBLE);
+        }
 
-            car.setGiaVe(newPrice);
-            String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-            car.setNgayCapNhatGia(currentDate);
+        if (btnSave != null) {
+            btnSave.setOnClickListener(vSave -> {
+                String newPrice = edtPrice.getText().toString().trim();
+                if (newPrice.isEmpty()) {
+                    Toast.makeText(context, "Vui lòng nhập giá mới", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-            ApiService apiService = ApiClient.getClient().create(ApiService.class);
-            apiService.updateLoaixe(car.getLoaixeID(), car).enqueue(new Callback<Loaixe>() {
-                @Override
-                public void onResponse(Call<Loaixe> call, Response<Loaixe> response) {
-                    if (response.isSuccessful()) {
-                        notifyItemChanged(position);
-                        dialog.dismiss();
-                        showSuccessDialog("Cập nhật giá vé thành công");
-                    } else {
-                        Toast.makeText(context, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
+                car.setGiaVe(newPrice);
+                String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+                car.setNgayCapNhatGia(currentDate);
+
+                ApiService apiService = ApiClient.getClient().create(ApiService.class);
+                apiService.updateLoaixe(car.getLoaixeID(), car).enqueue(new Callback<Loaixe>() {
+                    @Override
+                    public void onResponse(Call<Loaixe> call, Response<Loaixe> response) {
+                        if (response.isSuccessful()) {
+                            notifyItemChanged(position);
+                            dialog.dismiss();
+                            showSuccessDialog("Cập nhật giá vé thành công");
+                        } else {
+                            Toast.makeText(context, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
+                        }
                     }
-                }
 
-                @Override
-                public void onFailure(Call<Loaixe> call, Throwable t) {
-                    Toast.makeText(context, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                    @Override
+                    public void onFailure(Call<Loaixe> call, Throwable t) {
+                        Toast.makeText(context, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             });
-        });
+        }
 
         // Khi nhấn Hủy, hiện dialog xác nhận
         View.OnClickListener cancelListener = v -> showCancelConfirmDialog(dialog);
-        btnCancel.setOnClickListener(cancelListener);
+        if (btnCancel != null) btnCancel.setOnClickListener(cancelListener);
         if (btnClose != null) btnClose.setOnClickListener(cancelListener);
 
         dialog.show();
@@ -146,7 +150,7 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
 
     private void showCancelConfirmDialog(Dialog updateDialog) {
         Dialog cancelDialog = new Dialog(context);
-        cancelDialog.setContentView(R.layout.dialog_cancle_update_price);
+        cancelDialog.setContentView(R.layout.dialog_confirm_cancel); // Sửa ID layout cho đồng bộ với dự án
         if (cancelDialog.getWindow() != null) {
             cancelDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
@@ -154,12 +158,14 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         Button btnNo = cancelDialog.findViewById(R.id.btnNo);
         Button btnYes = cancelDialog.findViewById(R.id.btnYes);
 
-        btnNo.setOnClickListener(v -> cancelDialog.dismiss()); // Không: đóng dialog xác nhận, giữ update dialog
+        if (btnNo != null) btnNo.setOnClickListener(v -> cancelDialog.dismiss());
 
-        btnYes.setOnClickListener(v -> {
-            cancelDialog.dismiss();
-            updateDialog.dismiss(); // Đồng ý: đóng cả 2 dialog để về lại trang loại xe
-        });
+        if (btnYes != null) {
+            btnYes.setOnClickListener(v -> {
+                cancelDialog.dismiss();
+                updateDialog.dismiss();
+            });
+        }
 
         cancelDialog.show();
     }
@@ -177,8 +183,6 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         }
 
         successDialog.show();
-
-        // Tự động đóng sau 2 giây
         new Handler().postDelayed(successDialog::dismiss, 2000);
     }
 
