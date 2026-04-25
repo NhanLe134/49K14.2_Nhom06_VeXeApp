@@ -23,8 +23,8 @@
 
         <EditText
             android:id="@+id/otp1"
-            android:layout_width="45dp"
-            android:layout_height="55dp"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
             android:layout_margin="4dp"
             android:background="@drawable/bg_input_white"
             android:gravity="center"
@@ -34,8 +34,8 @@
 
         <EditText
             android:id="@+id/otp2"
-            android:layout_width="45dp"
-            android:layout_height="55dp"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
             android:layout_margin="4dp"
             android:background="@drawable/bg_input_white"
             android:gravity="center"
@@ -45,8 +45,8 @@
 
         <EditText
             android:id="@+id/otp3"
-            android:layout_width="45dp"
-            android:layout_height="55dp"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
             android:layout_margin="4dp"
             android:background="@drawable/bg_input_white"
             android:gravity="center"
@@ -56,8 +56,8 @@
 
         <EditText
             android:id="@+id/otp4"
-            android:layout_width="45dp"
-            android:layout_height="55dp"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
             android:layout_margin="4dp"
             android:background="@drawable/bg_input_white"
             android:gravity="center"
@@ -67,8 +67,8 @@
 
         <EditText
             android:id="@+id/otp5"
-            android:layout_width="45dp"
-            android:layout_height="55dp"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
             android:layout_margin="4dp"
             android:background="@drawable/bg_input_white"
             android:gravity="center"
@@ -78,8 +78,8 @@
 
         <EditText
             android:id="@+id/otp6"
-            android:layout_width="45dp"
-            android:layout_height="55dp"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
             android:layout_margin="4dp"
             android:background="@drawable/bg_input_white"
             android:gravity="center"
@@ -107,6 +107,6 @@
         android:text="Xác nhận mã OTP"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
 </LinearLayout>

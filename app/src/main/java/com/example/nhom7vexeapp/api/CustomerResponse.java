@@ -3,18 +3,23 @@ package com.example.nhom7vexeapp.api;
 import com.google.gson.annotations.SerializedName;
 
 public class CustomerResponse {
-    @SerializedName(value = "TENDANGNHAP", alternate = {"TenDangNhap", "tendangnhap", "ten_khach_hang"})
+    @SerializedName(value = "UserID", alternate = {"USERID", "userid", "user_id"})
+    private String UserID;
+
+    @SerializedName(value = "TenDangNhap", alternate = {"TENDANGNHAP", "tendangnhap"})
     private String TenDangNhap;
     
-    @SerializedName(value = "VAITRO", alternate = {"Vaitro", "vaitro", "vai_tro"})
+    @SerializedName(value = "Vaitro", alternate = {"VAITRO", "vaitro", "vai_tro"})
     private String Vaitro;
     
-    @SerializedName(value = "SODIENTHOAI", alternate = {"SoDienThoai", "sodienthoai", "sdt"})
+    @SerializedName(value = "SoDienThoai", alternate = {"SODIENTHOAI", "sodienthoai", "sdt"})
     private String SoDienThoai;
 
-    @SerializedName(value = "MATKHAU", alternate = {"MatKhau", "matkhau"})
+    @SerializedName(value = "MatKhau", alternate = {"MATKHAU", "matkhau"})
     private String MatKhau;
 
+    // Các getter cần thiết
+    public String getUserID() { return UserID; }
     public String getVaitro() { return Vaitro; }
     public String getSdt() { return SoDienThoai; }
     public String getTenKhachHang() { return TenDangNhap; }

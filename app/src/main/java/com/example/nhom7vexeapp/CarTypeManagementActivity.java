@@ -2,23 +2,32 @@ package com.example.nhom7vexeapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhom7vexeapp.adapters.CarTypeAdapter;
-import com.example.nhom7vexeapp.models.CarType;
+import com.example.nhom7vexeapp.api.ApiClient;
+import com.example.nhom7vexeapp.api.ApiService;
+import com.example.nhom7vexeapp.models.Loaixe;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CarTypeManagementActivity extends AppCompatActivity {
 
     private RecyclerView rvCarTypes;
     private CarTypeAdapter adapter;
-    private List<CarType> carTypeList;
+    private List<Loaixe> carTypeList;
     private ImageView btnBack;
 
     @Override
@@ -28,33 +37,50 @@ public class CarTypeManagementActivity extends AppCompatActivity {
 
         initViews();
         setupRecyclerView();
+        fetchCarTypes(); // Gọi hàm lấy dữ liệu từ API
         setupEvents();
-        setupBottomNav(); 
+        setupBottomNav();
     }
 
     private void initViews() {
         rvCarTypes = findViewById(R.id.rvCarTypes);
         btnBack = findViewById(R.id.btnBack);
-        if (btnBack == null) btnBack = findViewById(R.id.btnProfile); // In layout it's btnProfile but acting as back/profile
+        if (btnBack == null) btnBack = findViewById(R.id.btnProfile);
     }
 
     private void setupEvents() {
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> {
-                finish();
-            });
+            btnBack.setOnClickListener(v -> finish());
         }
     }
 
     private void setupRecyclerView() {
         carTypeList = new ArrayList<>();
-        carTypeList.add(new CarType("Loại xe A", 4, "150.000 đ", "27/03/2026", 0xFF0098D6));
-        carTypeList.add(new CarType("Loại xe B", 7, "200.000 đ", "26/03/2026", 0xFF4CAF50));
-        carTypeList.add(new CarType("Loại xe C", 9, "Chưa thiết lập", "Chưa cập nhật", 0xFF9C27B0));
-
         adapter = new CarTypeAdapter(carTypeList, this);
         rvCarTypes.setLayoutManager(new LinearLayoutManager(this));
         rvCarTypes.setAdapter(adapter);
+    }
+
+    private void fetchCarTypes() {
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        apiService.getLoaixe().enqueue(new Callback<List<Loaixe>>() {
+            @Override
+            public void onResponse(Call<List<Loaixe>> call, Response<List<Loaixe>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    carTypeList.clear();
+                    carTypeList.addAll(response.body());
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(CarTypeManagementActivity.this, "Không thể lấy dữ liệu từ server", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Loaixe>> call, Throwable t) {
+                Log.e("API_ERROR", t.getMessage());
+                Toast.makeText(CarTypeManagementActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupBottomNav() {
@@ -78,26 +104,17 @@ public class CarTypeManagementActivity extends AppCompatActivity {
 
         LinearLayout navTrip = findViewById(R.id.nav_trip_op);
         if (navTrip != null) {
-            navTrip.setOnClickListener(v -> {
-                Intent intent = new Intent(this, TripListActivity.class);
-                startActivity(intent);
-            });
+            navTrip.setOnClickListener(v -> startActivity(new Intent(this, TripListActivity.class)));
         }
 
         LinearLayout navRoute = findViewById(R.id.nav_route_op);
         if (navRoute != null) {
-            navRoute.setOnClickListener(v -> {
-                Intent intent = new Intent(this, QLTuyenxeActivity.class);
-                startActivity(intent);
-            });
+            navRoute.setOnClickListener(v -> startActivity(new Intent(this, QLTuyenxeActivity.class)));
         }
 
         LinearLayout navDriver = findViewById(R.id.nav_driver_op);
         if (navDriver != null) {
-            navDriver.setOnClickListener(v -> {
-                Intent intent = new Intent(this, QLNhaxeActivity.class);
-                startActivity(intent);
-            });
+            navDriver.setOnClickListener(v -> startActivity(new Intent(this, QLNhaxeActivity.class)));
         }
     }
 }

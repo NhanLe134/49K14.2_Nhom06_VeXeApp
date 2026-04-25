@@ -11,6 +11,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 public interface ApiService {
+    // Đã cập nhật BASE_URL sang link Render công khai
     String BASE_URL = "https://api-vexeapp.onrender.com/api/";
 
     @POST("user-auth/")

@@ -4,25 +4,21 @@ plugins {
 
 android {
     namespace = "com.example.nhom7vexeapp"
-    compileSdk = 36 // Phải để 36 để tương thích với các thư viện AndroidX mới nhất
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.nhom7vexeapp"
         minSdk = 24
-        targetSdk = 36 // Cập nhật đồng bộ với compileSdk
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -41,6 +37,10 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.gson)
+
+    // Tải ảnh từ URL/Base64
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

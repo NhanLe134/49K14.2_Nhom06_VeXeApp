@@ -3,19 +3,28 @@ package com.example.nhom7vexeapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.bumptech.glide.Glide;
+import com.example.nhom7vexeapp.api.ApiClient;
+import com.example.nhom7vexeapp.api.ApiService;
 import com.google.android.material.button.MaterialButton;
+
+import java.util.Map;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class OperatorProfileActivity extends AppCompatActivity {
 
     private TextView tvOpNameHeader, tvOpNameDetail, tvOpRep, tvOpAddress, tvOpPhone, tvOpEmail;
     private MaterialButton btnEdit, btnLogout;
-    private ImageView btnBack;
-    private LinearLayout navHome;
+    private ImageView btnBack, imgOpBanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,27 +32,29 @@ public class OperatorProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_operator_profile);
 
         initViews();
-        loadOperatorData();
+        
+        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String opUid = pref.getString("op_uid", "");
+        String fallbackName = pref.getString("op_user", "Nhà xe");
+
+        if (opUid.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        loadOperatorDataFromDB(opUid, fallbackName);
         setupBottomNavigation();
 
-        btnBack.setOnClickListener(v -> finish());
-
-        btnEdit.setOnClickListener(v -> {
-            Intent intent = new Intent(this, EditOperatorProfileActivity.class);
-            startActivityForResult(intent, 100);
-        });
-
-        btnLogout.setOnClickListener(v -> {
-            SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-            SharedPreferences.Editor editor = pref.edit();
-            editor.clear();
-            editor.apply();
-
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
+        if (btnEdit != null) {
+            btnEdit.setOnClickListener(v -> {
+                Intent intent = new Intent(this, EditOperatorProfileActivity.class);
+                startActivityForResult(intent, 100);
+            });
+        }
+        if (btnLogout != null) btnLogout.setOnClickListener(v -> handleLogout());
     }
 
     private void initViews() {
@@ -56,73 +67,84 @@ public class OperatorProfileActivity extends AppCompatActivity {
         btnEdit = findViewById(R.id.btnEditProfile);
         btnLogout = findViewById(R.id.btnLogoutOp);
         btnBack = findViewById(R.id.btnBack);
-        navHome = findViewById(R.id.navHomeEditProfile);
+        imgOpBanner = findViewById(R.id.imgOpBanner); 
+    }
+
+    private void loadOperatorDataFromDB(String opUid, String fallbackName) {
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        apiService.getNhaXeDetail(opUid).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Map<String, Object> data = response.body();
+                    Log.d("DEBUG_PROFILE", "Data: " + data.toString());
+
+                    // SỬA LẠI: Lấy đúng Key Tennhaxe (viết thường h và x) từ ảnh Admin
+                    String name = findValue(data, "Tennhaxe", "TenNhaXe", "ten_nha_xe");
+                    String tenNhaXe = name.isEmpty() ? fallbackName : name;
+                    
+                    if (tvOpNameHeader != null) tvOpNameHeader.setText(tenNhaXe);
+                    if (tvOpNameDetail != null) tvOpNameDetail.setText(tenNhaXe);
+                    
+                    if (tvOpRep != null) tvOpRep.setText(findValue(data, "Nguoidaidien", "NguoiDaiDien"));
+                    if (tvOpAddress != null) tvOpAddress.setText(findValue(data, "Diachitruso", "DiaChiTruSo"));
+                    if (tvOpPhone != null) tvOpPhone.setText(findValue(data, "Sodienthoai", "SoDienThoai"));
+                    if (tvOpEmail != null) tvOpEmail.setText(findValue(data, "Email", "email"));
+
+                    String imgUrl = findValue(data, "Anhdaidienurl", "AnhDaiDienURL");
+                    if (!imgUrl.isEmpty() && imgOpBanner != null) {
+                        Glide.with(OperatorProfileActivity.this)
+                                .load(imgUrl)
+                                .placeholder(R.drawable.banner_nhaxe)
+                                .error(R.drawable.banner_nhaxe)
+                                .into(imgOpBanner);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                if (tvOpNameHeader != null) tvOpNameHeader.setText(fallbackName);
+            }
+        });
+    }
+
+    private String findValue(Map<String, Object> map, String... keys) {
+        for (String key : keys) {
+            if (map.containsKey(key) && map.get(key) != null && !map.get(key).toString().equals("null")) {
+                return map.get(key).toString();
+            }
+            // Thử tìm kiểu viết thường hoàn toàn
+            for (String actualKey : map.keySet()) {
+                if (actualKey.equalsIgnoreCase(key) && map.get(actualKey) != null) {
+                    return map.get(actualKey).toString();
+                }
+            }
+        }
+        return "";
+    }
+
+    private void handleLogout() {
+        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        pref.edit().clear().apply();
+        startActivity(new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        finish();
     }
 
     private void setupBottomNavigation() {
-        // Nút Home
         View navHome = findViewById(R.id.nav_home_op);
-        if (navHome == null) navHome = findViewById(R.id.nav_home_op_main);
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent intent = new Intent(this, OperatorMainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        // Nút Phương tiện
-        View navVehicle = findViewById(R.id.nav_vehicle_op);
-        if (navVehicle != null) {
-            navVehicle.setOnClickListener(v -> {
-                Intent intent = new Intent(this, PhuongTienManagementActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        // Nút Chuyến xe
-        View navTrip = findViewById(R.id.nav_trip_op);
-        if (navTrip != null) {
-            navTrip.setOnClickListener(v -> {
-                Intent intent = new Intent(this, TripListActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        // Nút Tuyến xe
-        View navRoute = findViewById(R.id.nav_route_op);
-        if (navRoute != null) {
-            navRoute.setOnClickListener(v -> {
-                Intent intent = new Intent(this, QLTuyenxeActivity.class);
-                startActivity(intent);
-            });
-        }
-
-        // Nút Tài xế
-        View navDriver = findViewById(R.id.nav_driver_op);
-        if (navDriver != null) {
-            navDriver.setOnClickListener(v -> {
-                // Logic tài xế nếu có
-            });
-        }
-    }
-
-    private void loadOperatorData() {
-        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        tvOpNameHeader.setText(pref.getString("op_name", "Nhà xe Đà Nẵng-Huế"));
-        tvOpNameDetail.setText(pref.getString("op_name", "Nhà xe Đà Nẵng-Huế"));
-        tvOpRep.setText(pref.getString("op_rep", "Tôn Thất Huy Phong"));
-        tvOpAddress.setText(pref.getString("op_address", "K36/1 Lưu Quang Thuận, Đà Nẵng"));
-        tvOpPhone.setText(pref.getString("op_phone", "0905509767"));
-        tvOpEmail.setText(pref.getString("op_email", "dananghue@nhaxe.vn"));
+        if (navHome != null) navHome.setOnClickListener(v -> {
+            startActivity(new Intent(this, OperatorMainActivity.class));
+            finish();
+        });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100 && resultCode == RESULT_OK) {
-            loadOperatorData();
+            SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+            loadOperatorDataFromDB(pref.getString("op_uid", ""), pref.getString("op_user", ""));
         }
     }
 }
