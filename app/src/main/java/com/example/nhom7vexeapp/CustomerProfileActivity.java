@@ -200,14 +200,13 @@ public class CustomerProfileActivity extends AppCompatActivity {
         if (btnLogout != null) btnLogout.setOnClickListener(v -> handleLogout());
 
         if (btnDeleteAccount != null) {
-            btnDeleteAccount.setOnClickListener(v -> {
-                new AlertDialog.Builder(this)
-                        .setTitle("Xóa tài khoản")
-                        .setMessage("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu vĩnh viễn?")
-                        .setPositiveButton("Xóa", (dialog, which) -> deleteAccount())
-                        .setNegativeButton("Hủy", null).show();
-            });
+            btnDeleteAccount.setOnClickListener(v -> new AlertDialog.Builder(this)
+                    .setTitle("Xóa tài khoản").setMessage("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu vĩnh viễn?")
+                    .setPositiveButton("Xóa", (dialog, which) -> deleteAccount())
+                    .setNegativeButton("Hủy", null).show());
         }
+
+        if (navHome != null) navHome.setOnClickListener(v -> finish());
     }
 
     private void deleteAccount() {
@@ -226,9 +225,7 @@ public class CustomerProfileActivity extends AppCompatActivity {
 
     private void handleLogout() {
         getSharedPreferences("UserPrefs", MODE_PRIVATE).edit().clear().apply();
-        Intent intent = new Intent(this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        startActivity(new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
         finish();
     }
 

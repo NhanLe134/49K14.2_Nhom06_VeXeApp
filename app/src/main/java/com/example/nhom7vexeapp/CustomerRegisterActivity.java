@@ -45,7 +45,7 @@ public class CustomerRegisterActivity extends AppCompatActivity {
     private EditText edtPhoneInput, edtFullName, edtDob;
     private TextView tvFixedPhone, tvFileName;
     private Button btnVerifyPhone, btnSelectFile, btnFinish, btnCancel;
-    
+
     private String selectedImageBase64 = "";
     private ApiService apiService;
 
@@ -75,7 +75,7 @@ public class CustomerRegisterActivity extends AppCompatActivity {
         layoutStepForm = findViewById(R.id.layoutStepForm);
         edtPhoneInput = findViewById(R.id.edtPhoneInput);
         btnVerifyPhone = findViewById(R.id.btnVerifyPhone);
-        
+
         edtFullName = findViewById(R.id.edtFullName);
         edtDob = findViewById(R.id.edtDob);
         tvFixedPhone = findViewById(R.id.tvFixedPhone);
@@ -89,6 +89,72 @@ public class CustomerRegisterActivity extends AppCompatActivity {
         btnVerifyPhone.setOnClickListener(v -> {
             String phone = edtPhoneInput.getText().toString().trim();
             if (phone.length() >= 10) {
+                verifiedPhone = phone;
+                showOtpDialog();
+=======
+    private void saveUserData() {
+        // 1. Tự động sinh KHACHHANGID theo nguyên tắc KHxxxxx
+        String newCustomerId = IdGenerator.generateKhachHangID(this);
+
+        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+
+        // 2. Lưu thông tin tài khoản theo SĐT (để login)
+        editor.putString("id_" + verifiedPhone, newCustomerId);
+        editor.putString("name_" + verifiedPhone, edtFullName.getText().toString().trim());
+        editor.putString("dob_" + verifiedPhone, edtDob.getText().toString().trim());
+
+        // 3. Lưu thông tin phiên đăng nhập hiện tại
+        editor.putString("khachHangID", newCustomerId);
+        editor.putString("customerName", edtFullName.getText().toString().trim());
+        editor.putString("customerPhone", verifiedPhone);
+        editor.apply();
+
+        Toast.makeText(this, "Đăng ký thành công! Mã của bạn là: " + newCustomerId, Toast.LENGTH_LONG).show();
+    }
+
+    private void showOtpDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_otp, null);
+        builder.setView(view);
+
+        EditText otp1 = view.findViewById(R.id.otp1);
+        EditText otp2 = view.findViewById(R.id.otp2);
+        EditText otp3 = view.findViewById(R.id.otp3);
+        EditText otp4 = view.findViewById(R.id.otp4);
+        EditText otp5 = view.findViewById(R.id.otp5);
+        EditText otp6 = view.findViewById(R.id.otp6);
+        TextView tvOtpError = view.findViewById(R.id.tvOtpError);
+        Button btnVerifyOtp = view.findViewById(R.id.btnVerifyOtp);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        setupOtpEntry(otp1, otp2);
+        setupOtpEntry(otp2, otp3);
+        setupOtpEntry(otp3, otp4);
+        setupOtpEntry(otp4, otp5);
+        setupOtpEntry(otp5, otp6);
+
+        otp6.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 1) btnVerifyOtp.setVisibility(View.VISIBLE);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        btnVerifyOtp.setOnClickListener(v -> {
+            String code = otp1.getText().toString() + otp2.getText().toString() + otp3.getText().toString() +
+                          otp4.getText().toString() + otp5.getText().toString() + otp6.getText().toString();
+
+            if (code.equals("123456")) {
+                dialog.dismiss();
+                moveToForm();
+>>>>>>> Stashed changes
                 showOtpDialog(phone);
             } else {
                 Toast.makeText(this, "SĐT không hợp lệ!", Toast.LENGTH_SHORT).show();
@@ -113,7 +179,7 @@ public class CustomerRegisterActivity extends AppCompatActivity {
         b.setView(v);
         final AlertDialog d = b.create();
         d.show();
-        
+
         Button btn = v.findViewById(R.id.btnVerifyOtp);
         if (btn != null) {
             btn.setOnClickListener(v1 -> {
@@ -151,10 +217,10 @@ public class CustomerRegisterActivity extends AppCompatActivity {
                         } catch (Exception e) {}
                     }
                 }
-                
+
                 String nextUsId = String.format("US%05d", maxNum + 1);
                 String nextKhId = String.format("KH%05d", maxNum + 1);
-                
+
                 createKhachHangProfile(nextUsId, nextKhId, name, dob, phone);
             }
             @Override public void onFailure(Call<List<UserModel>> call, Throwable t) {
@@ -190,7 +256,7 @@ public class CustomerRegisterActivity extends AppCompatActivity {
         Map<String, String> auth = new HashMap<>();
         auth.put("UserID", usId);
         auth.put("TenDangNhap", phone);
-        auth.put("MatKhau", "123456"); 
+        auth.put("MatKhau", "123456");
         auth.put("SoDienThoai", phone);
         auth.put("Vaitro", "Khachhang");
         auth.put("KhachHang", khId);
@@ -233,8 +299,56 @@ public class CustomerRegisterActivity extends AppCompatActivity {
             byte[] bytes = baos.toByteArray();
             return "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP);
         } catch (Exception e) { return ""; }
+    private void moveToForm() {
+        layoutStepPhone.setVisibility(View.GONE);
+        layoutStepForm.setVisibility(View.VISIBLE);
+<<<<<<< Updated upstream
+        tvFixedPhone.setText(verifiedPhone);
     }
 
+    private boolean validateForm() {
+        return !edtFullName.getText().toString().isEmpty() && !edtDob.getText().toString().isEmpty();
+=======
+        tvHeaderTitle.setText("Đăng ký tài khoản khách hàng");
+        tvFixedPhone.setText(verifiedPhone);
+    }
+
+    private void showDatePicker() {
+        Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, y, m, d) -> {
+            edtDob.setText(String.format("%02d/%02d/%d", d, m + 1, y));
+            tvErrorDob.setVisibility(View.GONE);
+        }, year, month, day);
+        datePickerDialog.show();
+    }
+
+    private boolean validateForm() {
+        boolean isValid = true;
+        if (edtFullName.getText().toString().trim().isEmpty()) {
+            edtFullName.setBackgroundResource(R.drawable.bg_input_error);
+            tvErrorFullName.setVisibility(View.VISIBLE);
+            isValid = false;
+        }
+        if (edtDob.getText().toString().trim().isEmpty()) {
+            edtDob.setBackgroundResource(R.drawable.bg_input_error);
+            tvErrorDob.setVisibility(View.VISIBLE);
+            isValid = false;
+        }
+        return isValid;
+    }
+
+    private void handleCancel() {
+        new AlertDialog.Builder(this)
+                .setTitle("Thông báo")
+                .setMessage("Bạn có chắc chắn muốn hủy đăng ký?")
+                .setPositiveButton("Đồng ý", (dialog, which) -> finish())
+                .setNegativeButton("Không", null)
+                .show();
+>>>>>>> Stashed changes
     private void saveLoginInfo(String usId, String khId, String name) {
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         pref.edit().putBoolean("isLoggedIn", true)
