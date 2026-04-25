@@ -159,6 +159,25 @@
                         android:textStyle="italic"
                         android:visibility="gone" />
 
+                    <!-- Email -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:text="Email"
+                        android:textSize="12sp"
+                        android:textColor="#999999"/>
+                    <EditText
+                        android:id="@+id/edtEmailInput"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_input_white"
+                        android:hint="Nhập địa chỉ email"
+                        android:inputType="textEmailAddress"
+                        android:paddingHorizontal="15dp"
+                        android:textSize="14sp" />
+
                     <!-- Ngày sinh -->
                     <TextView
                         android:layout_width="wrap_content"

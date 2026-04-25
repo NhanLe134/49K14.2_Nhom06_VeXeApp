@@ -118,22 +118,16 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
                         if (opUid.equals(r.getNhaXeId())) routeList.add(r);
                     }
                     
-                    Collections.sort(routeList, new Comparator<Route>() {
-                        @Override
-                        public int compare(Route r1, Route r2) {
-                            return getStatusPriority(r1.getStatus()) - getStatusPriority(r2.getStatus());
-                        }
-                        private int getStatusPriority(String status) {
-                            if (status == null) return 0;
-                            if (status.equals("Đang hoạt động")) return 0;
-                            if (status.equals("Bảo trì")) return 1;
-                            if (status.equals("Ngưng hoạt động")) return 2;
-                            return 3;
-                        }
-                    });
-                    
+                    Collections.sort(routeList, (r1, r2) -> getStatusPriority(r1.getStatus()) - getStatusPriority(r2.getStatus()));
                     adapter.notifyDataSetChanged();
                 }
+            }
+            private int getStatusPriority(String status) {
+                if (status == null) return 0;
+                if (status.equals("Đang hoạt động")) return 0;
+                if (status.equals("Bảo trì")) return 1;
+                if (status.equals("Ngưng hoạt động")) return 2;
+                return 3;
             }
             @Override public void onFailure(Call<List<Route>> call, Throwable t) {}
         });
@@ -343,6 +337,14 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
         tvErrorEndPoint.setVisibility(View.GONE);
     }
 
+    @Override public void onEdit(Route route) { showRouteForm(route); }
+    @Override public void onDelete(Route route) {
+        showRouteConfirmDialog("Bạn có chắc muốn xóa Tuyến xe này không?\nHành động này không thể hoàn tác.", () -> {
+            if ("Đang hoạt động".equals(route.getStatus())) showActionErrorPopup("Không thể xóa tuyến xe,\ncó chuyến đang hoạt động");
+            else { routeList.remove(route); adapter.notifyDataSetChanged(); showActionSuccessPopup("Xóa Tuyến xe thành công"); }
+        });
+    }
+
     @Override public void onStatusChange(Route route) {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_status_selection, null);
         AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
@@ -388,13 +390,5 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
     private boolean isSpecialCharStart(String text) {
         if (text == null || text.isEmpty()) return false;
         return !Character.isLetterOrDigit(text.charAt(0));
-    }
-
-    @Override public void onEdit(Route route) { showRouteForm(route); }
-    @Override public void onDelete(Route route) {
-        showRouteConfirmDialog("Bạn có chắc muốn xóa Tuyến xe này không?\nHành động này không thể hoàn tác.", () -> {
-            if ("Đang hoạt động".equals(route.getStatus())) showActionErrorPopup("Không thể xóa tuyến xe,\ncó chuyến đang hoạt động");
-            else { routeList.remove(route); adapter.notifyDataSetChanged(); showActionSuccessPopup("Xóa Tuyến xe thành công"); }
-        });
     }
 }
