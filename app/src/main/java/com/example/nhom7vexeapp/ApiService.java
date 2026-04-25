@@ -1,8 +1,9 @@
 package com.example.nhom7vexeapp;
 
-import com.example.nhom7vexeapp.models.Loaixe;
 import com.example.nhom7vexeapp.models.LoginRequest;
 import com.example.nhom7vexeapp.models.Trip;
+import com.example.nhom7vexeapp.models.TripSearchResult;
+import com.example.nhom7vexeapp.models.UserResponse;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -17,13 +18,8 @@ public interface ApiService {
     Call<User> login(@Body LoginRequest loginRequest);
 
     @GET("chuyenxe/")
-    Call<List<Trip>> getChuyenXe();
+    Call<List<TripSearchResult>> getChuyenXe();
 
-    // Thêm các endpoint khác tại đây
-    // @GET("tuyenxe/")
-    // Call<List<Route>> getTuyenXe();
-
-    // Cập nhật lấy danh sách loại xe (đồng bộ với Django model Loaixe)
-    @GET("api/loaixe/")
-    Call<List<Loaixe>> getLoaixe();
+    @GET("user-auth/")
+    Call<UserResponse> getAllUsers();
 }

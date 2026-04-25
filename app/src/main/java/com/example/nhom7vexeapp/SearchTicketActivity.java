@@ -141,6 +141,9 @@ public class SearchTicketActivity extends AppCompatActivity {
     private void performSearch() {
         String origin = spOrigin.getSelectedItem().toString();
         String destination = spDestination.getSelectedItem().toString();
+        String date = edtDate.getText().toString();
+        String time = edtTime.getText().toString();
+
         if (origin.equals(destination)) {
             Toast.makeText(this, "Nơi đi và đến phải khác nhau!", Toast.LENGTH_SHORT).show();
             return;
@@ -148,6 +151,8 @@ public class SearchTicketActivity extends AppCompatActivity {
         Intent intent = new Intent(this, VeResultsActivity.class);
         intent.putExtra("ORIGIN_KEY", origin);
         intent.putExtra("DESTINATION_KEY", destination);
+        intent.putExtra("DATE_KEY", date);
+        intent.putExtra("TIME_KEY", time);
         startActivity(intent);
     }
 }
