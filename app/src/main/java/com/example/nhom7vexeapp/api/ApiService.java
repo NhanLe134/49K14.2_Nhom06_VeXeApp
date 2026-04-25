@@ -13,13 +13,26 @@ public interface ApiService {
     @POST("api/user-auth/") 
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
+    @GET("api/user-auth/")
+    Call<List<CustomerResponse>> getUsers();
+
     @GET("api/user-auth/{id}/")
     Call<CustomerResponse> getUserAuthDetail(@Path("id") String id);
 
     @POST("api/user-auth/")
     Call<Void> registerAuth(@Body Map<String, String> data);
 
-    // QUẢN LÝ KHÁCH HÀNG - HỖ TRỢ UPLOAD FILE ẢNH
+    // QUẢN LÝ NHÀ XE
+    @POST("api/nhaxe/")
+    Call<Void> createNhaXeProfile(@Body Map<String, String> data);
+
+    @GET("api/nhaxe/{id}/")
+    Call<Map<String, Object>> getNhaXeDetail(@Path("id") String id);
+
+    @PUT("api/nhaxe/{id}/")
+    Call<Void> updateNhaXeProfile(@Path("id") String id, @Body Map<String, String> data);
+
+    // QUẢN LÝ KHÁCH HÀNG
     @Multipart
     @POST("api/khachhang/")
     Call<Void> createKhachHangProfile(
@@ -48,6 +61,9 @@ public interface ApiService {
     // CÁC CHỨC NĂNG KHÁC
     @GET("api/chuyenxe/")
     Call<List<Trip>> getTrips();
+
+    @POST("api/chuyenxe/")
+    Call<Trip> createTrip(@Body Trip trip);
 
     @GET("api/loaixe/")
     Call<List<Loaixe>> getLoaixe();
