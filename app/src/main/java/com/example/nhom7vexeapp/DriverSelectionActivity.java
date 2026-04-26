@@ -105,6 +105,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
     }
 
     private void setupBottomNavigation() {
+        // Trang chủ -> OperatorMainActivity
         View navHome = findViewById(R.id.nav_home_op_main);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
@@ -114,6 +115,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
             });
         }
 
+        // Phương tiện -> PhuongTienManagementActivity
         View navVehicle = findViewById(R.id.nav_vehicle_op);
         if (navVehicle != null) {
             navVehicle.setOnClickListener(v -> {
@@ -122,11 +124,13 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
             });
         }
 
+        // Chuyến xe -> TripListActivity
         View navTrip = findViewById(R.id.nav_trip_op);
         if (navTrip != null) {
             navTrip.setOnClickListener(v -> startActivity(new Intent(this, TripListActivity.class)));
         }
 
+        // Tuyến xe -> QLTuyenxeActivity
         View navRoute = findViewById(R.id.nav_route_op);
         if (navRoute != null) {
             navRoute.setOnClickListener(v -> startActivity(new Intent(this, QLTuyenxeActivity.class)));
@@ -144,7 +148,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
                         public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> userResponse) {
                             if (userResponse.isSuccessful() && userResponse.body() != null) {
                                 List<UserModel> userList = userResponse.body();
-                                // SỬA LỖI: getTaiXeList (chữ X viết hoa)
+                                // Sửa getTaixeList -> getTaiXeList
                                 apiService.getTaiXeList("Get").enqueue(new Callback<List<TaixeModel>>() {
                                     @Override
                                     public void onResponse(Call<List<TaixeModel>> call, Response<List<TaixeModel>> txResponse) {
@@ -207,7 +211,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
         Button btnAction = view.findViewById(R.id.btnAction);
         Button btnDialogCancel = view.findViewById(R.id.btnDialogCancel);
         ImageView btnDialogClose = view.findViewById(R.id.btnDialogClose);
-        
+
         currentDialogImg = view.findViewById(R.id.imgDialogDriver);
         TextView btnChangeImage = view.findViewById(R.id.btnChangeImage);
 
@@ -220,7 +224,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
         final ChiTietTaiXeModel[] currentChiTiet = {null};
         final UserModel[] currentUser = {null};
 
-        // SỬA LỖI: getTaiXeList
+        // Sửa getTaixeList -> getTaiXeList
         apiService.getTaiXeList("Get").enqueue(new Callback<List<TaixeModel>>() {
             @Override
             public void onResponse(Call<List<TaixeModel>> call, Response<List<TaixeModel>> response) {
@@ -234,7 +238,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
                             String expiryDate = m.getNgayHetHanBangLai();
                             if (expiryDate != null && expiryDate.contains("T")) expiryDate = expiryDate.split("T")[0];
                             edtExpiry.setText(expiryDate);
-                            
+
                             if (m.getHinhAnhURL() != null && !m.getHinhAnhURL().isEmpty()) {
                                 Glide.with(DriverSelectionActivity.this).load(m.getHinhAnhURL()).placeholder(R.drawable.account_circle).into(currentDialogImg);
                             }
@@ -382,7 +386,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
             tx.setHinhAnhURL(selectedImageBase64);
         }
 
-        // SỬA LỖI: updateTaiXe
+        // Sửa updateTaixe -> updateTaiXe
         apiService.updateTaiXe(driver.getId(), tx).enqueue(new Callback<TaixeModel>() {
             @Override
             public void onResponse(Call<TaixeModel> call, Response<TaixeModel> response) {
@@ -448,7 +452,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         btnNo.setOnClickListener(v -> dialog.dismiss());
         btnYes.setOnClickListener(v -> {
-            // SỬA LỖI: deleteTaiXe
+            // Sửa deleteTaixe -> deleteTaiXe
             apiService.deleteTaiXe(driver.getId()).enqueue(new Callback<Void>() {
                 @Override public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {

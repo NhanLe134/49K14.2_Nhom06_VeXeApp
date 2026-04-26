@@ -4,19 +4,19 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class KhachHang implements Serializable {
-    @SerializedName("KhachHangID")
+    @SerializedName(value = "KhachHangID", alternate = {"id", "khach_hang_id", "MaKH"})
     private String khachHangID;
     
-    @SerializedName("hoTen")
+    @SerializedName(value = "Hovaten", alternate = {"ho_ten", "TenKhachHang", "HoTen", "name", "full_name", "ten_khach_hang"})
     private String hoTen;
     
     @SerializedName("Email")
     private String email;
     
-    @SerializedName("Ngaysinh")
+    @SerializedName(value = "Ngaysinh", alternate = {"ngay_sinh", "dob", "NgaySinh", "ngay_sinh_kh"})
     private String ngaySinh;
     
-    @SerializedName("AnhDaiDienURL")
+    @SerializedName(value = "AnhDaiDienURL", alternate = {"anh_dai_dien", "avatar", "image", "hinh_anh", "AnhDaiDien", "anh_dai_dien_url"})
     private String anhDaiDienURL;
     
     @SerializedName("NgayDangKy")
@@ -33,7 +33,9 @@ public class KhachHang implements Serializable {
     public String getKhachHangID() { return khachHangID; }
     public void setKhachHangID(String khachHangID) { this.khachHangID = khachHangID; }
 
-    public String getHoTen() { return hoTen; }
+    public String getHoTen() { 
+        return (hoTen != null && !hoTen.trim().isEmpty()) ? hoTen : "Khách hàng"; 
+    }
     public void setHoTen(String hoTen) { this.hoTen = hoTen; }
 
     public String getEmail() { return email; }

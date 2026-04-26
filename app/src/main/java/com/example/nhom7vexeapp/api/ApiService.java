@@ -2,6 +2,7 @@ package com.example.nhom7vexeapp.api;
 
 import com.example.nhom7vexeapp.models.BookingRequest;
 import com.example.nhom7vexeapp.models.Loaixe;
+import com.example.nhom7vexeapp.models.Seat;
 import com.example.nhom7vexeapp.models.Trip;
 import com.example.nhom7vexeapp.models.Driver;
 import com.example.nhom7vexeapp.models.TripSearchResult;
@@ -30,14 +31,10 @@ public interface ApiService {
 
     @POST("api/khachhang/dang-nhap/")
     Call<KhachHang> loginWithMap(@Body Map<String, String> body);
-    @POST("api/user-auth/")
-    Call<LoginResponse> login(@Body LoginRequest loginRequest);
 
     @GET("api/user-auth/")
-    Call<List<CustomerResponse>> getUsers();
     Call<List<UserModel>> getUsers(@Query("mode") String mode);
 
-    // BỔ SUNG: Hàm đăng ký tài khoản (Dành cho RegisterActivity)
     @GET("api/user-auth/{id}/")
     Call<CustomerResponse> getUserAuthDetail(@Path("id") String id);
 
@@ -52,9 +49,6 @@ public interface ApiService {
 
     @GET("api/taixe/")
     Call<List<Driver>> getDrivers();
-
-    @GET("api/user-auth/{id}/")
-    Call<CustomerResponse> getUserAuthDetail(@Path("id") String id);
 
     // --- 2. QUẢN LÝ NHÀ XE ---
     @POST("api/nhaxe/")
@@ -83,8 +77,15 @@ public interface ApiService {
     @GET("api/tuyenxe/")
     Call<List<Route>> getRoutes();
 
+    @POST("api/tuyenxe/")
+    Call<Void> createRoute(@Body Map<String, String> data);
+
     @PUT("api/tuyenxe/{id}/")
     Call<Void> updateRoute(@Path("id") String id, @Body Map<String, String> data);
+
+    @DELETE("api/tuyenxe/{id}/")
+    Call<Void> deleteRoute(@Path("id") String id);
+
     // --- 5. TÀI XẾ ---
     @GET("api/taixe/")
     Call<List<TaixeModel>> getTaiXeList(@Query("mode") String mode);
@@ -92,8 +93,6 @@ public interface ApiService {
     @POST("api/taixe/")
     Call<TaixeModel> createTaiXe(@Query("mode") String mode, @Body TaixeModel taixe);
 
-    @DELETE("api/tuyenxe/{id}/")
-    Call<Void> deleteRoute(@Path("id") String id);
     @PUT("api/taixe/{id}/")
     Call<TaixeModel> updateTaiXe(@Path("id") String id, @Body TaixeModel taixe);
 
@@ -109,15 +108,6 @@ public interface ApiService {
     @POST("api/chitiettaixe/")
     Call<ChiTietTaiXeModel> createChiTietTaiXe(@Query("mode") String mode, @Body ChiTietTaiXeModel chiTiet);
 
-    @Multipart
-    @POST("api/khachhang/")
-    Call<Void> createKhachHangProfile(
-            @Part("KhachHangID") RequestBody id,
-            @Part("hoTen") RequestBody name,
-            @Part("Email") RequestBody email,
-            @Part("Ngaysinh") RequestBody dob,
-            @Part MultipartBody.Part imageFile
-    );
     @GET("api/taixe/")
     Call<List<Map<String, Object>>> getDriversRaw();
 
@@ -137,10 +127,21 @@ public interface ApiService {
     @POST("api/khachhang/")
     Call<Void> createKhachHangProfile(@Body Map<String, String> data);
 
+    @Multipart
+    @POST("api/khachhang/")
+    Call<Void> createKhachHangProfileWithImage(
+            @Part("KhachHangID") RequestBody id,
+            @Part("hoTen") RequestBody name,
+            @Part("Email") RequestBody email,
+            @Part("Ngaysinh") RequestBody dob,
+            @Part MultipartBody.Part imageFile
+    );
+
     @POST("api/khachhang/dang-ky/")
     Call<KhachHang> register(@Body Map<String, String> data);
-    @DELETE("api/khachhang/{id}/")
-    Call<Void> deleteKhachHang(@Path("id") String id);
+
+    @PUT("api/khachhang/{id}/")
+    Call<Void> updateKhachHangProfile(@Path("id") String id, @Body Map<String, String> data);
 
     @Multipart
     @PUT("api/khachhang/{id}/")

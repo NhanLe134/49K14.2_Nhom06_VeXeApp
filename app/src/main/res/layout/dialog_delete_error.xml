@@ -14,24 +14,34 @@
         android:orientation="vertical"
         android:padding="32dp">
 
-        <!-- Dấu X đỏ chuẩn theo yêu cầu -->
+        <!-- Biểu tượng thông báo -->
         <ImageView
+            android:id="@+id/ivIcon"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            app:tint="#FF0000" />
+            android:src="@android:drawable/ic_dialog_info"
+            app:tint="#4CAF50" />
 
         <TextView
-            android:id="@+id/tvErrorMessage"
+            android:id="@+id/tvDialogMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:gravity="center"
-            android:text="Không thể xóa tuyến xe,\ncó chuyến đang hoạt động"
+            android:text="Thông báo"
             android:textColor="#000000"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="normal"
             android:lineSpacingExtra="4dp" />
+
+        <Button
+            android:id="@+id/btnOk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="OK"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

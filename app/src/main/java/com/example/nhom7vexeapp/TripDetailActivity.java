@@ -1,7 +1,9 @@
 package com.example.nhom7vexeapp;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -31,18 +33,20 @@ import retrofit2.Response;
 
 public class TripDetailActivity extends AppCompatActivity {
 
-    private TextView tvRouteName, tvTime, tvTotalSeats, tvAvailableSeats, tvStatus;
+    private TextView tvRouteName, tvTime, tvTotalSeats, tvAvailableSeats, tvStatus, tvStatusOption;
     private MaterialButton btnAssign;
     private RecyclerView rvPassengers;
     private Trip trip;
     private List<Passenger> passengerList = new ArrayList<>();
     private PassengerAdapter adapter;
-    private ImageView imgLogo;
+    private ImageView imgLogo, imgOpProfile;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_detail);
+        apiService = ApiClient.getClient().create(ApiService.class);
         initViews();
         loadData();
         setupBottomNavigation();
@@ -54,15 +58,114 @@ public class TripDetailActivity extends AppCompatActivity {
         tvTotalSeats = findViewById(R.id.tvTotalSeats);
         tvAvailableSeats = findViewById(R.id.tvAvailableSeats);
         tvStatus = findViewById(R.id.tvStatus);
+        tvStatusOption = findViewById(R.id.tvStatusOption);
         btnAssign = findViewById(R.id.btnAssign);
         rvPassengers = findViewById(R.id.rvPassengers);
         imgLogo = findViewById(R.id.imgLogo);
+        imgOpProfile = findViewById(R.id.imgOpProfile);
 
         rvPassengers.setLayoutManager(new LinearLayoutManager(this));
         adapter = new PassengerAdapter(passengerList);
         rvPassengers.setAdapter(adapter);
 
         if (imgLogo != null) imgLogo.setOnClickListener(v -> finish());
+
+        if (imgOpProfile != null) {
+            imgOpProfile.setOnClickListener(v -> {
+                startActivity(new Intent(this, OperatorProfileActivity.class));
+            });
+        }
+
+        if (tvStatus != null) {
+            tvStatus.setOnClickListener(v -> {
+                if (tvStatusOption != null) {
+                    boolean isVisible = tvStatusOption.getVisibility() == View.VISIBLE;
+                    tvStatusOption.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+                    
+                    String current = tvStatus.getText().toString();
+                    tvStatusOption.setText(current.equalsIgnoreCase("Hoàn thành") ? "Chưa hoàn thành" : "Hoàn thành");
+                    updateStatusStyle(tvStatusOption, tvStatusOption.getText().toString());
+                }
+            });
+        }
+
+        if (tvStatusOption != null) {
+            tvStatusOption.setOnClickListener(v -> {
+                String nextStatus = tvStatusOption.getText().toString();
+                showConfirmDialog(nextStatus);
+            });
+        }
+    }
+
+    private void showConfirmDialog(String nextStatus) {
+        new AlertDialog.Builder(this)
+            .setTitle("Xác nhận chuyển trạng thái")
+            .setMessage("Bạn có muốn xác nhận chuyển trạng thái sang '" + nextStatus + "' không?")
+            .setPositiveButton("Đồng ý", (dialog, which) -> {
+                tvStatusOption.setVisibility(View.GONE);
+                updateTripStatusOnServer(nextStatus);
+            })
+            .setNegativeButton("Không", (dialog, which) -> tvStatusOption.setVisibility(View.GONE))
+            .show();
+    }
+
+    private void updateTripStatusOnServer(String newStatus) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("TrangThai", newStatus);
+
+        apiService.patchTrip(trip.getId(), data).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    trip.setStatus(newStatus);
+                    tvStatus.setText(newStatus);
+                    updateStatusStyle(tvStatus, newStatus);
+                    
+                    if (newStatus.equalsIgnoreCase("Hoàn thành")) {
+                        updateAllTicketsToWaitingReview();
+                    }
+                    
+                    Toast.makeText(TripDetailActivity.this, "Cập nhật thành công!", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
+                }
+            }
+            @Override public void onFailure(Call<Void> call, Throwable t) {}
+        });
+    }
+
+    private void updateAllTicketsToWaitingReview() {
+        apiService.getTicketsByTrip(trip.getId()).enqueue(new Callback<List<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Map<String, Object> ticket : response.body()) {
+                        String veId = findVal(ticket, "VeID", "id", "VEID");
+                        if (!veId.isEmpty()) {
+                            Map<String, Object> patchData = new HashMap<>();
+                            patchData.put("TrangThai", "Chờ đánh giá");
+                            apiService.patchTicket(veId, patchData).enqueue(new Callback<Void>() {
+                                @Override public void onResponse(Call<Void> call, Response<Void> res) {}
+                                @Override public void onFailure(Call<Void> call, Throwable t) {}
+                            });
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {}
+        });
+    }
+
+    private void updateStatusStyle(TextView view, String status) {
+        GradientDrawable gd = new GradientDrawable();
+        gd.setCornerRadius(15);
+        if (status.equalsIgnoreCase("Hoàn thành")) {
+            gd.setColor(Color.parseColor("#E8F5E9"));
+            view.setTextColor(Color.parseColor("#4CAF50"));
+        } else {
+            gd.setColor(Color.parseColor("#FFF9C4"));
+            view.setTextColor(Color.parseColor("#FBC02D"));
+        }
+        view.setBackground(gd);
     }
 
     private void loadData() {
@@ -72,6 +175,7 @@ public class TripDetailActivity extends AppCompatActivity {
             tvTime.setText("Giờ xuất phát: " + trip.getTime());
             tvTotalSeats.setText("Tổng số ghế: " + trip.getSeats());
             tvStatus.setText(trip.getStatus());
+            updateStatusStyle(tvStatus, trip.getStatus());
             updateButtonState();
 
             btnAssign.setOnClickListener(v -> {
@@ -92,9 +196,7 @@ public class TripDetailActivity extends AppCompatActivity {
 
     private void fetchPassengersFromDB() {
         if (trip == null) return;
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
 
-        // 1. LẤY TÊN KHÁCH HÀNG
         apiService.getKhachHangList().enqueue(new Callback<List<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> resK) {
@@ -107,20 +209,17 @@ public class TripDetailActivity extends AppCompatActivity {
                     }
                 }
 
-                // 2. LẤY DANH SÁCH GHẾ (DÙNG MODEL SEAT)
                 apiService.getSeatsByTrip(trip.getId()).enqueue(new Callback<List<Seat>>() {
                     @Override
                     public void onResponse(Call<List<Seat>> call, Response<List<Seat>> resG) {
                         final List<Seat> allSeatsRaw = (resG.body() != null) ? resG.body() : new ArrayList<>();
 
-                        // 3. LẤY DANH SÁCH VÉ
                         apiService.getTicketsByTrip(trip.getId()).enqueue(new Callback<List<Map<String, Object>>>() {
                             @Override
                             public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
                                 if (response.isSuccessful() && response.body() != null) {
                                     passengerList.clear();
                                     for (Map<String, Object> v : response.body()) {
-                                        // KIỂM TRA ĐÚNG CHUYẾN XE
                                         String ticketTripId = findVal(v, "ChuyenXe", "chuyenxe", "ChuyenXeID");
                                         if (!ticketTripId.equalsIgnoreCase(trip.getId())) continue;
 
@@ -131,7 +230,6 @@ public class TripDetailActivity extends AppCompatActivity {
                                         String pickup = findVal(v, "DiemDon", "pickup", "diem_don");
                                         String dropoff = findVal(v, "DiemTra", "dropoff", "diem_tra");
 
-                                        // ✅ KHỚP SỐ GHẾ (soGhe) TỪ BẢNG GHẾ DỰA TRÊN VeID
                                         List<String> seatCodes = new ArrayList<>();
                                         for (Seat s : allSeatsRaw) {
                                             String sVeId = s.getTicketId();
@@ -141,23 +239,9 @@ public class TripDetailActivity extends AppCompatActivity {
                                             }
                                         }
 
-                                        // Fallback 1: Thử lấy trực tiếp từ bảng Vé (Cột "DANH SÁCH GHẾ")
                                         if (seatCodes.isEmpty()) {
                                             String direct = findVal(v, "DanhSachGhe", "danh_sach_ghe", "SOGHE", "soGhe");
                                             if (!direct.isEmpty()) seatCodes.add(direct);
-                                        }
-
-                                        // Fallback 2: Thử lấy ID ghế định danh trong vé rồi tra cứu
-                                        if (seatCodes.isEmpty()) {
-                                            String gId = findVal(v, "Ghe", "ghe", "MaGhe");
-                                            for (Seat s : allSeatsRaw) {
-                                                String sId = s.getId();
-                                                if (!sId.isEmpty() && sId.equalsIgnoreCase(gId)) {
-                                                    String code = s.getSeatCode();
-                                                    if (!code.isEmpty()) seatCodes.add(code);
-                                                    break;
-                                                }
-                                            }
                                         }
 
                                         String displaySeat = (seatCodes.isEmpty()) ? "??" : android.text.TextUtils.join(", ", seatCodes);
@@ -220,8 +304,27 @@ public class TripDetailActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
-        findViewById(R.id.nav_home_op_main).setOnClickListener(v -> finish());
-        findViewById(R.id.nav_trip_op).setOnClickListener(v -> startActivity(new Intent(this, TripListActivity.class)));
+        findViewById(R.id.nav_home_op_main).setOnClickListener(v -> {
+            startActivity(new Intent(this, OperatorMainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            finish();
+        });
+        // ✅ CẬP NHẬT ĐIỀU HƯỚNG TỚI MÀN HÌNH CHỌN TÀI XẾ (DriverSelectionActivity)
+        findViewById(R.id.nav_driver_op).setOnClickListener(v -> {
+            startActivity(new Intent(this, DriverSelectionActivity.class));
+            finish();
+        });
+        findViewById(R.id.nav_vehicle_op).setOnClickListener(v -> {
+            startActivity(new Intent(this, PhuongTienManagementActivity.class));
+            finish();
+        });
+        findViewById(R.id.nav_trip_op).setOnClickListener(v -> {
+            startActivity(new Intent(this, TripListActivity.class));
+            finish();
+        });
+        findViewById(R.id.nav_route_op).setOnClickListener(v -> {
+            startActivity(new Intent(this, QLTuyenxeActivity.class));
+            finish();
+        });
     }
 
     @Override

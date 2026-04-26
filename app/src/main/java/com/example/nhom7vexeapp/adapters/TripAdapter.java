@@ -1,5 +1,7 @@
 package com.example.nhom7vexeapp.adapters;
 
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,9 +49,21 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
                 holder.tvRouteName.setText(trip.getRouteName() != null ? trip.getRouteName() : "Chuyến xe mới");
             }
 
-            // Hiển thị trạng thái
+            // ✅ Hiển thị trạng thái với Style động
             if (holder.tvStatus != null) {
-                holder.tvStatus.setText(trip.getStatus() != null ? trip.getStatus() : "Đang chờ");
+                String status = trip.getStatus() != null ? trip.getStatus() : "Chưa hoàn thành";
+                holder.tvStatus.setText(status);
+                
+                GradientDrawable gd = new GradientDrawable();
+                gd.setCornerRadius(15);
+                if (status.equalsIgnoreCase("Hoàn thành")) {
+                    gd.setColor(Color.parseColor("#E8F5E9")); // Nền xanh nhạt
+                    holder.tvStatus.setTextColor(Color.parseColor("#4CAF50")); // Chữ xanh lá
+                } else {
+                    gd.setColor(Color.parseColor("#FFF9C4")); // Nền vàng nhạt
+                    holder.tvStatus.setTextColor(Color.parseColor("#FBC02D")); // Chữ vàng đậm
+                }
+                holder.tvStatus.setBackground(gd);
             }
 
             // Hiển thị thông tin xe
