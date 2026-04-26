@@ -92,20 +92,20 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         EditText edtPrice = dialog.findViewById(R.id.edtNewPrice);
         Button btnSave = dialog.findViewById(R.id.btnSavePrice);
         Button btnCancel = dialog.findViewById(R.id.btnCancelUpdate);
-        ImageView btnClose = dialog.findViewById(R.id.btnCancelUpdateTop);
+        ImageView btnCancelTop = dialog.findViewById(R.id.btnCancelUpdateTop);
 
-        if (tvCarInfo != null) tvCarInfo.setText(getDisplayNameBySeats(car.getSoCho()) + " (" + car.getSoCho() + " chỗ)");
+        tvCarInfo.setText(getDisplayNameBySeats(car.getSoCho()) + " (" + car.getSoCho() + " chỗ)");
         
-        // Hiển thị giá hiện tại an toàn
-        if (tvCurrentPrice != null) {
-            try {
-                double gia = Double.parseDouble(car.getGiaVe());
-                tvCurrentPrice.setText(String.format(Locale.getDefault(), "%,.0f đ", gia));
-            } catch (Exception e) {
-                tvCurrentPrice.setText(car.getGiaVe() + " đ");
-            }
-            tvCurrentPrice.setVisibility(View.VISIBLE);
+        try {
+            double gia = Double.parseDouble(car.getGiaVe());
+            tvCurrentPrice.setText(String.format(Locale.getDefault(), "%,.0f đ", gia));
+        } catch (Exception e) {
+            tvCurrentPrice.setText(car.getGiaVe() + " đ");
         }
+
+        View.OnClickListener cancelListener = v -> showCancelConfirmDialog(dialog);
+        if (btnCancel != null) btnCancel.setOnClickListener(cancelListener);
+        if (btnCancelTop != null) btnCancelTop.setOnClickListener(cancelListener);
 
         if (btnSave != null) {
             btnSave.setOnClickListener(vSave -> {
@@ -114,6 +114,9 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
                     Toast.makeText(context, "Vui lòng nhập giá mới", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                String oldPrice = car.getGiaVe();
+                String oldDate = car.getNgayCapNhatGia();
 
                 car.setGiaVe(newPrice);
                 String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
@@ -128,29 +131,27 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
                             dialog.dismiss();
                             showSuccessDialog("Cập nhật giá vé thành công");
                         } else {
+                            car.setGiaVe(oldPrice);
+                            car.setNgayCapNhatGia(oldDate);
                             Toast.makeText(context, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Loaixe> call, Throwable t) {
-                        Toast.makeText(context, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        car.setGiaVe(oldPrice);
+                        car.setNgayCapNhatGia(oldDate);
+                        Toast.makeText(context, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
                     }
                 });
             });
         }
-
-        // Khi nhấn Hủy, hiện dialog xác nhận
-        View.OnClickListener cancelListener = v -> showCancelConfirmDialog(dialog);
-        if (btnCancel != null) btnCancel.setOnClickListener(cancelListener);
-        if (btnClose != null) btnClose.setOnClickListener(cancelListener);
-
         dialog.show();
     }
 
     private void showCancelConfirmDialog(Dialog updateDialog) {
         Dialog cancelDialog = new Dialog(context);
-        cancelDialog.setContentView(R.layout.dialog_confirm_cancel); // Sửa ID layout cho đồng bộ với dự án
+        cancelDialog.setContentView(R.layout.dialog_cancle_update_price);
         if (cancelDialog.getWindow() != null) {
             cancelDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
@@ -159,29 +160,22 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         Button btnYes = cancelDialog.findViewById(R.id.btnYes);
 
         if (btnNo != null) btnNo.setOnClickListener(v -> cancelDialog.dismiss());
-
-        if (btnYes != null) {
-            btnYes.setOnClickListener(v -> {
-                cancelDialog.dismiss();
-                updateDialog.dismiss();
-            });
-        }
+        if (btnYes != null) btnYes.setOnClickListener(v -> {
+            cancelDialog.dismiss();
+            updateDialog.dismiss();
+        });
 
         cancelDialog.show();
     }
 
     private void showSuccessDialog(String message) {
-        Dialog successDialog = new Dialog(context);
+        Dialog successDialog = new Dialog(this.context);
         successDialog.setContentView(R.layout.dialog_success);
         if (successDialog.getWindow() != null) {
             successDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-
-        TextView tvMessage = successDialog.findViewById(R.id.tvMessage);
-        if (tvMessage != null) {
-            tvMessage.setText(message);
-        }
-
+        TextView tvMessage = successDialog.findViewById(R.id.tvSuccessMessage);
+        if (tvMessage != null) tvMessage.setText(message);
         successDialog.show();
         new Handler().postDelayed(successDialog::dismiss, 2000);
     }

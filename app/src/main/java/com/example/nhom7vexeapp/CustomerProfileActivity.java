@@ -4,13 +4,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -27,7 +25,6 @@ import com.example.nhom7vexeapp.viewmodels.CustomerViewModel;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.Map;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -53,6 +50,7 @@ public class CustomerProfileActivity extends AppCompatActivity {
         setupObservers();
         setupEvents();
 
+        // Cấu hình chọn ảnh từ thiết bị
         pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
             if (uri != null && imgAvatar != null) {
                 Glide.with(this).load(uri).into(imgAvatar);
@@ -92,7 +90,7 @@ public class CustomerProfileActivity extends AppCompatActivity {
         }
 
         String customerUid = pref.getString("customerUid", "");
-        
+
         if (!customerUid.isEmpty()) {
             loadFromDatabase(customerUid);
         } else {
@@ -110,7 +108,7 @@ public class CustomerProfileActivity extends AppCompatActivity {
                     KhachHang customer = response.body();
                     tvName.setText(customer.getHoTen() != null ? customer.getHoTen() : "Chưa cập nhật");
                     tvDob.setText(customer.getNgaySinh() != null ? customer.getNgaySinh() : "Chưa cập nhật");
-                    
+
                     // Cập nhật SĐT từ SharedPreferences nếu trên DB chưa có
                     SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
                     tvPhone.setText(pref.getString("customerPhone", ""));
@@ -179,9 +177,7 @@ public class CustomerProfileActivity extends AppCompatActivity {
                 Toast.makeText(CustomerProfileActivity.this, "Đã xóa tài khoản", Toast.LENGTH_SHORT).show();
                 handleLogout();
             }
-            @Override public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(CustomerProfileActivity.this, "Lỗi kết nối khi xóa!", Toast.LENGTH_SHORT).show();
-            }
+            @Override public void onFailure(Call<Void> call, Throwable t) {}
         });
     }
 

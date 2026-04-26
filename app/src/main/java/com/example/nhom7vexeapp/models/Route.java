@@ -1,16 +1,35 @@
 package com.example.nhom7vexeapp.models;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class Route implements Serializable {
+    @SerializedName("tuyenXeID")
     private String id;
+
+    @SerializedName("tenTuyen")
     private String name;
+
+    @SerializedName("diemDi")
     private String startPoint;
+
+    @SerializedName("DiemTrungGian")
     private String midPoint;
+
+    @SerializedName("diemDen")
     private String endPoint;
+
+    @SerializedName("QuangDuong")
     private String distance;
+
+    @SerializedName("ThoiGian")
     private String time;
-    private String status; // "Đang hoạt động" hoặc "Ngưng hoạt động"
+
+    @SerializedName("TrangThai")
+    private String status; // "Đang hoạt động", "Bảo trì" hoặc "Ngưng hoạt động"
+
+    @SerializedName("nhaXe")
+    private String nhaXeId;
 
     public Route(String id, String name, String startPoint, String midPoint, String endPoint, String distance, String time, String status) {
         this.id = id;
@@ -40,4 +59,7 @@ public class Route implements Serializable {
     public void setTime(String time) { this.time = time; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String getNhaXeId() { return nhaXeId; }
+    public void setNhaXeId(String nhaXeId) { this.nhaXeId = nhaXeId; }
 }
+

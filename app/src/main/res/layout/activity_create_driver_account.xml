@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   xmlns:app="http://schemas.android.com/apk/res-auto"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   android:background="#FFFFFF">
+
+
+   <!-- Header -->
+   <RelativeLayout
+       android:id="@+id/header"
+       android:layout_width="match_parent"
+       android:layout_height="60dp"
+       android:paddingHorizontal="15dp">
+
+
+       <TextView
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_centerVertical="true"
+           android:text="Tạo tài khoản tài xế"
+           android:textColor="#000000"
+           android:textSize="20sp"
+           android:textStyle="bold" />
+
+
+       <ImageView
+           android:id="@+id/btnClose"
+           android:layout_width="24dp"
+           android:layout_height="24dp"
+           android:layout_alignParentEnd="true"
+           android:layout_centerVertical="true"
+           android:src="@android:drawable/ic_menu_close_clear_cancel"
+           app:tint="#000000" />
+   </RelativeLayout>
+
+
+   <ScrollView
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:layout_below="@id/header"
+       android:layout_above="@id/btnSubmit">
+
+
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:orientation="vertical"
+           android:padding="20dp">
+
+
+           <!-- Tên đăng nhập -->
+           <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+               <TextView style="@style/LabelStyle" android:text="Tên đăng nhập" />
+               <TextView style="@style/LabelStyle" android:text=" *" android:textColor="#EF4444" />
+           </LinearLayout>
+           <EditText android:id="@+id/edtUsername" style="@style/InputStyle" android:hint="Vui lòng nhập tên đăng nhập" />
+           <TextView android:id="@+id/tvErrorUsername" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+           <!-- Mật khẩu -->
+           <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+               <TextView style="@style/LabelStyle" android:text="Mật khẩu" />
+               <TextView style="@style/LabelStyle" android:text=" *" android:textColor="#EF4444" />
+           </LinearLayout>
+           <EditText android:id="@+id/edtPassword" style="@style/InputStyle" android:hint="Vui lòng nhập mật khẩu" android:inputType="textPassword" />
+           <TextView android:id="@+id/tvErrorPassword" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+           <!-- Xác nhận mật khẩu -->
+           <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+               <TextView style="@style/LabelStyle" android:text="Xác nhận mật khẩu" />
+               <TextView style="@style/LabelStyle" android:text=" *" android:textColor="#EF4444" />
+           </LinearLayout>
+           <EditText android:id="@+id/edtConfirmPassword" style="@style/InputStyle" android:hint="Vui lòng xác nhận mật khẩu" android:inputType="textPassword" />
+           <TextView android:id="@+id/tvErrorConfirmPassword" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+           <!-- Họ tên -->
+           <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+               <TextView style="@style/LabelStyle" android:text="Họ tên tài xế" />
+               <TextView style="@style/LabelStyle" android:text=" *" android:textColor="#EF4444" />
+           </LinearLayout>
+           <EditText android:id="@+id/edtFullName" style="@style/InputStyle" android:hint="Vui lòng nhập họ và tên tài xế" />
+           <TextView android:id="@+id/tvErrorFullName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+           <!-- Số điện thoại -->
+           <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+               <TextView style="@style/LabelStyle" android:text="Số điện thoại" />
+               <TextView style="@style/LabelStyle" android:text=" *" android:textColor="#EF4444" />
+           </LinearLayout>
+           <EditText android:id="@+id/edtPhone" style="@style/InputStyle" android:hint="Vui lòng nhập số điện thoại" android:inputType="phone" />
+           <TextView android:id="@+id/tvErrorPhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+           <!-- CCCD -->
+           <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+               <TextView style="@style/LabelStyle" android:text="Số CCCD" />
+               <TextView style="@style/LabelStyle" android:text=" *" android:textColor="#EF4444" />
+           </LinearLayout>
+           <EditText android:id="@+id/edtCCCD" style="@style/InputStyle" android:hint="Vui lòng nhập số CCCD" android:inputType="number" />
+           <TextView android:id="@+id/tvErrorCCCD" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+           <!-- Bằng lái -->
+           <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+               <TextView style="@style/LabelStyle" android:text="Số bằng lái" />
+               <TextView style="@style/LabelStyle" android:text=" *" android:textColor="#EF4444" />
+           </LinearLayout>
+           <EditText android:id="@+id/edtLicense" style="@style/InputStyle" android:hint="Vui lòng nhập số bằng lái" />
+           <TextView android:id="@+id/tvErrorLicense" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+           <!-- Loại bằng -->
+           <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+               <TextView style="@style/LabelStyle" android:text="Loại bằng lái" />
+               <TextView style="@style/LabelStyle" android:text=" *" android:textColor="#EF4444" />
+           </LinearLayout>
+           <EditText android:id="@+id/edtLicenseType" style="@style/InputStyle" android:hint="Vui lòng nhập loại bằng lái" />
+           <TextView android:id="@+id/tvErrorLicenseType" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+           <!-- Ngày hết hạn -->
+           <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+               <TextView style="@style/LabelStyle" android:text="Ngày hết hạn bằng lái" />
+               <TextView style="@style/LabelStyle" android:text=" *" android:textColor="#EF4444" />
+           </LinearLayout>
+           <EditText android:id="@+id/edtExpiryDate" style="@style/InputStyle" android:hint="Nhập ngày hết hạn bằng lái" android:focusable="false" />
+           <TextView android:id="@+id/tvErrorExpiryDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+           <!-- Ảnh tài xế -->
+           <TextView style="@style/LabelStyle" android:text="Ảnh tài xế" />
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="50dp"
+               android:background="@drawable/bg_input_white"
+               android:gravity="center_vertical"
+               android:paddingHorizontal="10dp">
+               <Button
+                   android:id="@+id/btnSelectImage"
+                   android:layout_width="wrap_content"
+                   android:layout_height="35dp"
+                   android:text="Chọn tệp"
+                   android:textSize="12sp"
+                   android:textAllCaps="false"
+                   android:backgroundTint="#F3F4F6"
+                   android:textColor="#000000" />
+               <TextView android:id="@+id/tvImageName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:text="Chưa chọn tệp nào" android:textSize="12sp" />
+           </LinearLayout>
+           <TextView android:id="@+id/tvErrorImage" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#EF4444" android:textSize="12sp" android:visibility="gone" />
+
+
+       </LinearLayout>
+   </ScrollView>
+
+
+   <Button
+       android:id="@+id/btnSubmit"
+       android:layout_width="match_parent"
+       android:layout_height="55dp"
+       android:layout_alignParentBottom="true"
+       android:layout_margin="20dp"
+       android:backgroundTint="#13B5F6"
+       android:text="Tạo tài khoản"
+       android:textAllCaps="false"
+       android:textColor="@color/white"
+       android:textSize="16sp"
+       app:cornerRadius="10dp" />
+
+
+</RelativeLayout>

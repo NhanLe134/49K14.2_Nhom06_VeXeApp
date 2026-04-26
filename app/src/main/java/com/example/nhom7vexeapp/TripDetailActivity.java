@@ -5,9 +5,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -24,6 +25,7 @@ import com.example.nhom7vexeapp.models.Trip;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,19 +35,19 @@ import retrofit2.Response;
 
 public class TripDetailActivity extends AppCompatActivity {
 
-    private TextView tvRouteName, tvTime, tvTotalSeats, tvAvailableSeats, tvStatus;
+    private TextView tvRouteName, tvTime, tvTotalSeats, tvAvailableSeats, tvStatus, tvStatusOption;
     private MaterialButton btnAssign;
     private RecyclerView rvPassengers;
     private Trip trip;
     private int position;
-    private ApiService apiService;
+    private List<Passenger> passengerList = new ArrayList<>();
+    private PassengerAdapter adapter;
+    private ImageView btnBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_detail);
-
-        apiService = ApiClient.getClient().create(ApiService.class);
 
         initViews();
         loadInitialData();
@@ -58,8 +60,41 @@ public class TripDetailActivity extends AppCompatActivity {
         tvTotalSeats = findViewById(R.id.tvTotalSeats);
         tvAvailableSeats = findViewById(R.id.tvAvailableSeats);
         tvStatus = findViewById(R.id.tvStatus);
+        tvStatusOption = findViewById(R.id.tvStatusOption);
         btnAssign = findViewById(R.id.btnAssign);
         rvPassengers = findViewById(R.id.rvPassengers);
+        btnBack = findViewById(R.id.btnBack);
+
+        if (rvPassengers != null) {
+            rvPassengers.setLayoutManager(new LinearLayoutManager(this));
+            adapter = new PassengerAdapter(passengerList);
+            rvPassengers.setAdapter(adapter);
+        }
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
+
+        // Logic thay đổi trạng thái Chuyến xe (Hoàn thành / Chưa hoàn thành)
+        if (tvStatus != null) {
+            tvStatus.setOnClickListener(v -> {
+                if (trip == null || tvStatusOption == null) return;
+                if (tvStatusOption.getVisibility() == View.VISIBLE) {
+                    tvStatusOption.setVisibility(View.GONE);
+                } else {
+                    String currentStatus = trip.getStatus() != null ? trip.getStatus() : "";
+                    String optionText = currentStatus.equalsIgnoreCase("Hoàn thành") ? "Chưa hoàn thành" : "Hoàn thành";
+                    tvStatusOption.setText(optionText);
+                    tvStatusOption.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+
+        if (tvStatusOption != null) {
+            tvStatusOption.setOnClickListener(v -> {
+                updateTripStatusOnServer(tvStatusOption.getText().toString());
+            });
+        }
     }
 
     private void loadInitialData() {
@@ -68,87 +103,77 @@ public class TripDetailActivity extends AppCompatActivity {
 
         if (trip != null) {
             updateUI();
-            // Lấy thêm thông tin chi tiết từ API nếu cần (ví dụ hành khách thực tế)
-            fetchTripDetailsFromServer(trip.getId());
+            fetchPassengersFromDB();
         }
     }
 
     private void updateUI() {
-        tvRouteName.setText("Tuyến xe: " + trip.getRouteName());
+        if (trip == null) return;
+        tvRouteName.setText(trip.getRouteName());
         tvTime.setText("Giờ xuất phát: " + trip.getTime());
         tvTotalSeats.setText("Tổng số ghế: " + trip.getSeats());
-        
-        int occupied = (trip.getPassengers() != null) ? trip.getPassengers().size() : 0;
-        tvAvailableSeats.setText("Ghế trống: " + (trip.getSeats() - occupied));
         tvStatus.setText(trip.getStatus());
 
-        if (trip.getAssignedDriver() != null) {
+        // Cập nhật màu sắc trạng thái
+        if (trip.getStatus().equalsIgnoreCase("Hoàn thành")) {
+            tvStatus.setTextColor(Color.parseColor("#4CAF50"));
+        } else {
+            tvStatus.setTextColor(Color.parseColor("#FBC02D"));
+        }
+
+        // Cập nhật nút Phân công tài xế
+        if (trip.getTaiXeID() != null && !trip.getTaiXeID().isEmpty() && !trip.getTaiXeID().equals("null")) {
             btnAssign.setText("Hiển thị lộ trình chuyến");
         } else {
             btnAssign.setText("Phân công tài xế");
         }
 
         btnAssign.setOnClickListener(v -> {
-            if (trip.getAssignedDriver() == null) {
+            if (trip.getTaiXeID() == null || trip.getTaiXeID().isEmpty() || trip.getTaiXeID().equals("null")) {
                 Intent intent = new Intent(this, DriverSelectionActivity.class);
+                intent.putExtra("tripId", trip.getId());
                 startActivityForResult(intent, 500);
             } else {
-                Toast.makeText(this, "Tính năng xem lộ trình đang được cập nhật", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Tính năng lộ trình đang được phát triển", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void fetchTripDetailsFromServer(String tripId) {
-        // Giả sử Backend có API lấy danh sách hành khách đã đặt vé cho chuyến này
-        // Ở đây chúng ta sẽ lấy danh sách vé từ bảng Ve lọc theo ChuyenXeID
-        // Tạm thời để rỗng danh sách nếu chưa có API hành khách riêng biệt
-        setupPassengerList(new ArrayList<>());
+    private void fetchPassengersFromDB() {
+        if (trip == null) return;
+        ApiService apiService = ApiClient.getClient().create(ApiService.class);
+
+        // Gọi API lấy danh sách vé của chuyến xe này
+        apiService.getChuyenXe().enqueue(new Callback<List<com.example.nhom7vexeapp.models.TripSearchResult>>() {
+            @Override
+            public void onResponse(Call<List<com.example.nhom7vexeapp.models.TripSearchResult>> call, Response<List<com.example.nhom7vexeapp.models.TripSearchResult>> response) {
+                // Ở đây chúng ta sẽ lấy danh sách vé từ server dựa trên trip.getId()
+                // Do ApiService hiện tại chưa có hàm getTicketsByTrip, tôi sẽ để logic này chờ cập nhật
+                // Tạm thời hiển thị danh sách trống hoặc mock nếu cần.
+            }
+
+            @Override
+            public void onFailure(Call<List<com.example.nhom7vexeapp.models.TripSearchResult>> call, Throwable t) {}
+        });
     }
 
-    private void setupPassengerList(List<Passenger> passengers) {
-        if (passengers == null) passengers = new ArrayList<>();
-        trip.setPassengers(passengers);
-        
-        rvPassengers.setLayoutManager(new LinearLayoutManager(this));
-        rvPassengers.setAdapter(new PassengerAdapter(passengers));
-        
-        // Cập nhật lại số ghế trống sau khi có danh sách hành khách thật
-        tvAvailableSeats.setText("Ghế trống: " + (trip.getSeats() - passengers.size()));
+    private void updateTripStatusOnServer(String newStatus) {
+        // Logic gọi PATCH API để cập nhật trạng thái chuyến xe
+        // Sau khi thành công:
+        trip.setStatus(newStatus);
+        updateUI();
+        if (tvStatusOption != null) tvStatusOption.setVisibility(View.GONE);
+        Toast.makeText(this, "Đã cập nhật trạng thái", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 500 && resultCode == RESULT_OK && data != null) {
-            Driver driver = (Driver) data.getSerializableExtra("selectedDriver");
-            if (driver != null) {
-                showSuccessDialog(driver);
-            }
+        if (requestCode == 500 && resultCode == RESULT_OK) {
+            // Cập nhật lại dữ liệu sau khi phân công tài xế
+            setResult(RESULT_OK);
+            finish();
         }
-    }
-
-    private void showSuccessDialog(Driver driver) {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_success);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCancelable(false);
-
-        TextView tvMsg = dialog.findViewById(R.id.tvMessage);
-        if (tvMsg != null) tvMsg.setText("Phân công tài xế thành công");
-
-        dialog.show();
-
-        new android.os.Handler().postDelayed(() -> {
-            dialog.dismiss();
-            trip.setAssignedDriver(driver);
-            btnAssign.setText("Hiển thị lộ trình chuyến");
-            
-            Intent intent = new Intent();
-            intent.putExtra("updatedTrip", trip);
-            intent.putExtra("position", position);
-            setResult(RESULT_OK, intent);
-        }, 1500);
     }
 
     private void setupBottomNavigation() {

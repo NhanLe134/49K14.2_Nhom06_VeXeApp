@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
 import com.example.nhom7vexeapp.api.CustomerResponse;
+import com.example.nhom7vexeapp.models.UserModel;
 
 import java.util.List;
 
@@ -38,16 +39,26 @@ public class LoginActivity extends AppCompatActivity {
         initViews();
         apiService = ApiClient.getClient().create(ApiService.class);
 
-        tvSwitchMode.setOnClickListener(v -> {
-            isOperatorMode = !isOperatorMode;
-            updateUI();
-        });
+        if (tvSwitchMode != null) {
+            tvSwitchMode.setOnClickListener(v -> {
+                isOperatorMode = !isOperatorMode;
+                updateUI();
+            });
+        }
 
-        tvRegisterCustomer.setOnClickListener(v -> startActivity(new Intent(this, CustomerRegisterActivity.class)));
-        tvRegisterOperator.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
+        if (tvRegisterCustomer != null) {
+            tvRegisterCustomer.setOnClickListener(v -> startActivity(new Intent(this, CustomerRegisterActivity.class)));
+        }
+        if (tvRegisterOperator != null) {
+            tvRegisterOperator.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
+        }
 
-        btnLoginCustomer.setOnClickListener(v -> handleCustomerLogin());
-        btnLoginOperator.setOnClickListener(v -> handleOperatorLogin());
+        if (btnLoginCustomer != null) {
+            btnLoginCustomer.setOnClickListener(v -> handleCustomerLogin());
+        }
+        if (btnLoginOperator != null) {
+            btnLoginOperator.setOnClickListener(v -> handleOperatorLogin());
+        }
     }
 
     private void initViews() {
@@ -65,18 +76,17 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        if (isOperatorMode) {
-            tvLoginTitle.setText("Đăng nhập");
-            layoutCustomerLogin.setVisibility(View.GONE);
-            layoutOperatorLogin.setVisibility(View.VISIBLE);
-            tvSwitchMode.setText("Bạn là khách hàng?");
-            tvSwitchMode.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
-        } else {
-            tvLoginTitle.setText("Đăng nhập");
-            layoutCustomerLogin.setVisibility(View.VISIBLE);
-            layoutOperatorLogin.setVisibility(View.GONE);
-            tvSwitchMode.setText("Bạn là nhà xe?");
-            tvSwitchMode.setTextColor(android.graphics.Color.parseColor("#FF5722"));
+        if (tvLoginTitle != null) tvLoginTitle.setText(isOperatorMode ? "Đăng nhập Nhà xe" : "Đăng nhập Khách hàng");
+        if (layoutCustomerLogin != null) layoutCustomerLogin.setVisibility(isOperatorMode ? View.GONE : View.VISIBLE);
+        if (layoutOperatorLogin != null) layoutOperatorLogin.setVisibility(isOperatorMode ? View.VISIBLE : View.GONE);
+
+        if (tvSwitchMode != null) {
+            tvSwitchMode.setText(isOperatorMode ? "Bạn là khách hàng?" : "Bạn là nhà xe?");
+            if (isOperatorMode) {
+                tvSwitchMode.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+            } else {
+                tvSwitchMode.setTextColor(android.graphics.Color.parseColor("#FF5722"));
+            }
         }
     }
 
@@ -87,21 +97,24 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // ĐÃ SỬA: Xóa tham số "Get" để khớp với ApiService
         apiService.getUsers().enqueue(new Callback<List<CustomerResponse>>() {
             @Override
             public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     CustomerResponse foundUser = null;
                     for (CustomerResponse u : response.body()) {
-                        if (u.getSdt() != null && u.getSdt().equals(phoneInput)) {
+                        if (phoneInput.equals(u.getSdt())) {
                             foundUser = u; break;
                         }
                     }
 
-                    if (foundUser != null && "KhachHang".equalsIgnoreCase(foundUser.getVaitro())) {
-                        saveAndGo(foundUser, "customer");
+                    if (foundUser != null) {
+                        String realKhId = foundUser.getKhachHang();
+                        if (realKhId == null || realKhId.isEmpty()) realKhId = foundUser.getUserID();
+                        saveAndGo(foundUser, "customer", realKhId);
                     } else {
-                        Toast.makeText(LoginActivity.this, "SĐT chưa đăng ký hoặc không phải khách hàng!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Số điện thoại chưa đăng ký!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -121,6 +134,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // ĐÃ SỬA: Xóa tham số "Get" để khớp với ApiService
         apiService.getUsers().enqueue(new Callback<List<CustomerResponse>>() {
             @Override
             public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
@@ -133,7 +147,9 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     if (foundOp != null && "Nhaxe".equalsIgnoreCase(foundOp.getVaitro())) {
-                        saveAndGo(foundOp, "operator");
+                        String realOpId = foundOp.getNhaxe();
+                        if (realOpId == null || realOpId.isEmpty()) realOpId = foundOp.getUserID();
+                        saveAndGo(foundOp, "operator", realOpId);
                     } else {
                         Toast.makeText(LoginActivity.this, "Sai tài khoản hoặc mật khẩu!", Toast.LENGTH_SHORT).show();
                     }
@@ -146,21 +162,22 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void saveAndGo(CustomerResponse user, String role) {
+    private void saveAndGo(CustomerResponse user, String role, String targetId) {
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean("isLoggedIn", true);
         editor.putString("role", role);
-        
-        // ĐỒNG BỘ CÁC KEY LƯU TRỮ
-        editor.putString("customerUid", user.getUserID());
-        editor.putString("customerName", user.getTenKhachHang());
-        editor.putString("customerPhone", user.getSdt());
-        
+
         if ("operator".equals(role)) {
-            editor.putString("op_uid", user.getUserID());
+            editor.putString("op_uid", targetId);
+            editor.putString("op_user", user.getTenKhachHang());
             startActivity(new Intent(this, OperatorMainActivity.class));
         } else {
+            // ĐỒNG BỘ CÁC KEY QUAN TRỌNG CHO CHỨC NĂNG ĐẶT VÉ CỦA BẠN
+            editor.putString("customerUid", targetId);
+            editor.putString("user_id", user.getUserID());
+            editor.putString("customerName", user.getTenKhachHang());
+            editor.putString("customerPhone", user.getSdt());
             startActivity(new Intent(this, MainActivity.class));
         }
         editor.apply();

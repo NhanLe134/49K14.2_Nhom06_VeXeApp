@@ -20,7 +20,7 @@
             android:id="@+id/btnBack"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@android:drawable/ic_menu_revert"
+            android:src="@drawable/ic_back_chevron"
             app:tint="@color/white" />
 
         <TextView
@@ -66,17 +66,23 @@
                         app:civ_border_color="#DDDDDD"
                         app:civ_border_width="2dp" />
 
-                    <ImageView
+                    <!-- NÚT CÂY BÚT (DÙNG CARD ĐỂ TẠO HÌNH TRÒN XANH) -->
+                    <androidx.cardview.widget.CardView
                         android:id="@+id/btnEditProfileImage"
                         android:layout_width="35dp"
                         android:layout_height="35dp"
                         android:layout_alignParentBottom="true"
                         android:layout_alignParentEnd="true"
-                        android:background="@drawable/bg_shift_item"
-                        android:backgroundTint="#00B0FF"
-                        android:padding="8dp"
-                        android:src="@android:drawable/ic_menu_edit"
-                        app:tint="@color/white" />
+                        app:cardBackgroundColor="#00B0FF"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="2dp">
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="8dp"
+                            android:src="@android:drawable/ic_menu_edit"
+                            app:tint="@color/white" />
+                    </androidx.cardview.widget.CardView>
                 </RelativeLayout>
 
                 <TextView
@@ -84,7 +90,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:text="Nguyễn Văn An"
+                    android:text="Khách hàng"
                     android:textColor="#000000"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -92,51 +98,31 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="25dp"
                     android:orientation="horizontal">
                     <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Số điện thoại" android:textColor="#666666"/>
-                    <TextView android:id="@+id/tvProfilePhone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0916441979" android:textColor="#333333" android:textStyle="bold"/>
+                    <TextView android:id="@+id/tvProfilePhone" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Chưa có" android:textColor="#333333" android:textStyle="bold"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="12dp"
                     android:orientation="horizontal">
                     <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Ngày sinh" android:textColor="#666666"/>
-                    <TextView android:id="@+id/tvProfileDob" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="20/11/2004" android:textColor="#333333" android:textStyle="bold"/>
+                    <TextView android:id="@+id/tvProfileDob" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Chưa cập nhật" android:textColor="#333333" android:textStyle="bold"/>
                 </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnEditProfile"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="30dp"
-                    android:text="Chỉnh sửa thông tin"
-                    android:textAllCaps="false"
-                    app:cornerRadius="8dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogout"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:layout_marginTop="12dp"
-                    app:backgroundTint="#858383"
+                    android:layout_marginTop="40dp"
+                    app:backgroundTint="#FF3D00"
                     android:text="Đăng xuất"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
                     app:cornerRadius="8dp" />
-
-                <TextView
-                    android:id="@+id/btnDeleteAccount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="Xóa tài khoản"
-                    android:textColor="#F44336"
-                    android:textSize="14sp"
-                    android:clickable="true"
-                    android:focusable="true"/>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -152,19 +138,8 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent">
-        <LinearLayout
-            android:id="@+id/nav_home_profile"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/home" app:tint="#757575"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textSize="10sp"/>
-        </LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/search" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tìm kiếm vé" android:textSize="10sp"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_home_profile" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/home" app:tint="#757575"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textSize="10sp"/></LinearLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/search" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tìm kiếm" android:textSize="10sp"/></LinearLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ticket" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vé của tôi" android:textSize="10sp"/></LinearLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/feedback" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đánh giá" android:textSize="10sp"/></LinearLayout>
     </LinearLayout>

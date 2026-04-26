@@ -16,9 +16,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // Thêm JitPack để tải thư viện OSM
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "Nhom7VeXeApp"
 include(":app")
- 

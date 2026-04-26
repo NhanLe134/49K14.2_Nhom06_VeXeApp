@@ -229,12 +229,14 @@
                         android:text="Quãng đường (km)"
                         android:textSize="12sp" />
                     <EditText
+                        android:id="@+id/edtAutoDistance"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:layout_marginTop="4dp"
-                        android:background="#F0F0F0"
+                        android:background="@drawable/bg_input_gray_rounded"
                         android:enabled="false"
-                        android:text="Tự động"
+                        android:text="tự động"
+                        android:textColor="#333333"
                         android:paddingHorizontal="12dp"
                         android:textSize="14sp" />
 
@@ -245,12 +247,14 @@
                         android:text="Thời gian di chuyển dự kiến"
                         android:textSize="12sp" />
                     <EditText
+                        android:id="@+id/edtAutoTime"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:layout_marginTop="4dp"
-                        android:background="#F0F0F0"
+                        android:background="@drawable/bg_input_gray_rounded"
                         android:enabled="false"
-                        android:text="Tự động"
+                        android:text="tự động"
+                        android:textColor="#333333"
                         android:paddingHorizontal="12dp"
                         android:textSize="14sp" />
 
@@ -284,11 +288,11 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="10dp"
                         android:gravity="center"
-                        android:text="Quãng đường và thời gian được hệ thống tự động tính từ Google Map"
-                        android:textSize="10sp"
-                        android:textColor="#888888"/>
+                        android:text="Lộ trình được tự động tính từ thư viện OSM"
+                        android:textSize="9sp"
+                        android:textColor="#AAAAAA"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

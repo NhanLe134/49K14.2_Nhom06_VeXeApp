@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
-    <!-- Quyền Bluetooth để tránh lỗi hệ thống khi thu thập thông tin năng lượng -->
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
@@ -24,7 +23,6 @@
         android:theme="@style/Theme.Nhom7VeXeApp"
         android:usesCleartextTraffic="true">
 
-        <!-- Hiển thị MainActivity (Trang chủ khách hàng) làm màn hình khởi đầu -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -76,6 +74,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".TripRouteActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".DriverSelectionActivity"
             android:exported="false" />
 
@@ -119,11 +121,14 @@
             android:name=".PhanHoiActivity"
             android:exported="false" />
 
-
         <activity
             android:name=".VietNhanXetActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" />
+
+        <activity
+            android:name=".CreateDriverAccountActivity"
+            android:exported="false" />
 
     </application>
 

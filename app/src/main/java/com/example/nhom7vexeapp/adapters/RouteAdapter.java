@@ -21,6 +21,7 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
     public interface OnRouteActionListener {
         void onEdit(Route route);
         void onDelete(Route route);
+        void onStatusChange(Route route);
     }
 
     public RouteAdapter(List<Route> routeList, OnRouteActionListener listener) {
@@ -49,16 +50,26 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
         GradientDrawable shape = new GradientDrawable();
         shape.setCornerRadius(20f);
         
-        if ("Đang hoạt động".equals(route.getStatus())) {
+        String status = route.getStatus();
+        if (status == null) status = "Đang hoạt động";
+
+        if ("Đang hoạt động".equals(status)) {
             holder.tvStatus.setText("Đang hoạt động");
             holder.tvStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
             shape.setColor(Color.parseColor("#E8F5E9")); // Light Green
+        } else if ("Bảo trì".equals(status)) {
+            holder.tvStatus.setText("Bảo trì");
+            holder.tvStatus.setTextColor(Color.parseColor("#FBC02D")); // Yellow/Amber
+            shape.setColor(Color.parseColor("#FFF9C4")); // Light Yellow
         } else {
             holder.tvStatus.setText("Ngưng hoạt động");
-            holder.tvStatus.setTextColor(Color.parseColor("#EF6C00")); // Orange
-            shape.setColor(Color.parseColor("#FFF3E0")); // Light Orange
+            holder.tvStatus.setTextColor(Color.parseColor("#D32F2F")); // Red
+            shape.setColor(Color.parseColor("#FFEBEE")); // Light Red
         }
         holder.tvStatus.setBackground(shape);
+
+        // Click on status to change
+        holder.tvStatus.setOnClickListener(v -> listener.onStatusChange(route));
 
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(route));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(route));

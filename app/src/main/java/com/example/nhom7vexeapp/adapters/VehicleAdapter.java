@@ -115,7 +115,7 @@ public class VehicleAdapter extends RecyclerView.Adapter<VehicleAdapter.VehicleV
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_success, null);
         builder.setView(dialogView);
 
-        TextView tvMessage = dialogView.findViewById(R.id.tvMessage);
+        TextView tvMessage = dialogView.findViewById(R.id.tvSuccessMessage);
         if (tvMessage != null) {
             tvMessage.setText("Đã xóa thông tin xe thành công.");
         }

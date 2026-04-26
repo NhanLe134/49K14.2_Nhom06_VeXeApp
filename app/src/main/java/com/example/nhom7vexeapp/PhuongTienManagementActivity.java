@@ -24,7 +24,7 @@ public class PhuongTienManagementActivity extends AppCompatActivity {
             });
         }
 
-        // 2. NÚT "QUẢN LÝ PHƯƠNG TIỆN" - Sửa lỗi chuyển màn hình
+        // 2. NÚT "QUẢN LÝ PHƯƠNG TIỆN"
         CardView btnManageVehicle = findViewById(R.id.btnManageVehicleMain);
         if (btnManageVehicle != null) {
             btnManageVehicle.setOnClickListener(v -> {
@@ -47,6 +47,7 @@ public class PhuongTienManagementActivity extends AppCompatActivity {
     }
 
     private void setupBottomNavigation() {
+        // Trang chủ -> OperatorMainActivity
         LinearLayout navHome = findViewById(R.id.nav_home_op_main);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
@@ -56,16 +57,22 @@ public class PhuongTienManagementActivity extends AppCompatActivity {
             });
         }
         
+        // Tài xế -> DriverSelectionActivity (Đã sửa từ QLNhaxeActivity sang DriverSelectionActivity)
         LinearLayout navDriver = findViewById(R.id.nav_driver_op);
         if (navDriver != null) {
-            navDriver.setOnClickListener(v -> startActivity(new Intent(this, QLNhaxeActivity.class)));
+            navDriver.setOnClickListener(v -> {
+                Intent intent = new Intent(this, DriverSelectionActivity.class);
+                startActivity(intent);
+            });
         }
 
+        // Chuyến xe -> TripListActivity
         LinearLayout navTrip = findViewById(R.id.nav_trip_op);
         if (navTrip != null) {
             navTrip.setOnClickListener(v -> startActivity(new Intent(this, TripListActivity.class)));
         }
 
+        // Tuyến xe -> QLTuyenxeActivity
         LinearLayout navRoute = findViewById(R.id.nav_route_op);
         if (navRoute != null) {
             navRoute.setOnClickListener(v -> startActivity(new Intent(this, QLTuyenxeActivity.class)));
