@@ -42,11 +42,11 @@ import retrofit2.Response;
 public class EditOperatorProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "EditOpProfile";
-    private EditText edtName, edtRep, edtAddress, edtPhone, edtEmail;
+    private EditText edtName, edtRep, edtAddress, edtPhone;
     private TextView tvErrorName, tvFileName;
     private MaterialButton btnSave, btnCancel, btnSelectFile;
     private ImageView imgPreview;
-    private String opUid; 
+    private String opUid, opEmail = ""; 
     private String selectedImageBase64 = "";
 
     private final ActivityResultLauncher<Intent> pickImageLauncher =
@@ -78,30 +78,14 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
             pickImageLauncher.launch(intent);
         });
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> showCancelConfirmPopup());
-        btnCancel.setOnClickListener(v -> showCancelConfirmPopup());
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        btnCancel.setOnClickListener(v -> finish());
 
         btnSave.setOnClickListener(v -> {
             if (validateForm()) {
                 handleSmartUpdate();
             }
         });
-    }
-
-    private void showCancelConfirmPopup() {
-        View dv = getLayoutInflater().inflate(R.layout.dialog_confirm_cancel, null);
-        AlertDialog dialog = new AlertDialog.Builder(this).setView(dv).create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-        
-        dv.findViewById(R.id.btnNo).setOnClickListener(v -> dialog.dismiss());
-        dv.findViewById(R.id.btnYes).setOnClickListener(v -> {
-            dialog.dismiss();
-            finish();
-        });
-        
-        dialog.show();
     }
 
     private String encodeImageToBase64(Uri uri) {
@@ -123,7 +107,6 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
         edtRep = findViewById(R.id.edtEditOpRep);
         edtAddress = findViewById(R.id.edtEditOpAddress);
         edtPhone = findViewById(R.id.edtEditOpPhone);
-        edtEmail = findViewById(R.id.edtEditOpEmail);
         tvErrorName = findViewById(R.id.tvErrorOpName);
         btnSave = findViewById(R.id.btnSaveEditOp);
         btnCancel = findViewById(R.id.btnCancelEditOp);
@@ -144,7 +127,7 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
                     edtRep.setText(data.getRepresentative());
                     edtAddress.setText(data.getAddress());
                     edtPhone.setText(data.getPhone());
-                    edtEmail.setText(data.getEmail());
+                    opEmail = data.getEmail();
                     String imgData = data.getBannerUrl();
                     if (imgData != null && !imgData.isEmpty()) {
                         Glide.with(EditOperatorProfileActivity.this)
@@ -165,11 +148,12 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
         Toast.makeText(this, "Đang cập nhật...", Toast.LENGTH_SHORT).show();
 
-        Map<String, String> data = new HashMap<>();
+        // Sửa lỗi incompatible types: Map<String, String> -> Map<String, Object>
+        Map<String, Object> data = new HashMap<>();
         data.put("NhaxeID", opUid);
         data.put("Tennhaxe", edtName.getText().toString().trim()); 
         data.put("TenNguoiDaiDien", edtRep.getText().toString().trim());
-        data.put("Email", edtEmail.getText().toString().trim());
+        data.put("Email", (opEmail == null || opEmail.isEmpty()) ? "nhaxe@gmail.com" : opEmail);
         data.put("AnhDaiDien", selectedImageBase64); 
         data.put("DiaChiTruSo", edtAddress.getText().toString().trim());
         data.put("SoDienThoai", edtPhone.getText().toString().trim());

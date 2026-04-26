@@ -13,9 +13,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
-import com.example.nhom7vexeapp.api.CustomerResponse;
+import com.example.nhom7vexeapp.models.UserModel;
 
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,20 +35,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        initViews();
-        // Sử dụng ApiClient chuẩn của nhóm bạn
+        // Khởi tạo ApiService trước khi dùng
         apiService = ApiClient.getClient().create(ApiService.class);
-
-        tvSwitchMode.setOnClickListener(v -> {
-            isOperatorMode = !isOperatorMode;
-            updateUI();
-        });
-
-        tvRegisterCustomer.setOnClickListener(v -> startActivity(new Intent(this, CustomerRegisterActivity.class)));
-        tvRegisterOperator.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
-
-        btnLoginCustomer.setOnClickListener(v -> handleCustomerLogin());
-        btnLoginOperator.setOnClickListener(v -> handleOperatorLogin());
+        initViews();
+        setupEvents();
     }
 
     private void initViews() {
@@ -64,92 +55,133 @@ public class LoginActivity extends AppCompatActivity {
         btnLoginOperator = findViewById(R.id.btnLoginOperator);
     }
 
+    private void setupEvents() {
+        if (tvSwitchMode != null) {
+            tvSwitchMode.setOnClickListener(v -> {
+                isOperatorMode = !isOperatorMode;
+                updateUI();
+            });
+        }
+
+        if (tvRegisterCustomer != null) {
+            tvRegisterCustomer.setOnClickListener(v -> startActivity(new Intent(this, CustomerRegisterActivity.class)));
+        }
+        if (tvRegisterOperator != null) {
+            tvRegisterOperator.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
+        }
+
+        if (btnLoginCustomer != null) {
+            btnLoginCustomer.setOnClickListener(v -> handleCustomerLogin());
+        }
+        if (btnLoginOperator != null) {
+            btnLoginOperator.setOnClickListener(v -> handleOperatorLogin());
+        }
+    }
+
     private void updateUI() {
-        if (isOperatorMode) {
-            tvLoginTitle.setText("Đăng nhập Nhà xe");
-            layoutCustomerLogin.setVisibility(View.GONE);
-            layoutOperatorLogin.setVisibility(View.VISIBLE);
-            tvSwitchMode.setText("Bạn là khách hàng?");
-        } else {
-            tvLoginTitle.setText("Đăng nhập Khách hàng");
-            layoutCustomerLogin.setVisibility(View.VISIBLE);
-            layoutOperatorLogin.setVisibility(View.GONE);
-            tvSwitchMode.setText("Bạn là nhà xe?");
+        if (tvLoginTitle != null) tvLoginTitle.setText(isOperatorMode ? "Đăng nhập Nhà xe" : "Đăng nhập Khách hàng");
+        if (layoutCustomerLogin != null) layoutCustomerLogin.setVisibility(isOperatorMode ? View.GONE : View.VISIBLE);
+        if (layoutOperatorLogin != null) layoutOperatorLogin.setVisibility(isOperatorMode ? View.VISIBLE : View.GONE);
+
+        if (tvSwitchMode != null) {
+            tvSwitchMode.setText(isOperatorMode ? "Bạn là khách hàng?" : "Bạn là nhà xe?");
         }
     }
 
     private void handleCustomerLogin() {
+        if (edtPhoneLogin == null) return;
         final String phoneInput = edtPhoneLogin.getText().toString().trim();
-        if (phoneInput.length() < 10) {
-            Toast.makeText(this, "Số điện thoại không hợp lệ", Toast.LENGTH_SHORT).show();
+        if (phoneInput.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập số điện thoại!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        apiService.getUsers().enqueue(new Callback<List<CustomerResponse>>() {
+        apiService.getUsers("Get").enqueue(new Callback<List<UserModel>>() {
             @Override
-            public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    CustomerResponse found = null;
-                    for (CustomerResponse u : response.body()) {
-                        if (phoneInput.equals(u.getSdt())) {
-                            found = u; break;
+                    UserModel foundUser = null;
+                    for (UserModel u : response.body()) {
+                        if (phoneInput.equals(u.getSoDienThoai())) {
+                            foundUser = u; break;
                         }
                     }
 
-                    if (found != null && "KhachHang".equalsIgnoreCase(found.getVaitro())) {
-                        saveAndGo(found.getKhachHang(), "customer");
+                    if (foundUser != null) {
+                        String realKhId = foundUser.getKhachHang();
+                        if (realKhId == null || realKhId.isEmpty()) realKhId = foundUser.getUserID();
+                        saveAndGo(foundUser, "customer", realKhId);
                     } else {
-                        Toast.makeText(LoginActivity.this, "SĐT chưa đăng ký khách hàng!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Số điện thoại chưa đăng ký!", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    Toast.makeText(LoginActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
-            @Override public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "Lỗi kết nối Render", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onFailure(Call<List<UserModel>> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void handleOperatorLogin() {
+        if (edtUsername == null || edtPassword == null) return;
         final String user = edtUsername.getText().toString().trim();
         final String pass = edtPassword.getText().toString().trim();
 
-        apiService.getUsers().enqueue(new Callback<List<CustomerResponse>>() {
+        if (user.isEmpty() || pass.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập đủ thông tin!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        apiService.getUsers("Get").enqueue(new Callback<List<UserModel>>() {
             @Override
-            public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    CustomerResponse found = null;
-                    for (CustomerResponse u : response.body()) {
-                        if (user.equals(u.getTenKhachHang()) && pass.equals(u.getMatKhau())) {
-                            found = u; break;
+                    UserModel foundOp = null;
+                    for (UserModel u : response.body()) {
+                        if (user.equals(u.getTenDangNhap()) && pass.equals(u.getMatKhau())) {
+                            foundOp = u; break;
                         }
                     }
 
-                    if (found != null && "Nhaxe".equalsIgnoreCase(found.getVaitro())) {
-                        saveAndGo(found.getNhaxe(), "operator");
+                    if (foundOp != null && "Nhaxe".equalsIgnoreCase(foundOp.getVaitro())) {
+                        String realOpId = foundOp.getNhaxe();
+                        if (realOpId == null || realOpId.isEmpty()) realOpId = foundOp.getUserID();
+                        saveAndGo(foundOp, "operator", realOpId);
                     } else {
                         Toast.makeText(LoginActivity.this, "Sai tài khoản hoặc mật khẩu!", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    Toast.makeText(LoginActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
-            @Override public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {}
+            @Override
+            public void onFailure(Call<List<UserModel>> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    private void saveAndGo(String realId, String role) {
+    private void saveAndGo(UserModel user, String role, String targetId) {
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean("isLoggedIn", true);
         editor.putString("role", role);
-        editor.putString("op_uid", realId);
-        editor.putString("customerUid", realId);
-        editor.putString("khachHangID", realId);
-        editor.apply();
 
         if ("operator".equals(role)) {
+            editor.putString("op_uid", targetId);
+            editor.putString("op_user", user.getTenDangNhap());
             startActivity(new Intent(this, OperatorMainActivity.class));
         } else {
+            editor.putString("customerUid", targetId);
+            editor.putString("user_id", user.getUserID());
+            editor.putString("customerName", user.getTenDangNhap());
+            editor.putString("customerPhone", user.getSoDienThoai());
             startActivity(new Intent(this, MainActivity.class));
         }
+        editor.apply();
         finish();
     }
 }
