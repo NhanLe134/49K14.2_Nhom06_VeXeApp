@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = "com.example.nhom7vexeapp"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.nhom7vexeapp"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -37,10 +37,11 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.gson)
+    implementation(libs.glide)
 
-    // Tải ảnh từ URL/Base64
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    // OPEN STREET MAP (OSM) - MIỄN PHÍ
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
+    implementation("com.github.MKergall:osmbonuspack:6.9.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

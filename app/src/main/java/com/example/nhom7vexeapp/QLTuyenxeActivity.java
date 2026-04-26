@@ -109,28 +109,48 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
 
     private void fetchRoutesFromApi() {
         if (opUid == null || opUid.isEmpty()) return;
-        apiService.getRoutes().enqueue(new Callback<List<Route>>() {
+        apiService.getRoutes().enqueue(new Callback<List<Map<String, Object>>>() {
             @Override
-            public void onResponse(Call<List<Route>> call, Response<List<Route>> response) {
+            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     routeList.clear();
-                    for (Route r : response.body()) {
-                        if (opUid.equals(r.getNhaXeId())) routeList.add(r);
+                    for (Map<String, Object> rMap : response.body()) {
+                        String nhaXeId = findVal(rMap, "Nhaxe", "NhaxeID", "nhaXe");
+                        if (opUid.equals(nhaXeId)) {
+                            String id = findVal(rMap, "TuyenXeID", "id", "tuyenXeID");
+                            String name = findVal(rMap, "TenTuyen", "name", "tenTuyen");
+                            String start = findVal(rMap, "DiemDi", "startPoint", "diemDi");
+                            String mid = findVal(rMap, "DiemTrungGian", "midPoint");
+                            String end = findVal(rMap, "DiemDen", "endPoint", "diemDen");
+                            String dist = findVal(rMap, "QuangDuong", "distance");
+                            String time = findVal(rMap, "ThoiGian", "time");
+                            String status = findVal(rMap, "TrangThai", "status");
+
+                            routeList.add(new Route(id, name, start, mid, end, dist, time, status));
+                        }
                     }
                     
                     Collections.sort(routeList, (r1, r2) -> getStatusPriority(r1.getStatus()) - getStatusPriority(r2.getStatus()));
                     adapter.notifyDataSetChanged();
                 }
             }
-            private int getStatusPriority(String status) {
-                if (status == null) return 0;
-                if (status.equals("Đang hoạt động")) return 0;
-                if (status.equals("Bảo trì")) return 1;
-                if (status.equals("Ngưng hoạt động")) return 2;
-                return 3;
+
+            private String findVal(Map<String, Object> m, String... keys) {
+                for (String k : keys) {
+                    if (m.containsKey(k) && m.get(k) != null) return m.get(k).toString();
+                }
+                return "";
             }
-            @Override public void onFailure(Call<List<Route>> call, Throwable t) {}
+            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {}
         });
+    }
+
+    private int getStatusPriority(String status) {
+        if (status == null) return 0;
+        if (status.equals("Đang hoạt động")) return 0;
+        if (status.equals("Bảo trì")) return 1;
+        if (status.equals("Ngưng hoạt động")) return 2;
+        return 3;
     }
 
     private void setupEvents() {
@@ -311,84 +331,65 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
         apiService.updateRoute(id, data).enqueue(new Callback<Void>() {
             @Override public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    fetchRoutesFromApi();
-                    showActionSuccessPopup(editingRoute == null ? "Thêm thông tin Tuyến xe thành công" : "Cập nhật thông tin Tuyến xe thành công");
                     hideRouteForm();
+                    fetchRoutesFromApi();
+                    Toast.makeText(QLTuyenxeActivity.this, "Đã lưu tuyến xe!", Toast.LENGTH_SHORT).show();
                 }
-            }
-            @Override public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(QLTuyenxeActivity.this, "Lỗi kết nối API!", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void showFieldError(EditText editText, TextView errorTextView, String message) {
-        editText.setBackgroundResource(R.drawable.bg_input_error);
-        errorTextView.setText(message);
-        errorTextView.setVisibility(View.VISIBLE);
-    }
-
-    private void clearErrors() {
-        edtRouteName.setBackgroundResource(R.drawable.bg_input_white);
-        edtStartPoint.setBackgroundResource(R.drawable.bg_input_white);
-        edtEndPoint.setBackgroundResource(R.drawable.bg_input_white);
-        tvErrorRouteName.setVisibility(View.GONE);
-        tvErrorStartPoint.setVisibility(View.GONE);
-        tvErrorEndPoint.setVisibility(View.GONE);
-    }
-
-    @Override public void onEdit(Route route) { showRouteForm(route); }
-    @Override public void onDelete(Route route) {
-        showRouteConfirmDialog("Bạn có chắc muốn xóa Tuyến xe này không?\nHành động này không thể hoàn tác.", () -> {
-            if ("Đang hoạt động".equals(route.getStatus())) showActionErrorPopup("Không thể xóa tuyến xe,\ncó chuyến đang hoạt động");
-            else { routeList.remove(route); adapter.notifyDataSetChanged(); showActionSuccessPopup("Xóa Tuyến xe thành công"); }
-        });
-    }
-
-    @Override public void onStatusChange(Route route) {
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_status_selection, null);
-        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialogView.findViewById(R.id.btnStatusActive).setOnClickListener(v -> { updateRouteStatusApi(route, "Đang hoạt động"); dialog.dismiss(); });
-        dialogView.findViewById(R.id.btnStatusMaintain).setOnClickListener(v -> { updateRouteStatusApi(route, "Bảo trì"); dialog.dismiss(); });
-        dialogView.findViewById(R.id.btnStatusStop).setOnClickListener(v -> { updateRouteStatusApi(route, "Ngưng hoạt động"); dialog.dismiss(); });
-        dialog.show();
-    }
-
-    private void updateRouteStatusApi(Route route, String newStatus) {
-        Map<String, String> data = new HashMap<>();
-        data.put("tuyenXeID", route.getId()); data.put("nhaXe", opUid); data.put("tenTuyen", route.getName());
-        data.put("diemDi", route.getStartPoint()); data.put("diemDen", route.getEndPoint());
-        data.put("DiemTrungGian", route.getMidPoint()); data.put("QuangDuong", route.getDistance());
-        data.put("ThoiGian", route.getTime()); data.put("TrangThai", newStatus);
-        apiService.updateRoute(route.getId(), data).enqueue(new Callback<Void>() {
-            @Override public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) { fetchRoutesFromApi(); showActionSuccessPopup("Cập nhật trạng thái thành công"); }
             }
             @Override public void onFailure(Call<Void> call, Throwable t) {}
         });
     }
 
-    private void showActionSuccessPopup(String message) {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_route_success, null);
-        TextView tvMsg = dialogView.findViewById(R.id.tvRouteSuccessMessage);
-        if (tvMsg != null) tvMsg.setText(message);
-        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.show();
-        new Handler().postDelayed(dialog::dismiss, 2000);
+    private boolean isSpecialCharStart(String s) {
+        if (s == null || s.isEmpty()) return false;
+        char c = s.charAt(0);
+        return !Character.isLetterOrDigit(c);
     }
 
-    private void showActionErrorPopup(String message) {
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_delete_error, null);
-        AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView).create();
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.show();
-        new Handler().postDelayed(dialog::dismiss, 2000);
+    private void showFieldError(EditText edt, TextView tvError, String msg) {
+        tvError.setText(msg);
+        tvError.setVisibility(View.VISIBLE);
+        edt.setBackgroundResource(R.drawable.bg_input_error);
     }
 
-    private boolean isSpecialCharStart(String text) {
-        if (text == null || text.isEmpty()) return false;
-        return !Character.isLetterOrDigit(text.charAt(0));
+    private void clearErrors() {
+        tvErrorRouteName.setVisibility(View.GONE);
+        tvErrorStartPoint.setVisibility(View.GONE);
+        tvErrorEndPoint.setVisibility(View.GONE);
+        edtRouteName.setBackgroundResource(R.drawable.bg_input_white);
+        edtStartPoint.setBackgroundResource(R.drawable.bg_input_white);
+        edtEndPoint.setBackgroundResource(R.drawable.bg_input_white);
+    }
+
+    @Override
+    public void onEdit(Route route) {
+        showRouteForm(route);
+    }
+
+    @Override
+    public void onDelete(Route route) {
+        showRouteConfirmDialog("Xác nhận xóa tuyến xe: " + route.getName() + "?", () -> {
+            routeList.remove(route);
+            adapter.notifyDataSetChanged();
+            Toast.makeText(this, "Đã xóa tuyến xe", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    @Override
+    public void onStatusChange(Route route) {
+        String newStatus = route.getStatus().equals("Đang hoạt động") ? "Ngưng hoạt động" : "Đang hoạt động";
+        route.setStatus(newStatus);
+        
+        Map<String, String> data = new HashMap<>();
+        data.put("TrangThai", newStatus);
+        apiService.updateRoute(route.getId(), data).enqueue(new Callback<Void>() {
+            @Override public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Collections.sort(routeList, (r1, r2) -> getStatusPriority(r1.getStatus()) - getStatusPriority(r2.getStatus()));
+                    adapter.notifyDataSetChanged();
+                }
+            }
+            @Override public void onFailure(Call<Void> call, Throwable t) {}
+        });
     }
 }

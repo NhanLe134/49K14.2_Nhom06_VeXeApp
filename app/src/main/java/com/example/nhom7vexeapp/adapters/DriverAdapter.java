@@ -38,20 +38,17 @@ public class DriverAdapter extends RecyclerView.Adapter<DriverAdapter.DriverView
     public void onBindViewHolder(@NonNull DriverViewHolder holder, int position) {
         Driver driver = driverList.get(position);
         
-        if (holder.tvName != null) {
-            holder.tvName.setText(driver.getName() != null ? driver.getName() : "Không rõ tên");
-        }
-        
-        if (holder.tvPhone != null) {
-            holder.tvPhone.setText(driver.getPhone() != null ? driver.getPhone() : "N/A");
-        }
+        holder.tvName.setText(driver.getName());
+        holder.tvPhone.setText(driver.getPhone() != null ? driver.getPhone() : "N/A");
 
-        if (holder.imgDriver != null) {
+        if (driver.getAvatarUrl() != null && !driver.getAvatarUrl().isEmpty()) {
             Glide.with(holder.itemView.getContext())
                 .load(driver.getAvatarUrl())
                 .placeholder(R.drawable.account_circle)
                 .error(R.drawable.account_circle)
-                .into(holder.imgDriver);
+                .into(holder.imgAvatar);
+        } else {
+            holder.imgAvatar.setImageResource(R.drawable.account_circle);
         }
 
         holder.itemView.setOnClickListener(v -> {
@@ -72,15 +69,15 @@ public class DriverAdapter extends RecyclerView.Adapter<DriverAdapter.DriverView
 
     static class DriverViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvPhone;
+        CircleImageView imgAvatar;
         ImageView btnDelete;
-        CircleImageView imgDriver;
 
         public DriverViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvDriverName);
             tvPhone = itemView.findViewById(R.id.tvDriverPhone);
+            imgAvatar = itemView.findViewById(R.id.imgDriverAvatar);
             btnDelete = itemView.findViewById(R.id.btnDeleteDriver);
-            imgDriver = itemView.findViewById(R.id.imgDriver);
         }
     }
 }

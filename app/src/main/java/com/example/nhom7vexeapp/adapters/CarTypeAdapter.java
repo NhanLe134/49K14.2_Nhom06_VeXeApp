@@ -174,7 +174,7 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         if (successDialog.getWindow() != null) {
             successDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        TextView tvMessage = successDialog.findViewById(R.id.tvMessage);
+        TextView tvMessage = successDialog.findViewById(R.id.tvSuccessMessage);
         if (tvMessage != null) tvMessage.setText(message);
         successDialog.show();
         new Handler().postDelayed(successDialog::dismiss, 2000);

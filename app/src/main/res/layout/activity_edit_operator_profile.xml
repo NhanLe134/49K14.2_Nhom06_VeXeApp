@@ -69,6 +69,7 @@
                         android:layout_height="45dp"
                         android:layout_marginTop="5dp"
                         android:background="@drawable/bg_input_white"
+                        android:inputType="text"
                         android:paddingHorizontal="15dp"
                         android:textSize="14sp" />
                     <TextView
@@ -98,6 +99,7 @@
                         android:layout_height="45dp"
                         android:layout_marginTop="5dp"
                         android:background="@drawable/bg_input_white"
+                        android:inputType="text"
                         android:paddingHorizontal="15dp"
                         android:textSize="14sp" />
                     <TextView
@@ -127,6 +129,7 @@
                         android:layout_height="45dp"
                         android:layout_marginTop="5dp"
                         android:background="@drawable/bg_input_white"
+                        android:inputType="text"
                         android:paddingHorizontal="15dp"
                         android:textSize="14sp" />
                     <TextView
@@ -156,6 +159,7 @@
                         android:layout_height="45dp"
                         android:layout_marginTop="5dp"
                         android:background="@drawable/bg_input_white"
+                        android:inputType="phone"
                         android:paddingHorizontal="15dp"
                         android:textSize="14sp" />
                     <TextView

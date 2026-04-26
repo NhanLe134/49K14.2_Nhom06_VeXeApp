@@ -16,8 +16,8 @@ public class NhaXe implements Serializable {
     @SerializedName("Email")
     private String email;
 
-    @SerializedName("AnhDaiDienURL")
-    private String bannerUrl;
+    @SerializedName("AnhDaiDien")
+    private String bannerUrl; // Đã đổi SerializedName thành AnhDaiDien để khớp với Admin
 
     @SerializedName("DiaChiTruSo")
     private String address;
