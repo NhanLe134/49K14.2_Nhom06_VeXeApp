@@ -25,6 +25,7 @@ import com.example.nhom7vexeapp.api.ApiService;
 import com.example.nhom7vexeapp.models.Trip;
 
 import java.util.Calendar;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -191,9 +192,10 @@ public class CreateTripActivity extends AppCompatActivity {
 
     private void saveTripToApi(Trip trip) {
         Toast.makeText(this, "Đang lưu lên server...", Toast.LENGTH_SHORT).show();
-        apiService.createTrip(trip).enqueue(new Callback<Trip>() {
+        // Sửa Callback từ Trip sang List<Trip> để khớp với ApiService
+        apiService.createTrip(trip).enqueue(new Callback<List<Trip>>() {
             @Override
-            public void onResponse(Call<Trip> call, Response<Trip> response) {
+            public void onResponse(Call<List<Trip>> call, Response<List<Trip>> response) {
                 if (response.isSuccessful()) {
                     showSuccessDialog(trip);
                 } else {
@@ -202,7 +204,7 @@ public class CreateTripActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<Trip> call, Throwable t) {
+            public void onFailure(Call<List<Trip>> call, Throwable t) {
                 Toast.makeText(CreateTripActivity.this, "Lỗi kết nối Render!", Toast.LENGTH_SHORT).show();
             }
         });

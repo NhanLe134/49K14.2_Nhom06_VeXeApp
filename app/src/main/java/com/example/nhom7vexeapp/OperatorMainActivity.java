@@ -35,8 +35,6 @@ public class OperatorMainActivity extends AppCompatActivity {
 
     private void setupEvents() {
         // 1. Khi bấm vào Avatar: Merge Logic
-        // Dẫn sang OperatorProfileActivity (Hồ sơ nhà xe) theo bản của họ
-        // hoặc Xù có thể đổi lại QLNhaxeActivity nếu muốn quản lý thông tin chung
         if (imgOpProfile != null) {
             imgOpProfile.setOnClickListener(v -> {
                 Intent intent = new Intent(OperatorMainActivity.this, QLNhaxeActivity.class);
@@ -69,12 +67,11 @@ public class OperatorMainActivity extends AppCompatActivity {
             });
         }
 
-        // 5. Tab "Tài xế": Theo bản của họ dẫn vào QLNhaxeActivity
+        // 5. Tab "Tài xế": Dẫn vào DriverSelectionActivity (Quản lý tài xế)
         if (navDriver != null) {
             navDriver.setOnClickListener(v -> {
-                Intent intent = new Intent(OperatorMainActivity.this, QLNhaxeActivity.class);
+                Intent intent = new Intent(OperatorMainActivity.this, DriverSelectionActivity.class);
                 startActivity(intent);
-                Toast.makeText(this, "Quản lý thông tin nhà xe & Tài xế", Toast.LENGTH_SHORT).show();
             });
         }
 

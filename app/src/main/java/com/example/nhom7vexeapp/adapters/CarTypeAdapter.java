@@ -91,20 +91,14 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         TextView tvCurrentPrice = dialog.findViewById(R.id.tvDialogCurrentPrice);
         EditText edtPrice = dialog.findViewById(R.id.edtNewPrice);
         Button btnSave = dialog.findViewById(R.id.btnSavePrice);
-        Button btnCancel = dialog.findViewById(R.id.btnCancelUpdate);
-        ImageView btnClose = dialog.findViewById(R.id.btnCancelUpdateTop);
 
-        if (tvCarInfo != null) tvCarInfo.setText(getDisplayNameBySeats(car.getSoCho()) + " (" + car.getSoCho() + " chỗ)");
+        tvCarInfo.setText(getDisplayNameBySeats(car.getSoCho()) + " (" + car.getSoCho() + " chỗ)");
         
-        // Hiển thị giá hiện tại an toàn
-        if (tvCurrentPrice != null) {
-            try {
-                double gia = Double.parseDouble(car.getGiaVe());
-                tvCurrentPrice.setText(String.format(Locale.getDefault(), "%,.0f đ", gia));
-            } catch (Exception e) {
-                tvCurrentPrice.setText(car.getGiaVe() + " đ");
-            }
-            tvCurrentPrice.setVisibility(View.VISIBLE);
+        try {
+            double gia = Double.parseDouble(car.getGiaVe());
+            tvCurrentPrice.setText(String.format(Locale.getDefault(), "%,.0f đ", gia));
+        } catch (Exception e) {
+            tvCurrentPrice.setText(car.getGiaVe() + " đ");
         }
 
         if (btnSave != null) {
@@ -120,9 +114,10 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
                 car.setNgayCapNhatGia(currentDate);
 
                 ApiService apiService = ApiClient.getClient().create(ApiService.class);
-                apiService.updateLoaixe(car.getLoaixeID(), car).enqueue(new Callback<Loaixe>() {
+                // Đổi Callback sang List<Loaixe>
+                apiService.updateLoaixe(car.getLoaixeID(), car).enqueue(new Callback<List<Loaixe>>() {
                     @Override
-                    public void onResponse(Call<Loaixe> call, Response<Loaixe> response) {
+                    public void onResponse(Call<List<Loaixe>> call, Response<List<Loaixe>> response) {
                         if (response.isSuccessful()) {
                             notifyItemChanged(position);
                             dialog.dismiss();
@@ -133,55 +128,23 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
                     }
 
                     @Override
-                    public void onFailure(Call<Loaixe> call, Throwable t) {
-                        Toast.makeText(context, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    public void onFailure(Call<List<Loaixe>> call, Throwable t) {
+                        Toast.makeText(context, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
                     }
                 });
             });
         }
-
-        // Khi nhấn Hủy, hiện dialog xác nhận
-        View.OnClickListener cancelListener = v -> showCancelConfirmDialog(dialog);
-        if (btnCancel != null) btnCancel.setOnClickListener(cancelListener);
-        if (btnClose != null) btnClose.setOnClickListener(cancelListener);
-
         dialog.show();
     }
 
-    private void showCancelConfirmDialog(Dialog updateDialog) {
-        Dialog cancelDialog = new Dialog(context);
-        cancelDialog.setContentView(R.layout.dialog_confirm_cancel); // Sửa ID layout cho đồng bộ với dự án
-        if (cancelDialog.getWindow() != null) {
-            cancelDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        Button btnNo = cancelDialog.findViewById(R.id.btnNo);
-        Button btnYes = cancelDialog.findViewById(R.id.btnYes);
-
-        if (btnNo != null) btnNo.setOnClickListener(v -> cancelDialog.dismiss());
-
-        if (btnYes != null) {
-            btnYes.setOnClickListener(v -> {
-                cancelDialog.dismiss();
-                updateDialog.dismiss();
-            });
-        }
-
-        cancelDialog.show();
-    }
-
     private void showSuccessDialog(String message) {
-        Dialog successDialog = new Dialog(context);
+        Dialog successDialog = new Dialog(this.context);
         successDialog.setContentView(R.layout.dialog_success);
         if (successDialog.getWindow() != null) {
             successDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-
         TextView tvMessage = successDialog.findViewById(R.id.tvMessage);
-        if (tvMessage != null) {
-            tvMessage.setText(message);
-        }
-
+        if (tvMessage != null) tvMessage.setText(message);
         successDialog.show();
         new Handler().postDelayed(successDialog::dismiss, 2000);
     }

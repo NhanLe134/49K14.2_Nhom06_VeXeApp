@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
-import com.example.nhom7vexeapp.api.CustomerResponse;
+import com.example.nhom7vexeapp.models.UserModel;
 
 import java.util.List;
 
@@ -87,26 +87,26 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        apiService.getUsers().enqueue(new Callback<List<CustomerResponse>>() {
+        apiService.getUsers("Get").enqueue(new Callback<List<UserModel>>() {
             @Override
-            public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    CustomerResponse foundUser = null;
-                    for (CustomerResponse u : response.body()) {
-                        if (u.getSdt() != null && u.getSdt().equals(phoneInput)) {
+                    UserModel foundUser = null;
+                    for (UserModel u : response.body()) {
+                        if (u.getSoDienThoai() != null && u.getSoDienThoai().equals(phoneInput)) {
                             foundUser = u; break;
                         }
                     }
 
                     if (foundUser != null && "KhachHang".equalsIgnoreCase(foundUser.getVaitro())) {
-                        saveAndGo(foundUser.getUserID(), "customer");
+                        saveAndGo(foundUser, "customer");
                     } else {
                         Toast.makeText(LoginActivity.this, "SĐT chưa đăng ký hoặc không phải khách hàng!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
             @Override
-            public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {
+            public void onFailure(Call<List<UserModel>> call, Throwable t) {
                 Toast.makeText(LoginActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -121,43 +121,45 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        apiService.getUsers().enqueue(new Callback<List<CustomerResponse>>() {
+        apiService.getUsers("Get").enqueue(new Callback<List<UserModel>>() {
             @Override
-            public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
+            public void onResponse(Call<List<UserModel>> call, Response<List<UserModel>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    CustomerResponse foundOp = null;
-                    for (CustomerResponse u : response.body()) {
-                        // So khớp TenDangNhap và Matkhau (Lưu ý: API dùng MatKhau hoặc Matkhau)
-                        if (user.equals(u.getTenKhachHang()) && pass.equals(u.getMatKhau())) {
+                    UserModel foundOp = null;
+                    for (UserModel u : response.body()) {
+                        if (user.equals(u.getTenDangNhap()) && pass.equals(u.getMatKhau())) {
                             foundOp = u; break;
                         }
                     }
 
                     if (foundOp != null && "Nhaxe".equalsIgnoreCase(foundOp.getVaitro())) {
-                        saveAndGo(foundOp.getUserID(), "operator");
+                        saveAndGo(foundOp, "operator");
                     } else {
                         Toast.makeText(LoginActivity.this, "Sai tài khoản hoặc mật khẩu!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
             @Override
-            public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {
+            public void onFailure(Call<List<UserModel>> call, Throwable t) {
                 Toast.makeText(LoginActivity.this, "Lỗi kết nối!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void saveAndGo(String uid, String role) {
+    private void saveAndGo(UserModel user, String role) {
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean("isLoggedIn", true);
         editor.putString("role", role);
+        editor.putString("uid", user.getUserID());
         
         if ("operator".equals(role)) {
-            editor.putString("op_uid", uid); // QUAN TRỌNG: Lưu ID nhà xe để vào Profile lấy được dữ liệu
+            editor.putString("op_uid", user.getUserID());
+            // LƯU MÃ NHÀ XE Ở ĐÂY
+            editor.putString("nhaxe_id", user.getNhaxe()); 
             startActivity(new Intent(this, OperatorMainActivity.class));
         } else {
-            editor.putString("customerUid", uid);
+            editor.putString("customerUid", user.getUserID());
             startActivity(new Intent(this, MainActivity.class));
         }
         editor.apply();
