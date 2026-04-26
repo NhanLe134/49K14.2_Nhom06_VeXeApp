@@ -23,7 +23,7 @@ import retrofit2.Response;
 public class OperatorProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "OperatorProfile";
-    private TextView tvOpNameHeader, tvOpNameDetail, tvOpRep, tvOpAddress, tvOpPhone;
+    private TextView tvOpNameHeader, tvOpNameDetail, tvOpRep, tvOpAddress, tvOpPhone, tvOpEmail;
     private MaterialButton btnEdit, btnLogout;
     private ImageView btnBack, imgOpBanner;
     private String opUid;
@@ -56,6 +56,7 @@ public class OperatorProfileActivity extends AppCompatActivity {
         tvOpRep = findViewById(R.id.tvOpRep);
         tvOpAddress = findViewById(R.id.tvOpAddress);
         tvOpPhone = findViewById(R.id.tvOpPhone);
+        tvOpEmail = findViewById(R.id.tvOpEmail);
         btnEdit = findViewById(R.id.btnEditProfile);
         btnLogout = findViewById(R.id.btnLogoutOp);
         btnBack = findViewById(R.id.btnBack);
@@ -107,6 +108,7 @@ public class OperatorProfileActivity extends AppCompatActivity {
         tvOpRep.setText(nonNull(data.getRepresentative(), "Chưa cập nhật"));
         tvOpAddress.setText(nonNull(data.getAddress(), "Chưa cập nhật"));
         tvOpPhone.setText(nonNull(data.getPhone(), "Chưa cập nhật"));
+        tvOpEmail.setText(nonNull(data.getEmail(), "Chưa cập nhật"));
 
         String imgUrl = data.getBannerUrl();
         if (imgUrl != null && !imgUrl.isEmpty()) {

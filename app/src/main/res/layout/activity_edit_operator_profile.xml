@@ -5,47 +5,50 @@
     android:layout_height="match_parent"
     android:background="#F5F7FA">
 
-    <!-- HEADER -->
-    <LinearLayout
+    <!-- HEADER: Đồng bộ với màn hình thông tin (56dp, title căn giữa) -->
+    <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="#00B0FF"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="15dp"
+        android:layout_height="56dp"
+        android:background="#1E88E5"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_back_chevron"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="Chỉnh sửa Thông tin nhà xe"
+            android:layout_centerInParent="true"
+            android:text="Chỉnh sửa thông tin"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
-    </LinearLayout>
+    </RelativeLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@+id/bottom_nav"
         app:layout_constraintTop_toBottomOf="@+id/header">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="15dp"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="2dp">
+            android:layout_margin="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -62,7 +65,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tên nhà xe"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textColor="#757575" />
                     <EditText
                         android:id="@+id/edtEditOpName"
                         android:layout_width="match_parent"
@@ -92,7 +96,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Họ tên người đại diện"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textColor="#757575" />
                     <EditText
                         android:id="@+id/edtEditOpRep"
                         android:layout_width="match_parent"
@@ -102,14 +107,6 @@
                         android:inputType="text"
                         android:paddingHorizontal="15dp"
                         android:textSize="14sp" />
-                    <TextView
-                        android:id="@+id/tvErrorOpRep"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Vui lòng nhập họ tên người đại diện"
-                        android:textColor="#F44336"
-                        android:textSize="11sp"
-                        android:visibility="gone" />
                 </LinearLayout>
 
                 <!-- Địa chỉ trụ sở -->
@@ -122,7 +119,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Địa chỉ trụ sở"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textColor="#757575" />
                     <EditText
                         android:id="@+id/edtEditOpAddress"
                         android:layout_width="match_parent"
@@ -132,14 +130,6 @@
                         android:inputType="text"
                         android:paddingHorizontal="15dp"
                         android:textSize="14sp" />
-                    <TextView
-                        android:id="@+id/tvErrorOpAddress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Vui lòng nhập địa chỉ trụ sở"
-                        android:textColor="#F44336"
-                        android:textSize="11sp"
-                        android:visibility="gone" />
                 </LinearLayout>
 
                 <!-- Số điện thoại -->
@@ -152,7 +142,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Số điện thoại"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textColor="#757575" />
                     <EditText
                         android:id="@+id/edtEditOpPhone"
                         android:layout_width="match_parent"
@@ -162,14 +153,29 @@
                         android:inputType="phone"
                         android:paddingHorizontal="15dp"
                         android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Email -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:orientation="vertical">
                     <TextView
-                        android:id="@+id/tvErrorOpPhone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Vui lòng nhập số điện thoại"
-                        android:textColor="#F44336"
-                        android:textSize="11sp"
-                        android:visibility="gone" />
+                        android:text="Email"
+                        android:textSize="12sp"
+                        android:textColor="#757575" />
+                    <EditText
+                        android:id="@+id/edtEditOpEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@drawable/bg_input_white"
+                        android:inputType="textEmailAddress"
+                        android:paddingHorizontal="15dp"
+                        android:textSize="14sp" />
                 </LinearLayout>
 
                 <TextView
@@ -177,7 +183,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
                     android:text="Hình ảnh nhà xe"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:textColor="#757575" />
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -192,9 +199,9 @@
                         android:text="Chọn tệp"
                         android:textAllCaps="false"
                         android:textColor="#000000"
-                        app:strokeColor="#000000"
+                        app:strokeColor="#DDDDDD"
                         app:strokeWidth="1dp"
-                        app:cornerRadius="4dp" />
+                        app:cornerRadius="8dp" />
                     <TextView
                         android:id="@+id/tvOpFileName"
                         android:layout_width="wrap_content"
@@ -208,14 +215,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="180dp"
                     android:layout_marginTop="15dp"
-                    app:cardCornerRadius="15dp"
+                    app:cardCornerRadius="12dp"
                     app:cardElevation="0dp">
                     <ImageView
                         android:id="@+id/imgEditOpPreview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/banner_nhaxe" />
+                        android:src="@drawable/nhaxe_home" />
                 </androidx.cardview.widget.CardView>
 
                 <LinearLayout
@@ -233,18 +240,18 @@
                         android:text="Hủy"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
-                        app:cornerRadius="8dp" />
+                        app:cornerRadius="12dp" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSaveEditOp"
                         android:layout_width="0dp"
                         android:layout_height="50dp"
                         android:layout_marginStart="10dp"
                         android:layout_weight="1"
-                        app:backgroundTint="#00B0FF"
+                        app:backgroundTint="#1E88E5"
                         android:text="Lưu"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
-                        app:cornerRadius="8dp" />
+                        app:cornerRadius="12dp" />
                 </LinearLayout>
 
             </LinearLayout>

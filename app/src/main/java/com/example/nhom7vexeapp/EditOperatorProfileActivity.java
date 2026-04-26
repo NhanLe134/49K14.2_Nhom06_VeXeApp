@@ -42,11 +42,11 @@ import retrofit2.Response;
 public class EditOperatorProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "EditOpProfile";
-    private EditText edtName, edtRep, edtAddress, edtPhone;
+    private EditText edtName, edtRep, edtAddress, edtPhone, edtEmail;
     private TextView tvErrorName, tvFileName;
     private MaterialButton btnSave, btnCancel, btnSelectFile;
     private ImageView imgPreview;
-    private String opUid, opEmail = ""; 
+    private String opUid; 
     private String selectedImageBase64 = "";
 
     private final ActivityResultLauncher<Intent> pickImageLauncher =
@@ -78,8 +78,8 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
             pickImageLauncher.launch(intent);
         });
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        btnCancel.setOnClickListener(v -> finish());
+        findViewById(R.id.btnBack).setOnClickListener(v -> showCancelConfirmPopup());
+        btnCancel.setOnClickListener(v -> showCancelConfirmPopup());
 
         btnSave.setOnClickListener(v -> {
             if (validateForm()) {
@@ -88,12 +88,27 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void showCancelConfirmPopup() {
+        View dv = getLayoutInflater().inflate(R.layout.dialog_confirm_cancel, null);
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dv).create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        
+        dv.findViewById(R.id.btnNo).setOnClickListener(v -> dialog.dismiss());
+        dv.findViewById(R.id.btnYes).setOnClickListener(v -> {
+            dialog.dismiss();
+            finish();
+        });
+        
+        dialog.show();
+    }
+
     private String encodeImageToBase64(Uri uri) {
         try {
             InputStream is = getContentResolver().openInputStream(uri);
             Bitmap bitmap = BitmapFactory.decodeStream(is);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            // Nén ảnh xuống 40% để đảm bảo độ dài chuỗi Base64 hợp lý cho server
             bitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos);
             byte[] bytes = baos.toByteArray();
             return "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP);
@@ -108,6 +123,7 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
         edtRep = findViewById(R.id.edtEditOpRep);
         edtAddress = findViewById(R.id.edtEditOpAddress);
         edtPhone = findViewById(R.id.edtEditOpPhone);
+        edtEmail = findViewById(R.id.edtEditOpEmail);
         tvErrorName = findViewById(R.id.tvErrorOpName);
         btnSave = findViewById(R.id.btnSaveEditOp);
         btnCancel = findViewById(R.id.btnCancelEditOp);
@@ -128,7 +144,7 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
                     edtRep.setText(data.getRepresentative());
                     edtAddress.setText(data.getAddress());
                     edtPhone.setText(data.getPhone());
-                    opEmail = data.getEmail();
+                    edtEmail.setText(data.getEmail());
                     String imgData = data.getBannerUrl();
                     if (imgData != null && !imgData.isEmpty()) {
                         Glide.with(EditOperatorProfileActivity.this)
@@ -153,11 +169,8 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
         data.put("NhaxeID", opUid);
         data.put("Tennhaxe", edtName.getText().toString().trim()); 
         data.put("TenNguoiDaiDien", edtRep.getText().toString().trim());
-        data.put("Email", (opEmail == null || opEmail.isEmpty()) ? "nhaxe@gmail.com" : opEmail);
-        
-        // Dựa trên ảnh Admin bạn gửi, key đúng phải là "AnhDaiDien"
+        data.put("Email", edtEmail.getText().toString().trim());
         data.put("AnhDaiDien", selectedImageBase64); 
-        
         data.put("DiaChiTruSo", edtAddress.getText().toString().trim());
         data.put("SoDienThoai", edtPhone.getText().toString().trim());
 
