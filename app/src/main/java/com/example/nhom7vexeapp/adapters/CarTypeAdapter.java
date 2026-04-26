@@ -96,7 +96,6 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
 
         tvCarInfo.setText(getDisplayNameBySeats(car.getSoCho()) + " (" + car.getSoCho() + " chỗ)");
         
-        // Hiển thị giá hiện tại an toàn
         try {
             double gia = Double.parseDouble(car.getGiaVe());
             tvCurrentPrice.setText(String.format(Locale.getDefault(), "%,.0f đ", gia));
@@ -136,7 +135,6 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
             });
         });
 
-        // Khi nhấn Hủy, hiện dialog xác nhận
         View.OnClickListener cancelListener = v -> showCancelConfirmDialog(dialog);
         btnCancel.setOnClickListener(cancelListener);
         if (btnClose != null) btnClose.setOnClickListener(cancelListener);
@@ -154,11 +152,10 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         Button btnNo = cancelDialog.findViewById(R.id.btnNo);
         Button btnYes = cancelDialog.findViewById(R.id.btnYes);
 
-        btnNo.setOnClickListener(v -> cancelDialog.dismiss()); // Không: đóng dialog xác nhận, giữ update dialog
-
+        btnNo.setOnClickListener(v -> cancelDialog.dismiss());
         btnYes.setOnClickListener(v -> {
             cancelDialog.dismiss();
-            updateDialog.dismiss(); // Đồng ý: đóng cả 2 dialog để về lại trang loại xe
+            updateDialog.dismiss();
         });
 
         cancelDialog.show();
@@ -171,14 +168,14 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
             successDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        TextView tvMessage = successDialog.findViewById(R.id.tvMessage);
+        // ✅ Đã sửa ID tvMessage -> tvSuccessMessage
+        TextView tvMessage = successDialog.findViewById(R.id.tvSuccessMessage);
         if (tvMessage != null) {
             tvMessage.setText(message);
         }
 
         successDialog.show();
 
-        // Tự động đóng sau 2 giây
         new Handler().postDelayed(successDialog::dismiss, 2000);
     }
 

@@ -3,6 +3,7 @@ package com.example.nhom7vexeapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,7 +17,6 @@ import com.example.nhom7vexeapp.api.ApiService;
 import com.example.nhom7vexeapp.api.CustomerResponse;
 
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -25,7 +25,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean isOperatorMode = false;
     private LinearLayout layoutCustomerLogin, layoutOperatorLogin;
-    private TextView tvLoginTitle, tvSwitchMode, tvRegisterCustomer, tvRegisterOperator;
+    private TextView tvLoginTitle, tvSwitchMode;
     private EditText edtPhoneLogin, edtUsername, edtPassword;
     private Button btnLoginCustomer, btnLoginOperator;
     private ApiService apiService;
@@ -38,16 +38,22 @@ public class LoginActivity extends AppCompatActivity {
         initViews();
         apiService = ApiClient.getClient().create(ApiService.class);
 
-        tvSwitchMode.setOnClickListener(v -> {
-            isOperatorMode = !isOperatorMode;
-            updateUI();
-        });
+        if (tvSwitchMode != null) {
+            tvSwitchMode.setOnClickListener(v -> {
+                isOperatorMode = !isOperatorMode;
+                updateUI();
+            });
+        }
 
-        tvRegisterCustomer.setOnClickListener(v -> startActivity(new Intent(this, CustomerRegisterActivity.class)));
-        tvRegisterOperator.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
+        View regCust = findViewById(R.id.tvRegisterCustomer);
+        if (regCust != null) regCust.setOnClickListener(v -> startActivity(new Intent(this, CustomerRegisterActivity.class)));
+        
+        if (btnLoginCustomer != null) btnLoginCustomer.setOnClickListener(v -> handleCustomerLogin());
 
-        btnLoginCustomer.setOnClickListener(v -> handleCustomerLogin());
-        btnLoginOperator.setOnClickListener(v -> handleOperatorLogin());
+        View regOp = findViewById(R.id.tvRegisterOperator);
+        if (regOp != null) regOp.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
+        
+        if (btnLoginOperator != null) btnLoginOperator.setOnClickListener(v -> handleOperatorLogin());
     }
 
     private void initViews() {
@@ -55,8 +61,6 @@ public class LoginActivity extends AppCompatActivity {
         layoutOperatorLogin = findViewById(R.id.layoutOperatorLogin);
         tvLoginTitle = findViewById(R.id.tvLoginTitle);
         tvSwitchMode = findViewById(R.id.tvSwitchMode);
-        tvRegisterCustomer = findViewById(R.id.tvRegisterCustomer);
-        tvRegisterOperator = findViewById(R.id.tvRegisterOperator);
         edtPhoneLogin = findViewById(R.id.edtPhoneLogin);
         edtUsername = findViewById(R.id.edtUsername);
         edtPassword = findViewById(R.id.edtPassword);
@@ -65,99 +69,82 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        if (isOperatorMode) {
-            tvLoginTitle.setText("Đăng nhập");
-            layoutCustomerLogin.setVisibility(View.GONE);
-            layoutOperatorLogin.setVisibility(View.VISIBLE);
-            tvSwitchMode.setText("Bạn là khách hàng?");
-            tvSwitchMode.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
-        } else {
-            tvLoginTitle.setText("Đăng nhập");
-            layoutCustomerLogin.setVisibility(View.VISIBLE);
-            layoutOperatorLogin.setVisibility(View.GONE);
-            tvSwitchMode.setText("Bạn là nhà xe?");
-            tvSwitchMode.setTextColor(android.graphics.Color.parseColor("#FF5722"));
-        }
+        if (tvLoginTitle != null) tvLoginTitle.setText(isOperatorMode ? "Đăng nhập Nhà xe" : "Đăng nhập Khách hàng");
+        if (layoutCustomerLogin != null) layoutCustomerLogin.setVisibility(isOperatorMode ? View.GONE : View.VISIBLE);
+        if (layoutOperatorLogin != null) layoutOperatorLogin.setVisibility(isOperatorMode ? View.VISIBLE : View.GONE);
+        if (tvSwitchMode != null) tvSwitchMode.setText(isOperatorMode ? "Bạn là khách hàng?" : "Bạn là nhà xe?");
     }
 
     private void handleCustomerLogin() {
-        final String phoneInput = edtPhoneLogin.getText().toString().trim();
-        if (phoneInput.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập số điện thoại!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        String phone = edtPhoneLogin.getText().toString().trim();
+        if (phone.isEmpty()) { Toast.makeText(this, "Vui lòng nhập số điện thoại!", Toast.LENGTH_SHORT).show(); return; }
+        
         apiService.getUsers().enqueue(new Callback<List<CustomerResponse>>() {
             @Override
             public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    CustomerResponse foundUser = null;
+                    CustomerResponse found = null;
                     for (CustomerResponse u : response.body()) {
-                        if (u.getSdt() != null && u.getSdt().equals(phoneInput)) {
-                            foundUser = u; break;
-                        }
+                        if (phone.equals(u.getSdt())) { found = u; break; }
                     }
-
-                    if (foundUser != null && "KhachHang".equalsIgnoreCase(foundUser.getVaitro())) {
-                        saveAndGo(foundUser.getUserID(), "customer");
+                    if (found != null) {
+                        // ✅ SỬA LỖI: Lấy đúng mã KH00001 (getKhachHang) thay vì US00001 (getUserID)
+                        String realKhId = found.getKhachHang();
+                        if (realKhId == null || realKhId.isEmpty()) realKhId = found.getUserID();
+                        saveAndGo(found.getUserID(), "customer", phone, realKhId);
                     } else {
-                        Toast.makeText(LoginActivity.this, "SĐT chưa đăng ký hoặc không phải khách hàng!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Số điện thoại chưa đăng ký!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
-            @Override
-            public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            @Override public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void handleOperatorLogin() {
-        final String user = edtUsername.getText().toString().trim();
-        final String pass = edtPassword.getText().toString().trim();
-
-        if (user.isEmpty() || pass.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập đủ thông tin!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        String user = edtUsername.getText().toString().trim();
+        String pass = edtPassword.getText().toString().trim();
+        if (user.isEmpty() || pass.isEmpty()) { Toast.makeText(this, "Nhập đủ tài khoản và mật khẩu!", Toast.LENGTH_SHORT).show(); return; }
+        
         apiService.getUsers().enqueue(new Callback<List<CustomerResponse>>() {
             @Override
             public void onResponse(Call<List<CustomerResponse>> call, Response<List<CustomerResponse>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    CustomerResponse foundOp = null;
+                    CustomerResponse found = null;
                     for (CustomerResponse u : response.body()) {
-                        // So khớp TenDangNhap và Matkhau (Lưu ý: API dùng MatKhau hoặc Matkhau)
-                        if (user.equals(u.getTenKhachHang()) && pass.equals(u.getMatKhau())) {
-                            foundOp = u; break;
-                        }
+                        if (user.equals(u.getTenKhachHang()) && pass.equals(u.getMatKhau())) { found = u; break; }
                     }
-
-                    if (foundOp != null && "Nhaxe".equalsIgnoreCase(foundOp.getVaitro())) {
-                        saveAndGo(foundOp.getUserID(), "operator");
+                    if (found != null && "Nhaxe".equalsIgnoreCase(found.getVaitro())) {
+                        String realOpId = found.getNhaxe();
+                        saveAndGo(found.getUserID(), "operator", user, realOpId);
                     } else {
                         Toast.makeText(LoginActivity.this, "Sai tài khoản hoặc mật khẩu!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
-            @Override
-            public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "Lỗi kết nối!", Toast.LENGTH_SHORT).show();
+            @Override public void onFailure(Call<List<CustomerResponse>> call, Throwable t) {
+                Toast.makeText(LoginActivity.this, "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void saveAndGo(String uid, String role) {
+    private void saveAndGo(String uid, String role, String user, String targetId) {
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean("isLoggedIn", true);
         editor.putString("role", role);
         
         if ("operator".equals(role)) {
-            editor.putString("op_uid", uid); // QUAN TRỌNG: Lưu ID nhà xe để vào Profile lấy được dữ liệu
+            editor.putString("op_uid", (targetId != null && !targetId.isEmpty()) ? targetId : uid);
+            editor.putString("op_user", user);
             startActivity(new Intent(this, OperatorMainActivity.class));
         } else {
-            editor.putString("customerUid", uid);
+            // ✅ LƯU MÃ KHÁCH HÀNG THẬT (KHxxxxx) ĐỂ LOAD PROFILE
+            editor.putString("customerUid", targetId);
+            editor.putString("user_id", uid);
+            editor.putString("customerPhone", user);
             startActivity(new Intent(this, MainActivity.class));
         }
         editor.apply();

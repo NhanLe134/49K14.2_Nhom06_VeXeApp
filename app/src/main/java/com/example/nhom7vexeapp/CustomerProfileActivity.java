@@ -3,6 +3,7 @@ package com.example.nhom7vexeapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ public class CustomerProfileActivity extends AppCompatActivity {
         
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         String customerUid = pref.getString("customerUid", "");
+        if (customerUid.isEmpty()) customerUid = pref.getString("user_id", ""); 
 
         if (customerUid.isEmpty()) {
             Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
@@ -48,12 +50,10 @@ public class CustomerProfileActivity extends AppCompatActivity {
         loadAllData(customerUid);
 
         btnBack.setOnClickListener(v -> finish());
-        navHome.setOnClickListener(v -> finish());
+        if (navHome != null) navHome.setOnClickListener(v -> finish());
 
         btnLogout.setOnClickListener(v -> {
-            SharedPreferences.Editor editor = pref.edit();
-            editor.clear();
-            editor.apply();
+            pref.edit().clear().apply();
             startActivity(new Intent(this, LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
             finish();
         });
@@ -76,27 +76,52 @@ public class CustomerProfileActivity extends AppCompatActivity {
 
     private void loadAllData(String uid) {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-
-        // 1. LẤY TÊN VÀ NGÀY SINH TỪ BẢNG KHACHHANG
         apiService.getKhachHangDetail(uid).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Map<String, Object> data = response.body();
-                    tvName.setText(findValue(data, "TenKhachHang", "tenkhachhang"));
-                    tvDob.setText(findValue(data, "NgaySinh", "ngaysinh"));
+                    
+                    // 1. Hiển thị Tên
+                    String name = findValue(data, "Hovaten", "TenKhachHang", "name");
+                    tvName.setText(name.isEmpty() ? "Khách hàng" : name);
 
-                    String imgUrl = findValue(data, "AnhDaiDienURL", "anhdaidienurl");
-                    if (!imgUrl.isEmpty() && imgAvatar != null) {
-                        Glide.with(CustomerProfileActivity.this).load(imgUrl).placeholder(R.drawable.logo).into(imgAvatar);
+                    // 2. Hiển thị Ngày sinh
+                    String dob = findValue(data, "Ngaysinh", "NgaySinh");
+                    if (!dob.isEmpty() && dob.contains("-")) {
+                        try {
+                            String[] parts = dob.split("T")[0].split("-");
+                            if (parts.length == 3) dob = parts[2] + "/" + parts[1] + "/" + parts[0];
+                        } catch (Exception e) {}
                     }
+                    tvDob.setText(dob.isEmpty() ? "Chưa cập nhật" : dob);
+
+                    // ✅ 3. HIỂN THỊ ẢNH ĐẠI DIỆN (Xử lý chuỗi Base64)
+                    String imgData = findValue(data, "AnhDaiDien", "AnhDaiDienURL", "Avatar");
+                    if (!imgData.isEmpty() && imgAvatar != null) {
+                        // Nếu là chuỗi Base64 (bắt đầu bằng data:image), Glide sẽ tự xử lý hoặc load URL
+                        Glide.with(CustomerProfileActivity.this)
+                            .load(imgData)
+                            .placeholder(R.drawable.nhaxe_home)
+                            .error(R.drawable.account_circle)
+                            .circleCrop()
+                            .into(imgAvatar);
+                    }
+                    
+                    // 4. Hiển thị SĐT
+                    fetchPhoneFromAuth(uid);
+                } else {
+                    fetchPhoneFromAuth(uid);
                 }
             }
-            @Override public void onFailure(Call<Map<String, Object>> call, Throwable t) {}
+            @Override public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                fetchPhoneFromAuth(uid);
+            }
         });
+    }
 
-        // 2. LẤY SĐT TỪ BẢNG AUTH (user-auth)
-        apiService.getUserAuthDetail(uid).enqueue(new Callback<CustomerResponse>() {
+    private void fetchPhoneFromAuth(String uid) {
+        ApiClient.getClient().create(ApiService.class).getUserAuthDetail(uid).enqueue(new Callback<CustomerResponse>() {
             @Override
             public void onResponse(Call<CustomerResponse> call, Response<CustomerResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -109,19 +134,21 @@ public class CustomerProfileActivity extends AppCompatActivity {
 
     private String findValue(Map<String, Object> map, String... keys) {
         for (String key : keys) {
-            if (map.containsKey(key) && map.get(key) != null && !map.get(key).toString().equals("null")) {
-                return map.get(key).toString();
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if (entry.getKey().equalsIgnoreCase(key) && entry.getValue() != null) {
+                    String val = entry.getValue().toString();
+                    if (!val.equalsIgnoreCase("null") && !val.isEmpty()) return val;
+                }
             }
         }
-        return "Chưa cập nhật";
+        return "";
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 300 && resultCode == RESULT_OK) {
-            SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-            loadAllData(pref.getString("customerUid", ""));
+            loadAllData(getSharedPreferences("UserPrefs", MODE_PRIVATE).getString("customerUid", ""));
         }
     }
 }

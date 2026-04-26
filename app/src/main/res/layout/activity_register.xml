@@ -77,14 +77,6 @@
                     android:hint="Nhập tên nhà xe"
                     android:paddingHorizontal="15dp"
                     android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/tvErrorOperatorName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vui lòng nhập tên nhà xe."
-                    android:textColor="#FF0000"
-                    android:textSize="10sp"
-                    android:visibility="gone" />
 
                 <!-- Họ tên người đại diện -->
                 <TextView
@@ -102,14 +94,6 @@
                     android:hint="Nhập họ tên người đại diện"
                     android:paddingHorizontal="15dp"
                     android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/tvErrorRepName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vui lòng nhập họ tên người đại diện."
-                    android:textColor="#FF0000"
-                    android:textSize="10sp"
-                    android:visibility="gone" />
 
                 <!-- Tên đăng nhập -->
                 <TextView
@@ -127,14 +111,6 @@
                     android:hint="Nhập tên đăng nhập"
                     android:paddingHorizontal="15dp"
                     android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/tvErrorUsername"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vui lòng nhập tên đăng nhập."
-                    android:textColor="#FF0000"
-                    android:textSize="10sp"
-                    android:visibility="gone" />
 
                 <!-- Mật khẩu -->
                 <TextView
@@ -153,14 +129,6 @@
                     android:inputType="textPassword"
                     android:paddingHorizontal="15dp"
                     android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/tvErrorPassword"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vui lòng nhập mật khẩu."
-                    android:textColor="#FF0000"
-                    android:textSize="10sp"
-                    android:visibility="gone" />
 
                 <!-- Nhập lại mật khẩu -->
                 <TextView
@@ -179,14 +147,6 @@
                     android:inputType="textPassword"
                     android:paddingHorizontal="15dp"
                     android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/tvErrorConfirmPassword"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vui lòng nhập lại mật khẩu."
-                    android:textColor="#FF0000"
-                    android:textSize="10sp"
-                    android:visibility="gone" />
 
                 <!-- Địa chỉ trụ sở -->
                 <TextView
@@ -204,21 +164,13 @@
                     android:hint="Nhập địa chỉ trụ sở"
                     android:paddingHorizontal="15dp"
                     android:textSize="14sp" />
-                <TextView
-                    android:id="@+id/tvErrorAddress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vui lòng nhập địa chỉ trụ sở."
-                    android:textColor="#FF0000"
-                    android:textSize="10sp"
-                    android:visibility="gone" />
 
-                <!-- Hình ảnh đại diện -->
+                <!-- Hình ảnh nhà xe -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:text="Hình ảnh đại diện"
+                    android:text="Hình ảnh nhà xe"
                     android:textSize="12sp" />
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -246,18 +198,24 @@
                         android:text="Chọn tệp"
                         android:textAllCaps="false"
                         android:textColor="#000000"
-                        android:textSize="12sp"
                         app:strokeColor="#000000"
                         app:strokeWidth="1dp" />
                 </LinearLayout>
-                <TextView
-                    android:id="@+id/tvErrorFile"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vui lòng chọn hình ảnh đại diện."
-                    android:textColor="#FF0000"
-                    android:textSize="10sp"
-                    android:visibility="gone" />
+
+                <!-- ẢNH XEM TRƯỚC (PREVIEW) -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:layout_marginTop="15dp"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="0dp">
+                    <ImageView
+                        android:id="@+id/imgRegPreview"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/banner_nhaxe" />
+                </androidx.cardview.widget.CardView>
 
                 <!-- Số điện thoại -->
                 <TextView
@@ -291,25 +249,15 @@
                         android:text="Xác nhận"
                         android:textAllCaps="false"
                         android:textColor="#000000"
-                        android:textSize="12sp"
                         app:strokeColor="#000000"
                         app:strokeWidth="1dp" />
                 </LinearLayout>
-                <TextView
-                    android:id="@+id/tvErrorPhone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Vui lòng nhập số điện thoại."
-                    android:textColor="#FF0000"
-                    android:textSize="10sp"
-                    android:visibility="gone" />
 
                 <!-- Buttons -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
-                    android:gravity="center"
                     android:orientation="horizontal">
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCancel"
@@ -338,5 +286,4 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

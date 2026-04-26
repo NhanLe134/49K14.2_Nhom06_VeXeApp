@@ -2,12 +2,15 @@ package com.example.nhom7vexeapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -25,8 +28,11 @@ import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
 import com.google.android.material.button.MaterialButton;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -62,6 +68,7 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
 
         initViews();
         loadCurrentDataFromDB();
+        setupBottomNavigation();
 
         btnSelectFile.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -73,9 +80,21 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
 
         btnSave.setOnClickListener(v -> {
             if (validateForm()) {
-                handleUpdate();
+                handleSmartUpdate();
             }
         });
+    }
+
+    private String encodeImageToBase64(Uri uri) {
+        try {
+            InputStream is = getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(is);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            // Nén ảnh xuống 30% để chuỗi Base64 không quá dài
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 30, baos);
+            byte[] bytes = baos.toByteArray();
+            return "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.DEFAULT);
+        } catch (Exception e) { return ""; }
     }
 
     private void initViews() {
@@ -99,17 +118,15 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Map<String, Object> data = response.body();
-                    // SỬA LẠI: Khớp key Tennhaxe từ Database
                     edtName.setText(findValue(data, "Tennhaxe", "TenNhaXe"));
-                    edtRep.setText(findValue(data, "NguoiDaiDien", "Nguoidaidien"));
+                    edtRep.setText(findValue(data, "TenNguoiDaiDien", "NguoiDaiDien"));
                     edtAddress.setText(findValue(data, "DiaChiTruSo", "Diachitruso"));
                     edtPhone.setText(findValue(data, "SoDienThoai", "Sodienthoai"));
                     opEmail = findValue(data, "Email", "email");
-
-                    String imgUrl = findValue(data, "AnhDaiDienURL", "Anhdaidienurl");
-                    if (!imgUrl.isEmpty()) {
-                        Glide.with(EditOperatorProfileActivity.this).load(imgUrl).into(imgPreview);
-                        selectedImageBase64 = imgUrl;
+                    String imgData = findValue(data, "AnhDaiDien", "AnhDaiDienURL");
+                    if (!imgData.isEmpty()) {
+                        Glide.with(EditOperatorProfileActivity.this).load(imgData).into(imgPreview);
+                        selectedImageBase64 = imgData;
                     }
                 }
             }
@@ -117,23 +134,18 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
         });
     }
 
-    private String findValue(Map<String, Object> map, String... keys) {
-        for (String key : keys) {
-            if (map.containsKey(key) && map.get(key) != null) return map.get(key).toString();
-        }
-        return "";
-    }
-
-    private void handleUpdate() {
+    private void handleSmartUpdate() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Toast.makeText(this, "Đang cập nhật...", Toast.LENGTH_SHORT).show();
+
         Map<String, String> data = new HashMap<>();
         data.put("NhaxeID", opUid);
-        data.put("Tennhaxe", edtName.getText().toString().trim()); // SỬA KEY cho khớp Database
-        data.put("NguoiDaiDien", edtRep.getText().toString().trim());
+        data.put("Tennhaxe", edtName.getText().toString().trim()); 
+        data.put("TenNguoiDaiDien", edtRep.getText().toString().trim());
+        data.put("Email", opEmail.isEmpty() ? "nhaxe@gmail.com" : opEmail);
+        data.put("AnhDaiDien", selectedImageBase64); 
         data.put("DiaChiTruSo", edtAddress.getText().toString().trim());
         data.put("SoDienThoai", edtPhone.getText().toString().trim());
-        data.put("Email", opEmail.isEmpty() ? "nhaxe@gmail.com" : opEmail);
-        data.put("AnhDaiDienURL", selectedImageBase64);
 
         apiService.updateNhaXeProfile(opUid, data).enqueue(new Callback<Void>() {
             @Override
@@ -142,11 +154,9 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
                     showSuccessPopup();
                 } else {
                     try {
-                        String error = response.errorBody() != null ? response.errorBody().string() : "Lỗi";
-                        Toast.makeText(EditOperatorProfileActivity.this, "Lỗi Server: " + error, Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(EditOperatorProfileActivity.this, "Cập nhật thất bại!", Toast.LENGTH_SHORT).show();
-                    }
+                        String err = response.errorBody() != null ? response.errorBody().string() : "Lỗi";
+                        Toast.makeText(EditOperatorProfileActivity.this, "Server báo lỗi: " + err, Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {}
                 }
             }
             @Override public void onFailure(Call<Void> call, Throwable t) {
@@ -155,26 +165,26 @@ public class EditOperatorProfileActivity extends AppCompatActivity {
         });
     }
 
-    private String encodeImageToBase64(Uri imageUri) {
-        try {
-            android.graphics.Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-            java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
-            bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 40, outputStream);
-            byte[] byteArray = outputStream.toByteArray();
-            return "data:image/jpeg;base64," + android.util.Base64.encodeToString(byteArray, android.util.Base64.DEFAULT);
-        } catch (Exception e) { return ""; }
+    private String findValue(Map<String, Object> map, String... keys) {
+        for (String key : keys) {
+            if (map.containsKey(key) && map.get(key) != null && !map.get(key).toString().equals("null")) return map.get(key).toString();
+        }
+        return "";
     }
 
-    private boolean validateForm() {
-        if (edtName.getText().toString().trim().isEmpty()) return false;
-        return true;
+    private void setupBottomNavigation() {
+        View h = findViewById(R.id.nav_home_op_main); if (h == null) h = findViewById(R.id.navHomeEditProfile);
+        if (h != null) h.setOnClickListener(v -> { startActivity(new Intent(this, OperatorMainActivity.class)); finish(); });
+        View t = findViewById(R.id.nav_trip_op); if (t != null) t.setOnClickListener(v -> { startActivity(new Intent(this, TripListActivity.class)); finish(); });
+        View r = findViewById(R.id.nav_route_op); if (r != null) r.setOnClickListener(v -> { startActivity(new Intent(this, QLTuyenxeActivity.class)); finish(); });
+        View v = findViewById(R.id.nav_vehicle_op); if (v != null) v.setOnClickListener(v1 -> { startActivity(new Intent(this, PhuongTienManagementActivity.class)); finish(); });
     }
+
+    private boolean validateForm() { return !edtName.getText().toString().trim().isEmpty(); }
 
     private void showSuccessPopup() {
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_update_success, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(dialogView);
-        AlertDialog dialog = builder.create();
+        View dv = getLayoutInflater().inflate(R.layout.dialog_update_success, null);
+        AlertDialog dialog = new AlertDialog.Builder(this).setView(dv).create();
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
         new Handler().postDelayed(() -> { if (dialog.isShowing()) { dialog.dismiss(); setResult(RESULT_OK); finish(); } }, 1500);
