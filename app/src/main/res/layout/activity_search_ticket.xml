@@ -45,9 +45,13 @@
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/btnProfileHeader"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@drawable/user"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
             app:tint="@color/white" />
     </LinearLayout>
 
@@ -218,7 +222,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- BOTTOM NAVIGATION MENU (Đã đồng bộ với activity_main.xml) -->
+    <!-- BOTTOM NAVIGATION MENU -->
     <LinearLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"

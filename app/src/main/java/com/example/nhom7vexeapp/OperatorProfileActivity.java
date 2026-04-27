@@ -23,7 +23,7 @@ import retrofit2.Response;
 public class OperatorProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "OperatorProfile";
-    private TextView tvOpNameHeader, tvOpNameDetail, tvOpRep, tvOpAddress, tvOpPhone, tvOpEmail;
+    private TextView tvOpNameHeader, tvOpNameDetail, tvOpRep, tvOpAddress, tvOpPhone;
     private MaterialButton btnEdit, btnLogout;
     private ImageView btnBack, imgOpBanner;
     private String opUid;
@@ -45,9 +45,17 @@ public class OperatorProfileActivity extends AppCompatActivity {
             return;
         }
 
-        loadOperatorDataFromDB(opUid);
         setupEvents();
         setupBottomNavigation();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Cập nhật dữ liệu ngay khi quay lại màn hình này
+        if (opUid != null && !opUid.isEmpty()) {
+            loadOperatorDataFromDB(opUid);
+        }
     }
 
     private void initViews() {
@@ -56,7 +64,6 @@ public class OperatorProfileActivity extends AppCompatActivity {
         tvOpRep = findViewById(R.id.tvOpRep);
         tvOpAddress = findViewById(R.id.tvOpAddress);
         tvOpPhone = findViewById(R.id.tvOpPhone);
-        tvOpEmail = findViewById(R.id.tvOpEmail);
         btnEdit = findViewById(R.id.btnEditProfile);
         btnLogout = findViewById(R.id.btnLogoutOp);
         btnBack = findViewById(R.id.btnBack);
@@ -69,7 +76,7 @@ public class OperatorProfileActivity extends AppCompatActivity {
         if (btnEdit != null) {
             btnEdit.setOnClickListener(v -> {
                 Intent intent = new Intent(this, EditOperatorProfileActivity.class);
-                startActivityForResult(intent, 100);
+                startActivity(intent);
             });
         }
 
@@ -108,7 +115,6 @@ public class OperatorProfileActivity extends AppCompatActivity {
         tvOpRep.setText(nonNull(data.getRepresentative(), "Chưa cập nhật"));
         tvOpAddress.setText(nonNull(data.getAddress(), "Chưa cập nhật"));
         tvOpPhone.setText(nonNull(data.getPhone(), "Chưa cập nhật"));
-        tvOpEmail.setText(nonNull(data.getEmail(), "Chưa cập nhật"));
 
         String imgUrl = data.getBannerUrl();
         if (imgUrl != null && !imgUrl.isEmpty()) {
@@ -126,7 +132,10 @@ public class OperatorProfileActivity extends AppCompatActivity {
 
     private void setupBottomNavigation() {
         View h = findViewById(R.id.nav_home_op_main);
-        if (h != null) h.setOnClickListener(v -> finish());
+        if (h != null) h.setOnClickListener(v -> {
+            startActivity(new Intent(this, OperatorMainActivity.class));
+            finish();
+        });
         
         View d = findViewById(R.id.nav_driver_op);
         if (d != null) d.setOnClickListener(v -> {
@@ -151,13 +160,5 @@ public class OperatorProfileActivity extends AppCompatActivity {
             startActivity(new Intent(this, QLTuyenxeActivity.class));
             finish();
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == RESULT_OK) {
-            loadOperatorDataFromDB(opUid);
-        }
     }
 }

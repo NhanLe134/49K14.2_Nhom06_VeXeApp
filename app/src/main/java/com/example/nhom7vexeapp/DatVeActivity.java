@@ -88,7 +88,10 @@ public class DatVeActivity extends AppCompatActivity {
                     String loaiXeCuaChuyen = chuyenXeDaChon.getCarType(); 
 
                     for (Loaixe lx : response.body()) {
-                        if (loaiXeCuaChuyen.equalsIgnoreCase(lx.getLoaixeID()) || loaiXeCuaChuyen.contains(String.valueOf(lx.getSoCho()))) {
+                        // Sửa logic so khớp loại xe linh hoạt hơn
+                        if (loaiXeCuaChuyen.equalsIgnoreCase(lx.getLoaixeID()) || 
+                            loaiXeCuaChuyen.contains(String.valueOf(lx.getSoCho())) ||
+                            (loaiXeCuaChuyen.toLowerCase().contains("chỗ") && loaiXeCuaChuyen.contains(String.valueOf(lx.getSoCho())))) {
                             soGheGoc = lx.getSoCho();
                             break;
                         }
@@ -97,7 +100,16 @@ public class DatVeActivity extends AppCompatActivity {
                     if (soGheGoc != -1) {
                         layVaLogGhe(soGheGoc);
                     } else {
-                        Toast.makeText(DatVeActivity.this, "Lỗi: Không tìm thấy loại xe phù hợp!", Toast.LENGTH_SHORT).show();
+                        // Mặc định dựa theo văn bản nếu không khớp ID
+                        if (loaiXeCuaChuyen.contains("4")) soGheGoc = 4;
+                        else if (loaiXeCuaChuyen.contains("7")) soGheGoc = 7;
+                        else if (loaiXeCuaChuyen.contains("9")) soGheGoc = 9;
+                        
+                        if (soGheGoc != -1) {
+                            layVaLogGhe(soGheGoc);
+                        } else {
+                            Toast.makeText(DatVeActivity.this, "Lỗi: Không xác định được số chỗ xe!", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
@@ -154,8 +166,10 @@ public class DatVeActivity extends AppCompatActivity {
 
                         veSoDoGhe();
                     } else {
-                        Toast.makeText(DatVeActivity.this, "Lỗi hệ thống: Số lượng ghế không khớp (" + gheCuaChuyenNay.size() + "/" + soGheGoc + ")", Toast.LENGTH_LONG).show();
-                        finish();
+                        // Nếu số lượng ghế lấy về không khớp, cố gắng hiển thị những gì có
+                        danhSachGheTuApi.clear();
+                        danhSachGheTuApi.addAll(gheCuaChuyenNay);
+                        veSoDoGhe();
                     }
                 }
             }
@@ -174,14 +188,42 @@ public class DatVeActivity extends AppCompatActivity {
         String[][] soDo;
         int soCot = 3;
 
-        if (loaiXe.contains("4")) {
-            soDo = new String[][]{{"A", "O", "X"}, {"X", "X", "X"}};
-        } else if (loaiXe.contains("7")) {
-            soDo = new String[][]{{"A", "O", "X"}, {"X", "X", "X"}, {"X", "X", "X"}};
-        } else if (loaiXe.contains("9")) {
-            soDo = new String[][]{{"A", "X", "X"}, {"X", "O", "X"}, {"X", "O", "X"}, {"X", "X", "X"}};
+        // Cấu hình sơ đồ ghế linh hoạt hơn dựa trên số lượng ghế thực tế từ API
+        int totalSeats = danhSachGheTuApi.size();
+
+        if (loaiXe.contains("9") || totalSeats == 9) {
+            soDo = new String[][]{
+                {"A", "X", "X"}, // Hàng 1: Tài xế, Trống, Ghế 1
+                {"X", "O", "X"}, // Hàng 2: Ghế 2, 3, 4
+                {"X", "O", "X"}, // Hàng 3: Ghế 5, 6, 7
+                {"X", "X", "X"}  // Hàng 4: Ghế 8, Trống, Ghế 9
+            };
+        } else if (loaiXe.contains("7") || totalSeats == 7) {
+            soDo = new String[][]{
+                {"A", "O", "X"}, // Hàng 1: Tài xế, Trống, Ghế 1
+                {"X", "X", "X"}, // Hàng 2: Ghế 2, 3, 4
+                {"X", "X", "X"}  // Hàng 3: Ghế 5, 6, 7
+            };
+        } else if (loaiXe.contains("4") || totalSeats == 4) {
+            soDo = new String[][]{
+                {"A", "O", "X"}, // Hàng 1: Tài xế, Trống, Ghế 1
+                {"X", "X", "X"}  // Hàng 2: Ghế 2, 3, 4
+            };
         } else {
-            soDo = new String[][]{{"A", "O", "X"}, {"X", "X", "X"}};
+            // Mặc định hoặc cho các loại xe khác
+            int rows = (int) Math.ceil((totalSeats + 2) / 3.0);
+            soDo = new String[rows][3];
+            int currentX = 0;
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < 3; c++) {
+                    if (r == 0 && c == 0) soDo[r][c] = "A";
+                    else if (r == 0 && c == 1) soDo[r][c] = "O";
+                    else if (currentX < totalSeats) {
+                        soDo[r][c] = "X";
+                        currentX++;
+                    } else soDo[r][c] = "O";
+                }
+            }
         }
 
         gridGheNgoi.setColumnCount(soCot);

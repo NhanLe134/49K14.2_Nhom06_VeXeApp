@@ -1,16 +1,19 @@
 package com.example.nhom7vexeapp;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -41,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button btnRegister, btnVerifyPhone, btnSelectFile;
     private ImageView imgPreview;
     private boolean isOtpVerified = false;
-    private String selectedImageBase64 = ""; // Dùng chuỗi Base64 thay vì File
+    private String selectedImageBase64 = "";
 
     private final ActivityResultLauncher<Intent> pickImageLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -50,7 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
                     if (uri != null) {
                         if (imgPreview != null) imgPreview.setImageURI(uri);
                         selectedImageBase64 = encodeImageToBase64(uri);
-                        if (tvFileName != null) tvFileName.setText("Đã chọn ảnh & mã hóa thành công");
+                        if (tvFileName != null) tvFileName.setText("Đã chọn ảnh thành công");
                     }
                 }
             });
@@ -69,7 +72,12 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        findViewById(R.id.btnCancel).setOnClickListener(v -> finish());
+        
+        // Cập nhật nút Hủy để hiển thị popup xác nhận
+        View btnCancel = findViewById(R.id.btnCancel);
+        if (btnCancel != null) {
+            btnCancel.setOnClickListener(v -> showConfirmCancelDialog());
+        }
         
         btnRegister.setOnClickListener(v -> {
             if (validateForm()) {
@@ -84,18 +92,15 @@ public class RegisterActivity extends AppCompatActivity {
         btnVerifyPhone.setOnClickListener(v -> showOtpDialog());
     }
 
-    // Hàm mã hóa ảnh sang Base64
     private String encodeImageToBase64(Uri uri) {
         try {
             InputStream is = getContentResolver().openInputStream(uri);
             Bitmap bitmap = BitmapFactory.decodeStream(is);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            // Nén ảnh xuống 30% để giảm kích thước chuỗi Base64
             bitmap.compress(Bitmap.CompressFormat.JPEG, 30, baos);
             byte[] bytes = baos.toByteArray();
             return "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.DEFAULT);
         } catch (Exception e) {
-            e.printStackTrace();
             return "";
         }
     }
@@ -124,7 +129,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
 
-        // BƯỚC 1: TẠO TÀI KHOẢN AUTH
         Map<String, String> authMap = new HashMap<>();
         authMap.put("UserID", randomID);
         authMap.put("TenDangNhap", user);
@@ -132,13 +136,12 @@ public class RegisterActivity extends AppCompatActivity {
         authMap.put("SoDienThoai", phone);
         authMap.put("Vaitro", "Nhaxe");
 
-        Toast.makeText(this, "Đang đăng ký...", Toast.LENGTH_SHORT).show();
+        btnRegister.setEnabled(false);
 
         apiService.registerAuth(authMap).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> rA) {
                 if (rA.isSuccessful()) {
-                    // BƯỚC 2: TẠO PROFILE (GỬI JSON CHỨA CHUỖI BASE64)
                     Map<String, String> profileData = new HashMap<>();
                     profileData.put("NhaxeID", randomID);
                     profileData.put("Tennhaxe", opName);
@@ -146,45 +149,85 @@ public class RegisterActivity extends AppCompatActivity {
                     profileData.put("Email", user + "@gmail.com");
                     profileData.put("DiaChiTruSo", edtAddress.getText().toString().trim());
                     profileData.put("SoDienThoai", phone);
-                    profileData.put("AnhDaiDien", selectedImageBase64); // Gửi chuỗi Base64
+                    profileData.put("AnhDaiDien", selectedImageBase64);
 
                     apiService.createNhaXeProfile(profileData).enqueue(new Callback<Void>() {
                         @Override
                         public void onResponse(Call<Void> call, Response<Void> rP) {
+                            btnRegister.setEnabled(true);
                             if (rP.isSuccessful()) {
-                                Toast.makeText(RegisterActivity.this, "Đăng ký thành công!", Toast.LENGTH_SHORT).show();
-                                saveLoginInfo(randomID, user);
+                                showSuccessPopup();
                             } else {
-                                try {
-                                    Toast.makeText(RegisterActivity.this, "Lỗi Profile: " + rP.errorBody().string(), Toast.LENGTH_LONG).show();
-                                } catch (Exception e) {}
+                                Toast.makeText(RegisterActivity.this, "Lỗi tạo hồ sơ!", Toast.LENGTH_SHORT).show();
                             }
                         }
                         @Override public void onFailure(Call<Void> call, Throwable t) {
-                            Toast.makeText(RegisterActivity.this, "Lỗi mạng bước 2!", Toast.LENGTH_SHORT).show();
+                            btnRegister.setEnabled(true);
                         }
                     });
                 } else {
-                    Toast.makeText(RegisterActivity.this, "Lỗi: SĐT hoặc Tên đăng nhập đã tồn tại!", Toast.LENGTH_LONG).show();
+                    btnRegister.setEnabled(true);
+                    Toast.makeText(RegisterActivity.this, "Tên đăng nhập hoặc SĐT đã tồn tại!", Toast.LENGTH_LONG).show();
                 }
             }
             @Override public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(RegisterActivity.this, "Lỗi kết nối Server!", Toast.LENGTH_SHORT).show();
+                btnRegister.setEnabled(true);
             }
         });
     }
 
-    private void saveLoginInfo(String id, String user) {
-        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putBoolean("isLoggedIn", true);
-        editor.putString("role", "operator");
-        editor.putString("op_uid", id);
-        editor.putString("op_user", user);
-        editor.apply();
+    private void showSuccessPopup() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_success);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
-        startActivity(new Intent(this, OperatorMainActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
-        finish();
+        TextView tvMsg = dialog.findViewById(R.id.tvMessage);
+        if (tvMsg != null) {
+            tvMsg.setText("Tạo tài khoản thành công.\nNhấn vào màn hình để quay lại trang đăng nhập.");
+        }
+
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        
+        // Khi người dùng chạm vào màn hình/dialog thì thoát về màn hình đăng nhập
+        dialog.setOnDismissListener(d -> finish());
+
+        dialog.show();
+
+        // Tự động đóng sau 3 giây nếu không chạm
+        new Handler().postDelayed(() -> {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }, 3000);
+    }
+
+    private void showConfirmCancelDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm_cancel);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvMsg = dialog.findViewById(R.id.tvDialogMessage);
+        Button btnNo = dialog.findViewById(R.id.btnNo);
+        Button btnYes = dialog.findViewById(R.id.btnYes);
+
+        if (tvMsg != null) {
+            tvMsg.setText("Bạn chắc chắn muốn hủy đăng ký tài khoản?");
+        }
+
+        if (btnNo != null) btnNo.setOnClickListener(v -> dialog.dismiss());
+        if (btnYes != null) btnYes.setOnClickListener(v -> {
+            dialog.dismiss();
+            finish();
+        });
+
+        dialog.show();
     }
 
     private void showOtpDialog() {

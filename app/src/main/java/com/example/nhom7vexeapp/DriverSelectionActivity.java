@@ -55,6 +55,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
     private ApiService apiService;
     private ImageView btnBack;
     private Button btnCreateAccount;
+    private LinearLayout layoutScheduleMonitoring;
 
     private CircleImageView currentDialogImg;
     private String selectedImageBase64 = "";
@@ -90,6 +91,11 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
             createDriverLauncher.launch(intent);
         });
 
+        layoutScheduleMonitoring.setOnClickListener(v -> {
+            Intent intent = new Intent(this, DriverScheduleMonitoringActivity.class);
+            startActivity(intent);
+        });
+
         setupBottomNavigation();
         loadRealData();
     }
@@ -98,6 +104,7 @@ public class DriverSelectionActivity extends AppCompatActivity implements Driver
         rvDrivers = findViewById(R.id.rvDrivers);
         btnBack = findViewById(R.id.btnBack);
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
+        layoutScheduleMonitoring = findViewById(R.id.layoutScheduleMonitoring);
 
         rvDrivers.setLayoutManager(new LinearLayoutManager(this));
         adapter = new DriverAdapter(driverList, this);

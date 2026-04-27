@@ -15,7 +15,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -35,9 +34,9 @@ import retrofit2.Response;
 
 public class CustomerProfileActivity extends AppCompatActivity {
 
-    private TextView tvName, tvPhone, tvDob, btnDeleteAccount;
+    private TextView tvName, tvPhone, tvDob;
     private ImageView btnBack, imgAvatar;
-    private View btnEditProfileImage; // Dùng View để tương thích với cả ImageView và CardView
+    private View btnEditProfileImage; 
     private MaterialButton btnLogout, btnEditInfo;
     private LinearLayout navHome, navSearch, navTickets, navFeedback;
 
@@ -48,6 +47,20 @@ public class CustomerProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // BẢO VỆ: Kiểm tra đăng nhập TRƯỚC KHI tạo giao diện
+        SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        boolean isLoggedIn = pref.getBoolean("isLoggedIn", false);
+        
+        if (!isLoggedIn) {
+            // Đá ra trang Login ngay
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            super.onCreate(null); // Gọi super null để tránh crash do init views sau khi finish
+            return;
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customer_profile);
 
@@ -62,6 +75,14 @@ public class CustomerProfileActivity extends AppCompatActivity {
         setupEvents();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (customerUid != null && !customerUid.isEmpty()) {
+            loadAllDataFromServer(customerUid);
+        }
+    }
+
     private void initViews() {
         tvName = findViewById(R.id.tvProfileName);
         tvPhone = findViewById(R.id.tvProfilePhone);
@@ -72,7 +93,6 @@ public class CustomerProfileActivity extends AppCompatActivity {
 
         btnEditInfo = findViewById(R.id.btnEditProfile);
         btnLogout = findViewById(R.id.btnLogout);
-        btnDeleteAccount = findViewById(R.id.btnDeleteAccount);
 
         navHome = findViewById(R.id.nav_home_profile);
         navSearch = findViewById(R.id.nav_search);
@@ -97,12 +117,10 @@ public class CustomerProfileActivity extends AppCompatActivity {
         if (customerUid.isEmpty()) customerUid = pref.getString("user_id", "");
 
         if (customerUid.isEmpty()) {
-            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
             handleLogout();
             return;
         }
 
-        // Hiển thị dữ liệu tạm thời từ SharedPreferences
         tvName.setText(pref.getString("customerName", "Khách hàng"));
         tvPhone.setText(pref.getString("customerPhone", ""));
         tvDob.setText(pref.getString("customerDob", "Chưa cập nhật"));
@@ -112,12 +130,10 @@ public class CustomerProfileActivity extends AppCompatActivity {
             Glide.with(this).load(Uri.parse(localUri)).circleCrop().placeholder(R.drawable.nhaxe_home).into(imgAvatar);
         }
 
-        // Gọi API cập nhật dữ liệu mới nhất
         loadAllDataFromServer(customerUid);
     }
 
     private void loadAllDataFromServer(String uid) {
-        // Cách 1: Load Map Detail (Từ File 2 - linh hoạt cho động)
         apiService.getKhachHangDetail(uid).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
@@ -129,7 +145,6 @@ public class CustomerProfileActivity extends AppCompatActivity {
 
                     String dob = findValue(data, "Ngaysinh", "NgaySinh");
                     if (!dob.isEmpty()) {
-                        // Chuẩn hóa định dạng ngày nếu cần
                         if (dob.contains("-")) {
                             try {
                                 String[] parts = dob.split("T")[0].split("-");
@@ -144,7 +159,6 @@ public class CustomerProfileActivity extends AppCompatActivity {
                         Glide.with(CustomerProfileActivity.this).load(imgData).circleCrop().into(imgAvatar);
                     }
                 }
-                // Luôn gọi thêm Auth Detail để lấy SĐT (thường ở bảng khác)
                 fetchPhoneFromAuth(uid);
             }
             @Override public void onFailure(Call<Map<String, Object>> call, Throwable t) {
@@ -180,9 +194,24 @@ public class CustomerProfileActivity extends AppCompatActivity {
 
     private void setupEvents() {
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
-        if (navHome != null) navHome.setOnClickListener(v -> finish());
+        
+        if (navHome != null) navHome.setOnClickListener(v -> {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        });
+        
+        if (navSearch != null) navSearch.setOnClickListener(v -> {
+            startActivity(new Intent(this, SearchTicketActivity.class));
+        });
 
-        // Hợp nhất logic đổi ảnh: Click ảnh để chọn ảnh, Click bút để vào trang Edit
+        if (navTickets != null) navTickets.setOnClickListener(v -> {
+            startActivity(new Intent(this, QLVeXeActivity.class));
+        });
+
+        if (navFeedback != null) navFeedback.setOnClickListener(v -> {
+            startActivity(new Intent(this, PhanHoiActivity.class));
+        });
+
         if (imgAvatar != null) {
             imgAvatar.setOnClickListener(v -> pickMedia.launch(new PickVisualMediaRequest.Builder()
                     .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE).build()));
@@ -191,37 +220,13 @@ public class CustomerProfileActivity extends AppCompatActivity {
         if (btnEditProfileImage != null || btnEditInfo != null) {
             View.OnClickListener toEdit = v -> {
                 Intent intent = new Intent(this, EditCustomerProfileActivity.class);
-                startActivityForResult(intent, 300);
+                startActivity(intent);
             };
             if (btnEditProfileImage != null) btnEditProfileImage.setOnClickListener(toEdit);
             if (btnEditInfo != null) btnEditInfo.setOnClickListener(toEdit);
         }
 
         if (btnLogout != null) btnLogout.setOnClickListener(v -> handleLogout());
-
-        if (btnDeleteAccount != null) {
-            btnDeleteAccount.setOnClickListener(v -> {
-                new AlertDialog.Builder(this)
-                        .setTitle("Xóa tài khoản")
-                        .setMessage("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu vĩnh viễn?")
-                        .setPositiveButton("Xóa", (dialog, which) -> deleteAccount())
-                        .setNegativeButton("Hủy", null).show();
-            });
-        }
-    }
-
-    private void deleteAccount() {
-        if (customerUid.isEmpty()) return;
-        apiService.deleteKhachHang(customerUid).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                Toast.makeText(CustomerProfileActivity.this, "Đã xóa tài khoản", Toast.LENGTH_SHORT).show();
-                handleLogout();
-            }
-            @Override public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(CustomerProfileActivity.this, "Lỗi kết nối khi xóa!", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void handleLogout() {
@@ -240,13 +245,5 @@ public class CustomerProfileActivity extends AppCompatActivity {
             }
         }
         return "";
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 300 && resultCode == RESULT_OK) {
-            loadAllDataFromServer(customerUid);
-        }
     }
 }

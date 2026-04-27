@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ public class SearchTicketActivity extends AppCompatActivity {
     private EditText edtDate, edtTime;
     private Spinner spOrigin, spDestination;
     private Button btnSearchTicket;
+    private ImageView btnProfileHeader;
     private LinearLayout navHome, navSearch, navTickets, navFeedback;
     private SharedPreferences sharedPreferences;
 
@@ -36,6 +38,7 @@ public class SearchTicketActivity extends AppCompatActivity {
 
         initViews();
         setupCityData();
+        setupEvents();
         setupBottomNavigation(); 
 
         edtDate.setOnClickListener(v -> openDatePicker());
@@ -49,6 +52,7 @@ public class SearchTicketActivity extends AppCompatActivity {
         spOrigin = findViewById(R.id.spOrigin);
         spDestination = findViewById(R.id.spDestination);
         btnSearchTicket = findViewById(R.id.btnSearchTicket);
+        btnProfileHeader = findViewById(R.id.btnProfileHeader);
 
         navHome = findViewById(R.id.nav_home);
         navSearch = findViewById(R.id.nav_search);
@@ -56,8 +60,24 @@ public class SearchTicketActivity extends AppCompatActivity {
         navFeedback = findViewById(R.id.nav_feedback);
     }
 
+    private void setupEvents() {
+        if (btnProfileHeader != null) {
+            btnProfileHeader.setOnClickListener(v -> {
+                boolean isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false);
+                if (isLoggedIn) {
+                    startActivity(new Intent(this, CustomerProfileActivity.class));
+                } else {
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
+            });
+        }
+    }
+
     private void setupBottomNavigation() {
-        if (navHome != null) navHome.setOnClickListener(v -> finish());
+        if (navHome != null) navHome.setOnClickListener(v -> {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        });
         if (navTickets != null) navTickets.setOnClickListener(v -> checkLoginAndNavigate(QLVeXeActivity.class));
         if (navFeedback != null) navFeedback.setOnClickListener(v -> checkLoginAndNavigate(PhanHoiActivity.class));
     }
@@ -107,7 +127,6 @@ public class SearchTicketActivity extends AppCompatActivity {
     }
 
     private void performSearch() {
-        // Kiểm tra Selection tránh NullPointerException
         Object originObj = spOrigin.getSelectedItem();
         Object destObj = spDestination.getSelectedItem();
         

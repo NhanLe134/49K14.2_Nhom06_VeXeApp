@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
+import com.example.nhom7vexeapp.models.Route;
+import com.example.nhom7vexeapp.models.Seat;
 import com.example.nhom7vexeapp.models.Trip;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -36,6 +38,12 @@ public class TripRouteActivity extends AppCompatActivity {
     private boolean isShowingPickup = true;
     private List<Map<String, Object>> tickets = new ArrayList<>();
     private Map<String, String> customerNames = new HashMap<>();
+    private List<Seat> allSeatsOfTrip = new ArrayList<>();
+
+    // Tọa độ các thành phố chính
+    private final GeoPoint HUE = new GeoPoint(16.4637, 107.5909);
+    private final GeoPoint DANANG = new GeoPoint(16.0544, 108.2022);
+    private final GeoPoint HOIAN = new GeoPoint(15.8801, 108.3273);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,21 +82,21 @@ public class TripRouteActivity extends AppCompatActivity {
 
     private void loadDurationFromRoute() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        apiService.getRoutes().enqueue(new Callback<List<Map<String, Object>>>() {
+        apiService.getRoutes().enqueue(new Callback<List<Route>>() {
             @Override
-            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
+            public void onResponse(Call<List<Route>> call, Response<List<Route>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    for (Map<String, Object> route : response.body()) {
-                        String id = findVal(route, "TuyenXeID", "id");
-                        if (id.equalsIgnoreCase(currentTrip.getTuyenXeID())) {
-                            String time = findVal(route, "ThoiGian", "duration");
-                            tvDurationInfo.setText("Thời gian dự kiến: " + (time.isEmpty() || time.equals("null") ? "2h" : time));
+                    for (Route route : response.body()) {
+                        String id = route.getId();
+                        if (id != null && id.equalsIgnoreCase(currentTrip.getTuyenXeID())) {
+                            String time = route.getTime();
+                            tvDurationInfo.setText("Thời gian dự kiến: " + (time == null || time.isEmpty() || time.equals("null") ? "2h" : time));
                             break;
                         }
                     }
                 }
             }
-            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {}
+            @Override public void onFailure(Call<List<Route>> call, Throwable t) {}
         });
     }
 
@@ -99,12 +107,21 @@ public class TripRouteActivity extends AppCompatActivity {
             public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> resK) {
                 if (resK.isSuccessful() && resK.body() != null) {
                     for (Map<String, Object> kh : resK.body()) {
-                        String id = findVal(kh, "KhachHangID", "id");
-                        String name = findVal(kh, "Hovaten", "TenKhachHang");
+                        String id = findVal(kh, "KhachHangID", "id", "MaKH");
+                        String name = findVal(kh, "hoTen", "Hovaten", "TenKhachHang");
                         if (!id.isEmpty()) customerNames.put(id, name);
                     }
                 }
-                fetchTickets();
+                apiService.getSeatsByTrip(currentTrip.getId()).enqueue(new Callback<List<Seat>>() {
+                    @Override
+                    public void onResponse(Call<List<Seat>> call, Response<List<Seat>> resG) {
+                        if (resG.isSuccessful() && resG.body() != null) {
+                            allSeatsOfTrip = resG.body();
+                        }
+                        fetchTickets();
+                    }
+                    @Override public void onFailure(Call<List<Seat>> call, Throwable t) { fetchTickets(); }
+                });
             }
             @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) { fetchTickets(); }
         });
@@ -116,7 +133,13 @@ public class TripRouteActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    tickets = response.body();
+                    tickets.clear();
+                    for (Map<String, Object> v : response.body()) {
+                        String ticketTripId = findVal(v, "ChuyenXe", "chuyenxe", "ChuyenXeID");
+                        if (ticketTripId != null && ticketTripId.equalsIgnoreCase(currentTrip.getId())) {
+                            tickets.add(v);
+                        }
+                    }
                     updateListAndMarkers();
                 }
             }
@@ -129,49 +152,69 @@ public class TripRouteActivity extends AppCompatActivity {
         map.getOverlays().clear();
         layoutPoints.removeAllViews();
 
-        // 1. Lắng nghe click bản đồ
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override public boolean singleTapConfirmedHelper(GeoPoint p) { toggleViewMode(); return true; }
             @Override public boolean longPressHelper(GeoPoint p) { return false; }
         };
         map.getOverlays().add(new MapEventsOverlay(mReceive));
 
-        // 2. Tọa độ Đà Nẵng - Huế
-        GeoPoint startPoint = new GeoPoint(16.0544, 108.2022); // Đà Nẵng
-        GeoPoint endPoint = new GeoPoint(16.4637, 107.5909);   // Huế
+        // Xác định điểm đi và điểm đến dựa trên tên tuyến
+        GeoPoint startPoint = DANANG; 
+        GeoPoint endPoint = HUE;
+        String routeName = (currentTrip.getRouteName() != null ? currentTrip.getRouteName() : "").toLowerCase();
+        
+        if (routeName.contains("huế") && (routeName.contains("đà nẵng") || routeName.contains("đn"))) {
+            if (routeName.indexOf("huế") < (routeName.contains("đà nẵng") ? routeName.indexOf("đà nẵng") : routeName.indexOf("đn"))) {
+                startPoint = HUE; endPoint = DANANG;
+            } else {
+                startPoint = DANANG; endPoint = HUE;
+            }
+        } else if ((routeName.contains("hội an") || routeName.contains("ha")) && (routeName.contains("đà nẵng") || routeName.contains("đn"))) {
+            if ((routeName.contains("đà nẵng") ? routeName.indexOf("đà nẵng") : routeName.indexOf("đn")) < (routeName.contains("hội an") ? routeName.indexOf("hội an") : routeName.indexOf("ha"))) {
+                startPoint = DANANG; endPoint = HOIAN;
+            } else {
+                startPoint = HOIAN; endPoint = DANANG;
+            }
+        }
 
-        // 3. Vẽ Polyline phong cách Figma
         Polyline line = new Polyline();
-        line.setColor(Color.parseColor("#03A9F4")); // Xanh sáng giống Figma
-        line.setWidth(10f);
-        line.addPoint(startPoint);
+        line.setColor(Color.parseColor("#03A9F4")); 
+        line.setWidth(8f);
 
-        // 4. Tạo Marker (dạng Point) và Item danh sách
+        GeoPoint focusPoint = isShowingPickup ? startPoint : endPoint;
+        List<GeoPoint> routePath = new ArrayList<>();
+
+        if (isShowingPickup) {
+            routePath.add(startPoint);
+        } else {
+            routePath.add(startPoint);
+        }
+
+        // Hiển thị nhiều chấm xanh dương cho hành khách và nối đường đi
         for (int i = 0; i < tickets.size(); i++) {
             Map<String, Object> v = tickets.get(i);
             
-            // Giả lập vị trí dọc đường đi
-            double ratio = (double)(i + 1) / (tickets.size() + 1);
-            double lat = startPoint.getLatitude() + (endPoint.getLatitude() - startPoint.getLatitude()) * ratio;
-            double lon = startPoint.getLongitude() + (endPoint.getLongitude() - startPoint.getLongitude()) * ratio;
+            // Random vị trí quanh khu vực điểm đón/trả để tạo hiệu ứng "nhiều điểm"
+            double lat = focusPoint.getLatitude() + (Math.random() - 0.5) * 0.012;
+            double lon = focusPoint.getLongitude() + (Math.random() - 0.5) * 0.012;
+            GeoPoint point = new GeoPoint(lat, lon);
             
-            GeoPoint point = new GeoPoint(lat + (Math.random()-0.5)*0.008, lon + (Math.random()-0.5)*0.008);
-            line.addPoint(point);
+            routePath.add(point);
 
-            // Tạo icon Point (Chấm tròn trắng viền xanh)
             Marker m = new Marker(map);
             m.setPosition(point);
             
+            // Chấm màu xanh dương (Blue) theo yêu cầu mới
             GradientDrawable circle = new GradientDrawable();
             circle.setShape(GradientDrawable.OVAL);
-            circle.setColor(Color.WHITE);
-            circle.setStroke(5, Color.parseColor("#03A9F4"));
-            circle.setSize(20, 20);
+            circle.setColor(Color.parseColor("#03A9F4")); 
+            circle.setStroke(3, Color.WHITE);
+            circle.setSize(24, 24);
             
             m.setIcon(circle);
             m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
             
-            String khId = findVal(v, "KhachHang", "khachhang");
+            String khId = findVal(v, "KhachHang", "khachhang", "KhachHangID");
             String name = customerNames.getOrDefault(khId, "Khách hàng");
             m.setTitle(name + (isShowingPickup ? " - Đón" : " - Trả"));
             map.getOverlays().add(m);
@@ -179,50 +222,52 @@ public class TripRouteActivity extends AppCompatActivity {
             updatePassengerItem(v, name);
         }
 
-        line.addPoint(endPoint);
+        routePath.add(endPoint);
+        line.setPoints(routePath);
         map.getOverlays().add(line);
 
-        // 5. Thêm Point điểm đầu và cuối to hơn
-        addPointMarker(startPoint, "Điểm đi");
-        addPointMarker(endPoint, "Điểm đến");
+        // Tất cả marker chính cũng đổi thành màu xanh dương cho đồng bộ
+        addPointMarker(startPoint, "Điểm đi", Color.parseColor("#00B0FF"));
+        addPointMarker(endPoint, "Điểm đến", Color.parseColor("#00B0FF"));
 
-        // 6. Thay đổi góc nhìn Map
-        if (isShowingPickup) {
-            map.getController().setZoom(15.0);
-            map.getController().animateTo(startPoint);
-        } else {
-            map.getController().setZoom(15.0);
-            map.getController().animateTo(endPoint);
-        }
-
+        map.getController().setZoom(14.5);
+        map.getController().animateTo(focusPoint);
         map.invalidate();
     }
 
-    private void addPointMarker(GeoPoint point, String title) {
+    private void addPointMarker(GeoPoint point, String title, int color) {
         Marker m = new Marker(map);
         m.setPosition(point);
         m.setTitle(title);
-        
         GradientDrawable circle = new GradientDrawable();
         circle.setShape(GradientDrawable.OVAL);
-        circle.setColor(Color.parseColor("#03A9F4"));
-        circle.setSize(35, 35);
-        
+        circle.setColor(color);
+        circle.setStroke(4, Color.WHITE);
+        circle.setSize(40, 40);
         m.setIcon(circle);
         m.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
         map.getOverlays().add(m);
     }
 
     private void updatePassengerItem(Map<String, Object> v, String name) {
-        String phone = findVal(v, "SoDienThoai", "phone");
-        String pickup = findVal(v, "DiemDon", "pickup");
-        String dropoff = findVal(v, "DiemTra", "dropoff");
-        String fullGhe = findVal(v, "Ghe", "MaGhe");
+        String phone = findVal(v, "SoDienThoai", "phone", "sdt");
+        String pickup = findVal(v, "DiemDon", "pickup", "diem_don");
+        String dropoff = findVal(v, "DiemTra", "dropoff", "diem_tra");
+        String veId = findVal(v, "VeID", "id", "ve_id", "VEID");
         
-        String displayGhe = fullGhe;
-        if (fullGhe.startsWith(currentTrip.getId())) {
-            displayGhe = fullGhe.substring(currentTrip.getId().length());
+        List<String> seatCodes = new ArrayList<>();
+        for (Seat s : allSeatsOfTrip) {
+            if (s.getTicketId() != null && s.getTicketId().equalsIgnoreCase(veId)) {
+                if (!s.getSeatCode().isEmpty()) seatCodes.add(s.getSeatCode());
+            }
         }
+        
+        if (seatCodes.isEmpty()) {
+            String direct = findVal(v, "DanhSachGhe", "soGhe", "SOGHE", "MaGhe");
+            if (!direct.isEmpty()) seatCodes.add(direct);
+        }
+
+        String displaySeat = (seatCodes.isEmpty()) ? "??" : android.text.TextUtils.join(", ", seatCodes);
 
         View view = getLayoutInflater().inflate(R.layout.item_passenger, null);
         ((TextView)view.findViewById(R.id.tvPassengerName)).setText(name);
@@ -241,15 +286,23 @@ public class TripRouteActivity extends AppCompatActivity {
             tvD.setText("Điểm trả: " + dropoff);
         }
         
-        ((TextView)view.findViewById(R.id.tvSeatNumber)).setText(displayGhe);
+        ((TextView)view.findViewById(R.id.tvSeatNumber)).setText(displaySeat);
         layoutPoints.addView(view);
     }
 
     private String findVal(Map<String, Object> map, String... keys) {
         if (map == null) return "";
         for (String k : keys) {
-            for (Map.Entry<String, Object> e : map.entrySet()) {
-                if (e.getKey().equalsIgnoreCase(k) && e.getValue() != null) return e.getValue().toString();
+            Object val = map.get(k);
+            if (val != null) {
+                if (val instanceof Map) return findVal((Map<String, Object>) val, "id", "MaKH", "MaGhe");
+                return val.toString();
+            }
+            for (String actualKey : map.keySet()) {
+                if (actualKey.equalsIgnoreCase(k)) {
+                    Object v2 = map.get(actualKey);
+                    if (v2 != null) return v2.toString();
+                }
             }
         }
         return "";

@@ -1,6 +1,7 @@
 package com.example.nhom7vexeapp.adapters;
 
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,25 +44,33 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.RouteViewHol
         holder.tvEndPoint.setText(route.getEndPoint());
         holder.tvDistance.setText(route.getDistance());
         holder.tvTime.setText(route.getTime());
+        holder.tvStatus.setText(route.getStatus());
+
+        // Custom background for status
+        GradientDrawable shape = new GradientDrawable();
+        shape.setCornerRadius(20f);
         
         String status = route.getStatus();
         if (status == null) status = "Đang hoạt động";
-        holder.tvStatus.setText(status);
 
-        // Cập nhật màu sắc và form tương ứng từ các file drawable của bạn
         if ("Đang hoạt động".equals(status)) {
-            holder.tvStatus.setTextColor(Color.parseColor("#2E7D32")); // Chữ xanh lá đậm
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_green); // Form nền xanh nhạt
+            holder.tvStatus.setText("Đang hoạt động");
+            holder.tvStatus.setTextColor(Color.parseColor("#2E7D32")); // Green
+            shape.setColor(Color.parseColor("#E8F5E9")); // Light Green
         } else if ("Bảo trì".equals(status)) {
-            holder.tvStatus.setTextColor(Color.parseColor("#FBC02D")); // Chữ vàng đậm
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_yellow); // Form nền vàng nhạt
+            holder.tvStatus.setText("Bảo trì");
+            holder.tvStatus.setTextColor(Color.parseColor("#FBC02D")); // Yellow/Amber
+            shape.setColor(Color.parseColor("#FFF9C4")); // Light Yellow
         } else {
-            holder.tvStatus.setTextColor(Color.parseColor("#D32F2F")); // Chữ đỏ đậm
-            // Sử dụng bg_input_error hoặc tạo mới bg_status_red nếu cần, ở đây dùng tạm bg_input_error để có form tương ứng
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_input_error); 
+            holder.tvStatus.setText("Ngưng hoạt động");
+            holder.tvStatus.setTextColor(Color.parseColor("#D32F2F")); // Red
+            shape.setColor(Color.parseColor("#FFEBEE")); // Light Red
         }
+        holder.tvStatus.setBackground(shape);
 
+        // Click on status to change
         holder.tvStatus.setOnClickListener(v -> listener.onStatusChange(route));
+
         holder.btnEdit.setOnClickListener(v -> listener.onEdit(route));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(route));
     }
