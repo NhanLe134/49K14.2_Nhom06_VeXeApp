@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF">
@@ -65,7 +66,7 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_nav"
         app:layout_constraintTop_toBottomOf="@+id/header" />
 
-    <!-- BOTTOM NAVIGATION -->
+    <!-- BOTTOM NAVIGATION CẬP NHẬT ICON MỚI -->
     <LinearLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
@@ -77,7 +78,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
-            android:id="@+id/nav_home_op"
+            android:id="@+id/nav_home_op_main"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -86,7 +87,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/home"
+                android:src="@drawable/tc"
                 app:tint="#757575"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -108,7 +109,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_driver"
+                android:src="@drawable/taixe"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"
@@ -130,7 +131,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_car"
+                android:src="@drawable/pt"
                 app:tint="#1A73E8" />
             <TextView
                 android:layout_width="wrap_content"
@@ -152,7 +153,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_map"
+                android:src="@drawable/cx"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"
@@ -174,7 +175,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_route"
+                android:src="@drawable/txe"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"

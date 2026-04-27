@@ -47,7 +47,6 @@ public class CarTypeManagementActivity extends AppCompatActivity {
         rvCarTypes = findViewById(R.id.rvCarTypes);
         btnBack = findViewById(R.id.btnBack);
         btnProfile = findViewById(R.id.btnProfile);
-        // Fallback if ID is different in XML
         if (btnProfile == null) btnProfile = findViewById(R.id.imgOpProfile);
     }
 
@@ -71,6 +70,8 @@ public class CarTypeManagementActivity extends AppCompatActivity {
 
     private void fetchCarTypes() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Log.d("CarType", "Bắt đầu tải danh sách loại xe từ server...");
+        
         apiService.getLoaixe().enqueue(new Callback<List<Loaixe>>() {
             @Override
             public void onResponse(Call<List<Loaixe>> call, Response<List<Loaixe>> response) {
@@ -78,14 +79,16 @@ public class CarTypeManagementActivity extends AppCompatActivity {
                     carTypeList.clear();
                     carTypeList.addAll(response.body());
                     adapter.notifyDataSetChanged();
+                    Log.d("CarType", "Tải thành công: " + carTypeList.size() + " loại xe");
                 } else {
-                    Toast.makeText(CarTypeManagementActivity.this, "Không thể lấy dữ liệu từ server", Toast.LENGTH_SHORT).show();
+                    Log.e("CarType", "Server phản hồi lỗi: " + response.code());
+                    Toast.makeText(CarTypeManagementActivity.this, "Không thể lấy dữ liệu từ server (Mã: " + response.code() + ")", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Loaixe>> call, Throwable t) {
-                Log.e("API_ERROR", t.getMessage());
+                Log.e("CarType", "Lỗi kết nối: " + t.getMessage());
                 Toast.makeText(CarTypeManagementActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -94,48 +97,44 @@ public class CarTypeManagementActivity extends AppCompatActivity {
     private void setupBottomNav() {
         // TRANG CHỦ
         View navHome = findViewById(R.id.nav_home_op_main);
-        if (navHome == null) navHome = findViewById(R.id.nav_home_op);
-        
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
-                startActivity(new Intent(this, OperatorMainActivity.class));
+                Intent intent = new Intent(this, OperatorMainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
                 finish();
             });
         }
 
-        // TÀI XẾ (Đã sửa từ QLNhaxeActivity sang DriverSelectionActivity)
-        LinearLayout navDriver = findViewById(R.id.nav_driver_op);
+        // TÀI XẾ
+        View navDriver = findViewById(R.id.nav_driver_op);
         if (navDriver != null) {
             navDriver.setOnClickListener(v -> {
                 startActivity(new Intent(this, DriverSelectionActivity.class));
-                finish();
             });
         }
 
         // PHƯƠNG TIỆN
-        LinearLayout navVehicle = findViewById(R.id.nav_vehicle_op);
+        View navVehicle = findViewById(R.id.nav_vehicle_op);
         if (navVehicle != null) {
             navVehicle.setOnClickListener(v -> {
                 startActivity(new Intent(this, PhuongTienManagementActivity.class));
-                finish();
             });
         }
 
         // CHUYẾN XE
-        LinearLayout navTrip = findViewById(R.id.nav_trip_op);
+        View navTrip = findViewById(R.id.nav_trip_op);
         if (navTrip != null) {
             navTrip.setOnClickListener(v -> {
                 startActivity(new Intent(this, TripListActivity.class));
-                finish();
             });
         }
 
         // TUYẾN XE
-        LinearLayout navRoute = findViewById(R.id.nav_route_op);
+        View navRoute = findViewById(R.id.nav_route_op);
         if (navRoute != null) {
             navRoute.setOnClickListener(v -> {
                 startActivity(new Intent(this, QLTuyenxeActivity.class));
-                finish();
             });
         }
     }

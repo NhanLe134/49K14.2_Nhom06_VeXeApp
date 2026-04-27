@@ -2,6 +2,7 @@ package com.example.nhom7vexeapp.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +53,7 @@ public class VehicleManagedAdapter extends RecyclerView.Adapter<VehicleManagedAd
             if (status.equalsIgnoreCase("Bảo trì")) {
                 holder.tvStatus.setTextColor(Color.parseColor("#FBC02D"));
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_yellow);
-            } else if (status.equalsIgnoreCase("Dừng hoạt động")) {
+            } else if (status.equalsIgnoreCase("Dừng hoạt động") || status.equalsIgnoreCase("Dừng hoạt động")) {
                 holder.tvStatus.setTextColor(Color.GRAY);
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_input_gray);
             } else {
@@ -61,10 +62,15 @@ public class VehicleManagedAdapter extends RecyclerView.Adapter<VehicleManagedAd
             }
         }
 
+        // QUAN TRỌNG: Gán sự kiện click cho toàn bộ item
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) listener.onShowDetail(vehicle);
+            Log.d("VehicleClick", "Đã nhấn vào xe: " + vehicle.getBienSoXe());
+            if (listener != null) {
+                listener.onShowDetail(vehicle);
+            }
         });
 
+        // Nút xóa riêng biệt
         holder.btnDelete.setOnClickListener(v -> {
             if (listener != null) listener.onDelete(vehicle, position);
         });

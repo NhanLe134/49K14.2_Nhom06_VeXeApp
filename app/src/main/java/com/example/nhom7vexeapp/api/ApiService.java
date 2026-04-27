@@ -71,6 +71,9 @@ public interface ApiService {
     @PUT("api/xe/{id}/")
     Call<VehicleManaged> updateVehicle(@Path("id") String id, @Body VehicleManaged vehicle);
 
+    @PATCH("api/xe/{id}/")
+    Call<Void> patchVehicle(@Path("id") String id, @Body Map<String, Object> data);
+
     @DELETE("api/xe/{id}/")
     Call<Void> deleteVehicle(@Path("id") String id);
 

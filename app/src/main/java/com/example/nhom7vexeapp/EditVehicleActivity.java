@@ -13,10 +13,23 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.nhom7vexeapp.models.Vehicle;
+
+import com.example.nhom7vexeapp.api.ApiClient;
+import com.example.nhom7vexeapp.api.ApiService;
+import com.example.nhom7vexeapp.models.Loaixe;
+import com.example.nhom7vexeapp.models.VehicleManaged;
 import com.google.android.material.button.MaterialButton;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EditVehicleActivity extends AppCompatActivity {
 
@@ -24,34 +37,31 @@ public class EditVehicleActivity extends AppCompatActivity {
     private ImageView btnBack;
     private MaterialButton btnSave, btnCancel;
     private LinearLayout layoutStatus;
-    private String selectedStatus = "Hoạt động";
+    private VehicleManaged currentVehicle;
+    private ApiService apiService;
+    private String selectedStatus = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_vehicle);
 
+        apiService = ApiClient.getClient().create(ApiService.class);
         initViews();
 
-        // Nhận dữ liệu từ Intent
-        Vehicle vehicle = (Vehicle) getIntent().getSerializableExtra("vehicle_data");
-        if (vehicle != null) {
-            tvPlate.setText(vehicle.getPlateNumber());
-            tvType.setText(vehicle.getType());
-            tvSeats.setText(String.valueOf(vehicle.getSeatCount()));
-            selectedStatus = vehicle.getStatus();
-            tvStatusDisplay.setText(selectedStatus);
+        if (getIntent() != null && getIntent().hasExtra("vehicle_managed_data")) {
+            currentVehicle = (VehicleManaged) getIntent().getSerializableExtra("vehicle_managed_data");
+            if (currentVehicle != null) {
+                loadInitialData();
+            }
         }
 
         btnBack.setOnClickListener(v -> showCancelConfirmationDialog());
         btnCancel.setOnClickListener(v -> showCancelConfirmationDialog());
-
         layoutStatus.setOnClickListener(v -> showStatusSelectionDialog());
 
-        btnSave.setOnClickListener(v -> {
-            // Logic lưu thông tin (ở đây chỉ hiển thị popup thành công)
-            showSuccessPopup();
-        });
+        // LOGIC LƯU VÀO DATABASE RENDER
+        btnSave.setOnClickListener(v -> saveChangesToDatabase());
     }
 
     private void initViews() {
@@ -65,92 +75,92 @@ public class EditVehicleActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btnCancelEdit);
     }
 
-    private void showCancelConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_cancel_confirmation, null);
-        builder.setView(dialogView);
+    private void loadInitialData() {
+        tvPlate.setText(currentVehicle.getBienSoXe());
+        selectedStatus = currentVehicle.getTrangThai();
+        tvStatusDisplay.setText(selectedStatus);
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        apiService.getLoaixe().enqueue(new Callback<List<Loaixe>>() {
+            @Override
+            public void onResponse(Call<List<Loaixe>> call, Response<List<Loaixe>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String targetTypeId = currentVehicle.getLoaiXeIDStr();
+                    for (Loaixe type : response.body()) {
+                        if (type.getLoaixeID().equalsIgnoreCase(targetTypeId)) {
+                            tvType.setText("Xe " + type.getSoCho() + " chỗ");
+                            tvSeats.setText(String.valueOf(type.getSoCho()));
+                            break;
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<List<Loaixe>> call, Throwable t) {}
+        });
+    }
 
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            WindowManager.LayoutParams layoutParams = window.getAttributes();
-            layoutParams.gravity = Gravity.CENTER;
-            window.setAttributes(layoutParams);
-        }
+    private void saveChangesToDatabase() {
+        if (currentVehicle == null || selectedStatus.isEmpty()) return;
 
-        MaterialButton btnNo = dialogView.findViewById(R.id.btnDialogNo);
-        MaterialButton btnYes = dialogView.findViewById(R.id.btnDialogYes);
+        // KHỚP VỚI DATABASE DJANGO: Cập nhật trường TrangThai của bảng Xe
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("TrangThai", selectedStatus);
 
-        btnNo.setOnClickListener(v -> dialog.dismiss());
-        btnYes.setOnClickListener(v -> {
-            dialog.dismiss();
-            finish();
+        apiService.patchVehicle(currentVehicle.getXeID(), updateData).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    showSuccessPopup();
+                } else {
+                    Toast.makeText(EditVehicleActivity.this, "Lỗi cập nhật server: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(EditVehicleActivity.this, "Lỗi kết nối mạng!", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
     private void showStatusSelectionDialog() {
-        String[] statuses = {"Hoạt động", "Đang bảo trì", "Tạm dừng"};
+        String[] statuses = {"Đang hoạt động", "Bảo trì", "Dừng hoạt động"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_select_status, null);
         builder.setView(dialogView);
-
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-            lp.gravity = Gravity.CENTER;
-            dialog.getWindow().setAttributes(lp);
-        }
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        dialogView.findViewById(R.id.tvStatusOpt1).setOnClickListener(v -> {
-            tvStatusDisplay.setText(statuses[0]);
-            dialog.dismiss();
-        });
-        dialogView.findViewById(R.id.tvStatusOpt2).setOnClickListener(v -> {
-            tvStatusDisplay.setText(statuses[1]);
-            dialog.dismiss();
-        });
-        dialogView.findViewById(R.id.tvStatusOpt3).setOnClickListener(v -> {
-            tvStatusDisplay.setText(statuses[2]);
-            dialog.dismiss();
-        });
+        dialogView.findViewById(R.id.tvStatusOpt1).setOnClickListener(v -> { selectedStatus = statuses[0]; tvStatusDisplay.setText(selectedStatus); dialog.dismiss(); });
+        dialogView.findViewById(R.id.tvStatusOpt2).setOnClickListener(v -> { selectedStatus = statuses[1]; tvStatusDisplay.setText(selectedStatus); dialog.dismiss(); });
+        dialogView.findViewById(R.id.tvStatusOpt3).setOnClickListener(v -> { selectedStatus = statuses[2]; tvStatusDisplay.setText(selectedStatus); dialog.dismiss(); });
+    }
+
+    private void showCancelConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_cancel_confirmation, null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialogView.findViewById(R.id.btnDialogNo).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btnDialogYes).setOnClickListener(v -> { dialog.dismiss(); finish(); });
     }
 
     private void showSuccessPopup() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_success, null);
-        
-        TextView tvMessage = dialogView.findViewById(R.id.tvSuccessMessage);
-        if (tvMessage != null) {
-            tvMessage.setText("Cập nhật thông tin Nhà xe thành công");
-        }
-        
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_success, null);
+        TextView tvMsg = dialogView.findViewById(R.id.tvMessage);
+        if (tvMsg != null) tvMsg.setText("Đã cập nhật thông tin xe thành công.");
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
         dialog.show();
-
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            WindowManager.LayoutParams layoutParams = window.getAttributes();
-            layoutParams.gravity = Gravity.CENTER;
-            window.setAttributes(layoutParams);
-        }
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         
         new Handler().postDelayed(() -> {
-            if (dialog.isShowing()) {
-                dialog.dismiss();
-            }
-            Intent intent = new Intent(EditVehicleActivity.this, QLPhuongTienActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+            if (dialog.isShowing()) dialog.dismiss();
+            setResult(RESULT_OK);
             finish();
         }, 1500);
     }

@@ -98,6 +98,12 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
         btnCancelForm = findViewById(R.id.btnCancelForm);
         edtAutoDistance = findViewById(R.id.edtAutoDistance);
         edtAutoTime = findViewById(R.id.edtAutoTime);
+
+        // Header Profile click
+        View imgOpProfile = findViewById(R.id.imgOpProfile);
+        if (imgOpProfile != null) {
+            imgOpProfile.setOnClickListener(v -> startActivity(new Intent(this, OperatorProfileActivity.class)));
+        }
     }
 
     private void setupRecyclerView() {
@@ -115,9 +121,10 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
                 if (response.isSuccessful() && response.body() != null) {
                     routeList.clear();
                     for (Route route : response.body()) {
-                        routeList.add(route);
+                        if (route.getNhaXeId() != null && route.getNhaXeId().equalsIgnoreCase(opUid)) {
+                            routeList.add(route);
+                        }
                     }
-                    
                     Collections.sort(routeList, (r1, r2) -> getStatusPriority(r1.getStatus()) - getStatusPriority(r2.getStatus()));
                     adapter.notifyDataSetChanged();
                 }
@@ -139,7 +146,7 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
             if (inlineFormCard.getVisibility() == View.VISIBLE) {
                 String msg = (editingRoute == null) ? "Bạn có thông tin thêm mới chưa lưu, xác nhận hủy?" : "Bạn có thông tin chỉnh sửa chưa lưu, xác nhận hủy?";
                 showRouteConfirmDialog(msg, this::hideRouteForm);
-            } else backToHome();
+            } else finish();
         });
 
         btnAddRoute.setOnClickListener(v -> showRouteForm(null));
@@ -223,16 +230,38 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
         return 0;
     }
 
-    private void backToHome() {
-        Intent intent = new Intent(this, OperatorMainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
-        finish();
-    }
-
     private void setupNavigation() {
+        // 1. TRANG CHỦ
         View navHome = findViewById(R.id.nav_home_op_main);
-        if (navHome != null) navHome.setOnClickListener(v -> backToHome());
+        if (navHome != null) navHome.setOnClickListener(v -> {
+            startActivity(new Intent(this, OperatorMainActivity.class));
+            finish();
+        });
+
+        // 2. TÀI XẾ
+        View navDriver = findViewById(R.id.nav_driver_op);
+        if (navDriver != null) navDriver.setOnClickListener(v -> {
+            startActivity(new Intent(this, DriverSelectionActivity.class));
+            finish();
+        });
+
+        // 3. PHƯƠNG TIỆN
+        View navVehicle = findViewById(R.id.nav_vehicle_op);
+        if (navVehicle != null) navVehicle.setOnClickListener(v -> {
+            startActivity(new Intent(this, PhuongTienManagementActivity.class));
+            finish();
+        });
+
+        // 4. CHUYẾN XE
+        View navTrip = findViewById(R.id.nav_trip_op);
+        if (navTrip != null) navTrip.setOnClickListener(v -> {
+            startActivity(new Intent(this, TripListActivity.class));
+            finish();
+        });
+
+        // 5. TUYẾN XE (Đang ở đây, nhấn vào chỉ để refresh)
+        View navRoute = findViewById(R.id.nav_route_op);
+        if (navRoute != null) navRoute.setOnClickListener(v -> fetchRoutesFromApi());
     }
 
     private void showRouteConfirmDialog(String message, Runnable onConfirm) {

@@ -138,6 +138,14 @@
             android:name=".AssignDriverActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".VehicleDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".EditVehicleActivity"
+            android:exported="false" />
+
         <!-- MÀN HÌNH THÊM PHƯƠNG TIỆN -->
         <activity
             android:name=".CreateVehicleActivity"

@@ -37,7 +37,6 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Nút Thêm xe bên phải Header - Sử dụng vector có sẵn -->
         <LinearLayout
             android:id="@+id/btnAddVehicle"
             android:layout_width="wrap_content"
@@ -50,13 +49,11 @@
             android:paddingHorizontal="12dp"
             android:clickable="true"
             android:focusable="true">
-
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/baseline_check_circle_outline_24"
                 app:tint="#0098D6" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -100,7 +97,6 @@
         app:layout_constraintTop_toBottomOf="@id/cardTitle"
         tools:listitem="@layout/item_phuong_tien" />
 
-    <!-- PROGRESS BAR -->
     <ProgressBar
         android:id="@+id/progressBarVehicles"
         android:layout_width="wrap_content"
@@ -111,6 +107,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- BOTTOM NAV ĐÃ CẬP NHẬT ICON VÀ ID -->
     <LinearLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
@@ -122,16 +119,18 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
-            android:id="@+id/nav_home_op"
+            android:id="@+id/nav_home_op_main"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/home"
+                android:src="@drawable/tc"
                 app:tint="#757575"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -148,11 +147,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_driver"
+                android:src="@drawable/taixe"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"
@@ -169,11 +170,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_car"
+                android:src="@drawable/pt"
                 app:tint="#0098D6" />
             <TextView
                 android:layout_width="wrap_content"
@@ -191,11 +194,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_map"
+                android:src="@drawable/cx"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"
@@ -212,11 +217,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_route"
+                android:src="@drawable/txe"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"
