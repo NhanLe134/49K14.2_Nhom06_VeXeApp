@@ -119,7 +119,10 @@
                 android:layout_marginTop="16dp"
                 android:numStars="5"
                 android:stepSize="1"
-                android:rating="0" />
+                android:rating="0"
+                android:progressTint="#FFD700"
+                android:secondaryProgressTint="#FFD700"
+                android:progressBackgroundTint="#CCCCCC" />
 
             <TextView
                 android:layout_width="match_parent"

@@ -1,76 +1,182 @@
 package com.example.nhom7vexeapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.nhom7vexeapp.api.ApiClient;
+import com.example.nhom7vexeapp.api.ApiService;
+import com.example.nhom7vexeapp.models.TripSearchResult;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class VietNhanXetActivity extends AppCompatActivity {
+
+    private ApiService apiService;
+    private SharedPreferences sharedPreferences;
+    private String ticketId, tripId;
+    private TextView tvBusName, tvRoute, tvDateTime;
+    private RatingBar ratingBar;
+    private EditText edtComment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_viet_nhan_xet);
 
-        // Ánh xạ View
-        TextView tvBusName = findViewById(R.id.tvBusNameReview);
-        TextView tvRoute = findViewById(R.id.tvRouteReview);
-        TextView tvDateTime = findViewById(R.id.tvDateTimeReview);
-        RatingBar ratingBar = findViewById(R.id.ratingBar);
-        EditText edtComment = findViewById(R.id.edtComment);
-        Button btnSubmit = findViewById(R.id.btnSubmitReview);
-        LinearLayout navHome = findViewById(R.id.nav_home_review);
+        apiService = ApiClient.getClient().create(ApiService.class);
+        sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
 
-        // Nhận dữ liệu từ Intent
+        tvBusName = findViewById(R.id.tvBusNameReview);
+        tvRoute = findViewById(R.id.tvRouteReview);
+        tvDateTime = findViewById(R.id.tvDateTimeReview);
+        ratingBar = findViewById(R.id.ratingBar);
+        edtComment = findViewById(R.id.edtComment);
+        Button btnSubmit = findViewById(R.id.btnSubmitReview);
+        
+        // Ép màu vàng cho sao
+        ratingBar.setProgressTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFD700")));
+
         Intent intent = getIntent();
         if (intent != null) {
-            String busName = intent.getStringExtra("bus_company");
-            String route = intent.getStringExtra("route");
-            String dateTime = intent.getStringExtra("date_time");
-            
-            if (busName != null) tvBusName.setText(busName);
-            if (route != null) tvRoute.setText(route);
-            if (dateTime != null) tvDateTime.setText(dateTime);
+            ticketId = intent.getStringExtra("ticket_id");
+            tripId = intent.getStringExtra("trip_id");
+            tvBusName.setText(intent.getStringExtra("bus_company"));
+            tvRoute.setText(intent.getStringExtra("route"));
+            tvDateTime.setText(intent.getStringExtra("date_time"));
+            if (tripId != null && !tripId.isEmpty()) {
+                fetchRealTripData(tripId, intent.getStringExtra("date_time"));
+            }
         }
 
-        // Xử lý sự kiện nút Gửi
         btnSubmit.setOnClickListener(v -> {
             float rating = ratingBar.getRating();
             String comment = edtComment.getText().toString().trim();
-
             if (rating == 0) {
-                Toast.makeText(this, "Vui lòng chọn số sao đánh giá", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Vui lòng chọn số sao!", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            // Lưu dữ liệu vào danh sách static trong PhanHoiActivity
-            PhanHoiActivity.listDaDanhGia.add(new PhanHoiActivity.FeedbackModel(
-                tvBusName.getText().toString(),
-                rating,
-                comment,
-                "28/03/2026",
-                tvRoute.getText().toString()
-            ));
-
-            Toast.makeText(this, "Cảm ơn bạn đã đánh giá " + rating + " sao!", Toast.LENGTH_SHORT).show();
-            
-            // Quay lại màn hình trước đó
-            finish();
+            fetchNextIdAndSubmit(rating, comment);
         });
 
-        // Nút quay lại trang chủ
-        if (navHome != null) {
-            navHome.setOnClickListener(v -> {
-                Intent homeIntent = new Intent(VietNhanXetActivity.this, MainActivity.class);
-                homeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(homeIntent);
-                finish();
-            });
-        }
+        findViewById(R.id.nav_home_review).setOnClickListener(v -> finish());
+    }
+
+    private void fetchNextIdAndSubmit(float rating, String comment) {
+        apiService.getFeedbacks().enqueue(new Callback<List<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
+                String nextId = "DG00001";
+                if (response.isSuccessful() && response.body() != null) {
+                    int max = 0;
+                    for (Map<String, Object> fb : response.body()) {
+                        String idStr = String.valueOf(fb.get("DanhGiaID"));
+                        if (idStr.startsWith("DG")) {
+                            try {
+                                int num = Integer.parseInt(idStr.substring(2));
+                                if (num > max) max = num;
+                            } catch (Exception e) {}
+                        }
+                    }
+                    nextId = String.format("DG%05d", max + 1);
+                }
+                submitFeedback(nextId, rating, comment);
+            }
+            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {
+                submitFeedback("DG" + (System.currentTimeMillis() % 100000), rating, comment);
+            }
+        });
+    }
+
+    private void submitFeedback(String id, float rating, String comment) {
+        String khId = sharedPreferences.getString("customerUid", "");
+        
+        Map<String, Object> data = new HashMap<>();
+        data.put("DanhGiaID", id);
+        data.put("Ve", ticketId);
+        data.put("KhachHang", khId);
+        data.put("Diemso", (int)rating);
+        data.put("Nhanxet", comment);
+
+        apiService.sendFeedback(data).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    updateTicketStatusOnServer();
+                } else {
+                    Toast.makeText(VietNhanXetActivity.this, "Gửi thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(VietNhanXetActivity.this, "Lỗi kết nối!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateTicketStatusOnServer() {
+        Map<String, Object> patch = new HashMap<>();
+        patch.put("TrangThaiDanhGia", "Đã đánh giá");
+        apiService.patchTicket(ticketId, patch).enqueue(new Callback<Void>() {
+            @Override public void onResponse(Call<Void> call, Response<Void> response) { showSuccessDialog(); }
+            @Override public void onFailure(Call<Void> call, Throwable t) { showSuccessDialog(); }
+        });
+    }
+
+    private void showSuccessDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_success, null);
+        TextView tv = view.findViewById(R.id.tvMessage);
+        tv.setText("Gửi đánh giá thành công");
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.show();
+        new Handler().postDelayed(() -> { if (dialog.isShowing()) dialog.dismiss(); finish(); }, 2000);
+    }
+
+    private void fetchRealTripData(String id, String originalDateTime) {
+        apiService.getChuyenXe().enqueue(new Callback<List<TripSearchResult>>() {
+            @Override
+            public void onResponse(Call<List<TripSearchResult>> call, Response<List<TripSearchResult>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (TripSearchResult t : response.body()) {
+                        if (id.equals(t.getId())) {
+                            String start = cleanTime(t.getTime());
+                            String end = cleanTime(t.getEndTime());
+                            String datePart = originalDateTime.split(" ")[0];
+                            tvDateTime.setText(datePart + "  " + start + " - " + end);
+                            break;
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<List<TripSearchResult>> call, Throwable t) {}
+        });
+    }
+
+    private String cleanTime(String t) {
+        if (t == null || t.isEmpty()) return "00:00";
+        return t.contains(":") ? t.substring(0, 5) : t;
     }
 }

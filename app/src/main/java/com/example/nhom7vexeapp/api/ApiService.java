@@ -121,6 +121,9 @@ public interface ApiService {
     @GET("api/ve/")
     Call<List<Map<String, Object>>> getTicketsByTrip(@Query("ChuyenXe") String tripId);
 
+    @GET("api/ve/")
+    Call<List<Map<String, Object>>> getAllTickets();
+
     @PATCH("api/ve/{id}/")
     Call<Void> patchTicket(@Path("id") String id, @Body Map<String, Object> data);
 
@@ -218,4 +221,11 @@ public interface ApiService {
 
     @PUT("api/loaixe/{id}/")
     Call<Loaixe> updateLoaixe(@Path("id") String id, @Body Loaixe loaixe);
+
+    // --- 10. ĐÁNH GIÁ (FEEDBACK) ---
+    @GET("api/danhgia/")
+    Call<List<Map<String, Object>>> getFeedbacks();
+
+    @POST("api/danhgia/")
+    Call<Void> sendFeedback(@Body Map<String, Object> data);
 }
