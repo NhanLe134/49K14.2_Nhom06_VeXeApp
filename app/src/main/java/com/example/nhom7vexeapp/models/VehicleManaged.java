@@ -4,9 +4,6 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.Map;
 
-/**
- * Model khớp tuyệt đối 100% với class Xe(models.Model) trong Django
- */
 public class VehicleManaged implements Serializable {
     @SerializedName("XeID") 
     private String XeID;
@@ -28,7 +25,7 @@ public class VehicleManaged implements Serializable {
 
     public VehicleManaged() {}
 
-    public String getXeID() { return XeID != null ? XeID : "N/A"; }
+    public String getXeID() { return XeID != null ? XeID : ""; }
     public void setXeID(String xeID) { this.XeID = xeID; }
 
     public String getBienSoXe() { return BienSoXe != null ? BienSoXe : "N/A"; }
@@ -46,23 +43,6 @@ public class VehicleManaged implements Serializable {
     public Object getNhaxe() { return Nhaxe; }
     public void setNhaxe(Object nhaxe) { this.Nhaxe = nhaxe; }
 
-    /**
-     * Bóc tách ID nhà xe từ trường Nhaxe
-     */
-    public String getNhaXeIDStr() {
-        if (Nhaxe == null) return "";
-        if (Nhaxe instanceof String) return (String) Nhaxe;
-        if (Nhaxe instanceof Map) {
-            Map<?, ?> map = (Map<?, ?>) Nhaxe;
-            Object id = map.get("NhaxeID");
-            return id != null ? String.valueOf(id) : "";
-        }
-        return String.valueOf(Nhaxe);
-    }
-
-    /**
-     * Bóc tách ID loại xe từ trường Loaixe
-     */
     public String getLoaiXeIDStr() {
         if (Loaixe == null) return "N/A";
         if (Loaixe instanceof String) return (String) Loaixe;
@@ -72,5 +52,14 @@ public class VehicleManaged implements Serializable {
             return id != null ? String.valueOf(id) : "N/A";
         }
         return String.valueOf(Loaixe);
+    }
+    
+    public Integer getSoChoFromLoaiXe() {
+        if (Loaixe instanceof Map) {
+            Map<?, ?> map = (Map<?, ?>) Loaixe;
+            Object soCho = map.get("SoCho");
+            if (soCho instanceof Number) return ((Number) soCho).intValue();
+        }
+        return SoGhe; // Fallback về SoGhe của bảng Xe
     }
 }

@@ -115,7 +115,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- BOTTOM NAV -->
+    <!-- BOTTOM NAV CẬP NHẬT ICON MỚI -->
     <LinearLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
@@ -126,10 +126,10 @@
         android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <LinearLayout android:id="@+id/nav_home" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/home" app:tint="#0091D5"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textSize="10sp" android:textColor="#0091D5"/></LinearLayout>
-        <LinearLayout android:id="@+id/nav_search" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/search" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tìm vé" android:textSize="10sp"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_home" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/tc" app:tint="#0091D5"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textSize="10sp" android:textColor="#0091D5"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_search" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/timkiem" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tìm vé" android:textSize="10sp"/></LinearLayout>
         <LinearLayout android:id="@+id/nav_tickets" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ticket" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vé của tôi" android:textSize="10sp"/></LinearLayout>
-        <LinearLayout android:id="@+id/nav_feedback" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/feedback" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đánh giá" android:textSize="10sp"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_feedback" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/danhgia" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đánh giá" android:textSize="10sp"/></LinearLayout>
 
     </LinearLayout>
 

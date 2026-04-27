@@ -3,6 +3,7 @@ package com.example.nhom7vexeapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -28,7 +29,7 @@ public class CarTypeManagementActivity extends AppCompatActivity {
     private RecyclerView rvCarTypes;
     private CarTypeAdapter adapter;
     private List<Loaixe> carTypeList;
-    private ImageView btnBack;
+    private ImageView btnBack, btnProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,7 @@ public class CarTypeManagementActivity extends AppCompatActivity {
 
         initViews();
         setupRecyclerView();
-        fetchCarTypes(); // Gọi hàm lấy dữ liệu từ API
+        fetchCarTypes(); 
         setupEvents();
         setupBottomNav();
     }
@@ -45,12 +46,18 @@ public class CarTypeManagementActivity extends AppCompatActivity {
     private void initViews() {
         rvCarTypes = findViewById(R.id.rvCarTypes);
         btnBack = findViewById(R.id.btnBack);
-        if (btnBack == null) btnBack = findViewById(R.id.btnProfile);
+        btnProfile = findViewById(R.id.btnProfile);
+        if (btnProfile == null) btnProfile = findViewById(R.id.imgOpProfile);
     }
 
     private void setupEvents() {
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
+        }
+        if (btnProfile != null) {
+            btnProfile.setOnClickListener(v -> {
+                startActivity(new Intent(this, OperatorProfileActivity.class));
+            });
         }
     }
 
@@ -63,6 +70,8 @@ public class CarTypeManagementActivity extends AppCompatActivity {
 
     private void fetchCarTypes() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
+        Log.d("CarType", "Bắt đầu tải danh sách loại xe từ server...");
+        
         apiService.getLoaixe().enqueue(new Callback<List<Loaixe>>() {
             @Override
             public void onResponse(Call<List<Loaixe>> call, Response<List<Loaixe>> response) {
@@ -70,51 +79,63 @@ public class CarTypeManagementActivity extends AppCompatActivity {
                     carTypeList.clear();
                     carTypeList.addAll(response.body());
                     adapter.notifyDataSetChanged();
+                    Log.d("CarType", "Tải thành công: " + carTypeList.size() + " loại xe");
                 } else {
-                    Toast.makeText(CarTypeManagementActivity.this, "Không thể lấy dữ liệu từ server", Toast.LENGTH_SHORT).show();
+                    Log.e("CarType", "Server phản hồi lỗi: " + response.code());
+                    Toast.makeText(CarTypeManagementActivity.this, "Không thể lấy dữ liệu từ server (Mã: " + response.code() + ")", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Loaixe>> call, Throwable t) {
-                Log.e("API_ERROR", t.getMessage());
+                Log.e("CarType", "Lỗi kết nối: " + t.getMessage());
                 Toast.makeText(CarTypeManagementActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void setupBottomNav() {
-        LinearLayout navHome = findViewById(R.id.nav_home_op);
+        // TRANG CHỦ
+        View navHome = findViewById(R.id.nav_home_op_main);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OperatorMainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(intent);
+                finish();
             });
         }
 
-        LinearLayout navVehicle = findViewById(R.id.nav_vehicle_op);
+        // TÀI XẾ
+        View navDriver = findViewById(R.id.nav_driver_op);
+        if (navDriver != null) {
+            navDriver.setOnClickListener(v -> {
+                startActivity(new Intent(this, DriverSelectionActivity.class));
+            });
+        }
+
+        // PHƯƠNG TIỆN
+        View navVehicle = findViewById(R.id.nav_vehicle_op);
         if (navVehicle != null) {
             navVehicle.setOnClickListener(v -> {
-                Intent intent = new Intent(this, PhuongTienManagementActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                startActivity(new Intent(this, PhuongTienManagementActivity.class));
             });
         }
 
-        LinearLayout navTrip = findViewById(R.id.nav_trip_op);
+        // CHUYẾN XE
+        View navTrip = findViewById(R.id.nav_trip_op);
         if (navTrip != null) {
-            navTrip.setOnClickListener(v -> startActivity(new Intent(this, TripListActivity.class)));
+            navTrip.setOnClickListener(v -> {
+                startActivity(new Intent(this, TripListActivity.class));
+            });
         }
 
-        LinearLayout navRoute = findViewById(R.id.nav_route_op);
+        // TUYẾN XE
+        View navRoute = findViewById(R.id.nav_route_op);
         if (navRoute != null) {
-            navRoute.setOnClickListener(v -> startActivity(new Intent(this, QLTuyenxeActivity.class)));
-        }
-
-        LinearLayout navDriver = findViewById(R.id.nav_driver_op);
-        if (navDriver != null) {
-            navDriver.setOnClickListener(v -> startActivity(new Intent(this, DriverSelectionActivity.class)));
+            navRoute.setOnClickListener(v -> {
+                startActivity(new Intent(this, QLTuyenxeActivity.class));
+            });
         }
     }
 }

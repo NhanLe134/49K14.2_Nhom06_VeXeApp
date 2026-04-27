@@ -31,6 +31,17 @@
             android:textColor="@android:color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/imgOpProfile"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:padding="8dp"
+            android:src="@drawable/account_circle"
+            app:tint="@color/white" />
     </RelativeLayout>
 
     <LinearLayout
@@ -139,7 +150,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/home"
+                android:src="@drawable/tc"
                 app:tint="#757575"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -160,7 +171,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_driver"
+                android:src="@drawable/taixe"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"
@@ -172,7 +183,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/nav_vehicle_op_bottom"
+            android:id="@+id/nav_vehicle_op"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -181,7 +192,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_car"
+                android:src="@drawable/pt"
                 app:tint="#0098D6" />
             <TextView
                 android:layout_width="wrap_content"
@@ -203,7 +214,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_map"
+                android:src="@drawable/cx"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"
@@ -224,7 +235,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_route"
+                android:src="@drawable/txe"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"

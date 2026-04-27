@@ -1,12 +1,19 @@
 package com.example.nhom7vexeapp;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -77,7 +84,7 @@ public class QLPhuongTienActivity extends AppCompatActivity {
             adapter = new VehicleManagedAdapter(vehicleList, this, new VehicleManagedAdapter.OnVehicleActionListener() {
                 @Override
                 public void onDelete(VehicleManaged vehicle, int position) {
-                    viewModel.deleteVehicle(vehicle.getXeID());
+                    showConfirmDeleteDialog(vehicle);
                 }
 
                 @Override
@@ -89,6 +96,49 @@ public class QLPhuongTienActivity extends AppCompatActivity {
             });
             rvVehicles.setAdapter(adapter);
         }
+    }
+
+    private void showConfirmDeleteDialog(VehicleManaged vehicle) {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm_delete_vehicle);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvMsg = dialog.findViewById(R.id.tvConfirmDeleteMsg);
+        if (tvMsg != null) {
+            tvMsg.setText("Bạn có chắc muốn xóa xe " + vehicle.getBienSoXe() + " này không?\nHành động này không thể hoàn tác.");
+        }
+
+        Button btnCancel = dialog.findViewById(R.id.btnCancelDelete);
+        Button btnConfirm = dialog.findViewById(R.id.btnConfirmDelete);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+            viewModel.deleteVehicle(vehicle.getXeID());
+        });
+
+        dialog.show();
+    }
+
+    private void showDeleteSuccessDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_delete_vehicle_success);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        dialog.show();
+
+        new Handler().postDelayed(() -> {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }, 2000);
     }
 
     private void setupObservers() {
@@ -110,7 +160,7 @@ public class QLPhuongTienActivity extends AppCompatActivity {
 
         viewModel.isActionSuccess.observe(this, success -> {
             if (success) {
-                Toast.makeText(this, "Thao tác thành công!", Toast.LENGTH_SHORT).show();
+                showDeleteSuccessDialog();
                 viewModel.fetchVehicles(nhaXeId);
             }
         });

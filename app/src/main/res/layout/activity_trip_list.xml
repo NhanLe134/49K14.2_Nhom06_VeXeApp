@@ -103,7 +103,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/home"
+                android:src="@drawable/tc"
                 app:tint="#757575"/>
             <TextView
                 android:layout_width="wrap_content"
@@ -125,7 +125,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_driver"
+                android:src="@drawable/taixe"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"
@@ -147,7 +147,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_car"
+                android:src="@drawable/pt"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"
@@ -169,14 +169,14 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_map"
+                android:src="@drawable/cx"
                 app:tint="#1A73E8" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Chuyến xe"
                 android:textSize="10sp"
-                android:textColor="#333333"
+                android:textColor="#1A73E8"
                 android:textStyle="bold"
                 android:layout_marginTop="2dp" />
         </LinearLayout>
@@ -191,7 +191,7 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_route"
+                android:src="@drawable/txe"
                 app:tint="#757575" />
             <TextView
                 android:layout_width="wrap_content"

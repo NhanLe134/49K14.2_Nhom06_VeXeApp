@@ -3,10 +3,12 @@ package com.example.nhom7vexeapp;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.*;
@@ -279,29 +281,48 @@ public class CreateTripActivity extends AppCompatActivity {
     }
 
     private String calculateEndTime(String startTime) {
+        if (startTime == null || !startTime.contains(":")) return startTime;
+        
+        double durHours = 2.0; // Mặc định cộng 2 tiếng
+        
         try {
-            int routePos = spRoute.getSelectedItemPosition();
-            String durationStr = "02:00:00";
-            if (routePos > 0 && routePos < fullRoutes.size()) {
-                Route r = fullRoutes.get(routePos);
-                if (r != null) durationStr = r.getTime();
+            String durationStr = "";
+            for (Route r : fullRoutes) {
+                if (r != null && r.getId() != null && r.getId().equalsIgnoreCase(selectedRouteId)) {
+                    durationStr = r.getTime();
+                    break;
+                }
             }
-            int durH = 0, durM = 0;
-            if (durationStr != null && durationStr.contains("h")) {
-                String[] parts = durationStr.split("h");
-                durH = Integer.parseInt(parts[0].trim());
-                if (parts.length > 1 && !parts[1].isEmpty()) durM = Integer.parseInt(parts[1].trim());
-            } else if (durationStr != null && durationStr.contains(":")) {
-                String[] parts = durationStr.split(":");
-                durH = Integer.parseInt(parts[0]);
-                durM = Integer.parseInt(parts[1]);
+
+            if (durationStr != null && !durationStr.isEmpty()) {
+                // Xử lý định dạng "3,5 giờ" hoặc "2.5 giờ"
+                if (durationStr.toLowerCase().contains("giờ")) {
+                    String numPart = durationStr.toLowerCase().split("giờ")[0].replace(",", ".").trim();
+                    durHours = Double.parseDouble(numPart);
+                } else if (durationStr.contains(":")) {
+                    String[] p = durationStr.split(":");
+                    durHours = Integer.parseInt(p[0]) + (p.length > 1 ? Integer.parseInt(p[1]) / 60.0 : 0);
+                }
             }
+        } catch (Exception e) {
+            Log.e("CreateTrip", "Error parsing duration", e);
+        }
+
+        try {
             String[] s = startTime.split(":");
-            int h = Integer.parseInt(s[0]) + durH;
-            int m = Integer.parseInt(s[1]) + durM;
-            h += m / 60; m = m % 60;
-            return String.format("%02d:%02d:00", h % 24, m);
-        } catch (Exception e) { return startTime; }
+            int startH = Integer.parseInt(s[0]);
+            int startM = Integer.parseInt(s[1]);
+
+            // Tổng số phút từ lúc bắt đầu
+            int totalMinutes = (int) (startH * 60 + startM + (durHours * 60));
+            
+            int endH = (totalMinutes / 60) % 24;
+            int endM = totalMinutes % 60;
+            
+            return String.format(Locale.getDefault(), "%02d:%02d:00", endH, endM);
+        } catch (Exception e) {
+            return startTime;
+        }
     }
 
     private void updateVehicleInfo(int position) {
@@ -373,14 +394,11 @@ public class CreateTripActivity extends AppCompatActivity {
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         
-        // Logic điều hướng khi đóng popup
         dialog.setOnDismissListener(d -> {
             if (isUpdate) {
-                // Nếu là Cập nhật -> Quay về màn hình Chi tiết chuyến xe (màn hình trước đó)
                 setResult(RESULT_OK);
                 finish();
             } else {
-                // Nếu là Tạo mới -> Quay về màn hình Danh sách chuyến xe
                 Intent intent = new Intent(CreateTripActivity.this, TripListActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
@@ -388,7 +406,6 @@ public class CreateTripActivity extends AppCompatActivity {
             }
         });
 
-        // Ấn vào bất kỳ đâu trên popup cũng sẽ thực hiện đóng và chuyển màn hình
         View dialogView = dialog.findViewById(android.R.id.content);
         if (dialogView != null) {
             dialogView.setOnClickListener(v -> dialog.dismiss());
@@ -396,7 +413,6 @@ public class CreateTripActivity extends AppCompatActivity {
 
         dialog.show();
 
-        // Tự động đóng sau 2.5 giây
         new Handler().postDelayed(() -> {
             if (dialog.isShowing()) {
                 dialog.dismiss();
