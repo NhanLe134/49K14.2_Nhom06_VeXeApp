@@ -22,10 +22,10 @@ public class Trip implements Serializable {
     private String status;
 
     @SerializedName("Xe")
-    private String xe; // Dùng chung cho xeID
+    private String xe; 
 
     @SerializedName("TuyenXe")
-    private String tuyen; // Dùng chung cho tuyenXeID
+    private String tuyen; 
 
     @SerializedName("Taixe")
     private String taiXeID;
@@ -43,17 +43,15 @@ public class Trip implements Serializable {
     private String tenNhaXe;
 
     @SerializedName("SoChoTrong")
-    private int soChoTrong;
+    private Integer soChoTrong; // Dùng Integer để phân biệt null (chưa có dữ liệu) và 0 (hết chỗ)
 
     @SerializedName("ThoiGian")
     private String duration;
 
-    // --- Các trường hỗ trợ logic quản lý nội bộ (Merge từ File 1) ---
-    private int seats = 4; // Giá trị mặc định từ File 1
+    private int seats = 4; // Giá trị mặc định
     private Driver assignedDriver;
     private List<Passenger> passengers = new ArrayList<>();
 
-    // No-arg constructor cho GSON
     public Trip() {
     }
 
@@ -64,8 +62,6 @@ public class Trip implements Serializable {
         this.startTime = startTime;
         this.status = status;
     }
-
-    // --- Getters & Setters ---
 
     public String getId() { return id != null ? id : ""; }
     public void setId(String id) { this.id = id; }
@@ -94,7 +90,6 @@ public class Trip implements Serializable {
     public String getDuration() { return duration != null ? duration : "2h"; }
     public void setDuration(String duration) { this.duration = duration; }
 
-    // --- Logic hiển thị thông minh (Kết hợp cả 2 file) ---
     public String getRouteName() {
         return (tenTuyen != null && !tenTuyen.isEmpty()) ? tenTuyen : "Tuyến: " + getTuyenXeID();
     }
@@ -105,8 +100,25 @@ public class Trip implements Serializable {
 
     public String getGiaVe() { return giaVe != null ? giaVe : "0"; }
 
-    // Ưu tiên soChoTrong từ API, nếu không có thì dùng biến seats local
-    public int getSeats() { return soChoTrong > 0 ? soChoTrong : seats; }
+    /**
+     * Logic lấy số chỗ trống:
+     * 1. Ưu tiên giá trị soChoTrong từ API (kể cả khi bằng 0 - tức là hết chỗ).
+     * 2. Nếu soChoTrong là null (API không trả về), tự suy luận từ loaiXe hoặc dùng mặc định.
+     */
+    public int getSeats() { 
+        if (soChoTrong != null) {
+            return soChoTrong; 
+        }
+        
+        // Fallback logic: Suy luận sức chứa từ tên loại xe nếu server không gửi số chỗ trống
+        String type = getVehicleType().toLowerCase();
+        if (type.contains("16")) return 16;
+        if (type.contains("9")) return 9;
+        if (type.contains("7")) return 7;
+        
+        return seats; 
+    }
+
     public void setSeats(int seats) {
         this.seats = seats;
         this.soChoTrong = seats;
