@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhom7vexeapp.adapters.VeResultAdapter;
+import com.example.nhom7vexeapp.models.Seat;
 import com.example.nhom7vexeapp.models.TripSearchResult;
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
@@ -84,22 +85,17 @@ public class VeResultsActivity extends AppCompatActivity {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
         tvNoResult.setVisibility(View.GONE);
 
-        // Đã sửa đổi để khớp với List<TripSearchResult> từ ApiService
         apiService.getChuyenXe().enqueue(new Callback<List<TripSearchResult>>() {
             @Override
             public void onResponse(Call<List<TripSearchResult>> call, Response<List<TripSearchResult>> response) {
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
-                
                 if (response.isSuccessful() && response.body() != null) {
                     List<TripSearchResult> allTrips = response.body();
-                    if (allTrips != null && !allTrips.isEmpty()) {
-                        applySmartFilter(allTrips, origin, destination, date, time);
-                    } else {
-                        showNoResults();
-                    }
+                    // Sau khi lấy danh sách chuyến, tiến hành lấy danh sách ghế để tính toán số chỗ trống thực tế
+                    fetchSeatsAndUpdateCounts(allTrips, origin, destination, date, time);
                 } else {
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
                     Log.e("API_ERROR", "Response Code: " + response.code());
-                    Toast.makeText(VeResultsActivity.this, "Lỗi khi lấy dữ liệu! (Code: " + response.code() + ")", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VeResultsActivity.this, "Lỗi khi lấy dữ liệu!", Toast.LENGTH_SHORT).show();
                     showNoResults();
                 }
             }
@@ -107,9 +103,44 @@ public class VeResultsActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<TripSearchResult>> call, Throwable t) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                Log.e("API_ERROR", "Message: " + t.getMessage(), t);
-                Toast.makeText(VeResultsActivity.this, "Lỗi kết nối server! " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(VeResultsActivity.this, "Lỗi kết nối server!", Toast.LENGTH_LONG).show();
                 showNoResults();
+            }
+        });
+    }
+
+    private void fetchSeatsAndUpdateCounts(List<TripSearchResult> allTrips, String origin, String destination, String date, String time) {
+        // Lấy tất cả ghế ngồi để lọc theo từng chuyến xe
+        apiService.getSeatsByTrip(null).enqueue(new Callback<List<Seat>>() {
+            @Override
+            public void onResponse(Call<List<Seat>> call, Response<List<Seat>> response) {
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Seat> allSeats = response.body();
+                    for (TripSearchResult trip : allTrips) {
+                        int emptyCount = 0;
+                        String tripId = trip.getId();
+                        for (Seat seat : allSeats) {
+                            // So khớp ID chuyến xe và kiểm tra trạng thái "Còn trống"
+                            if (tripId != null && tripId.equals(seat.getChuyenXe()) 
+                                    && "Còn trống".equalsIgnoreCase(seat.getStatus())) {
+                                emptyCount++;
+                            }
+                        }
+                        // Cập nhật số chỗ trống thực tế vào đối tượng chuyến xe
+                        trip.setSeats(emptyCount);
+                    }
+                }
+                // Tiến hành lọc và hiển thị danh sách
+                applySmartFilter(allTrips, origin, destination, date, time);
+            }
+
+            @Override
+            public void onFailure(Call<List<Seat>> call, Throwable t) {
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                // Nếu lỗi khi lấy ghế, vẫn hiển thị danh sách với số liệu mặc định từ server
+                applySmartFilter(allTrips, origin, destination, date, time);
             }
         });
     }
@@ -125,10 +156,16 @@ public class VeResultsActivity extends AppCompatActivity {
         String formattedSearchDate = convertDateFormat(sDate);
 
         for (TripSearchResult trip : allTrips) {
-            // Kiểm tra null cho date và time từ server
+            // Lọc trạng thái: Chỉ lấy những chuyến "Chưa hoàn thành"
+            String status = trip.getStatus();
+            if (status != null && !status.equalsIgnoreCase("Chưa hoàn thành")) {
+                continue;
+            }
+
             String tripDate = trip.getDate() != null ? trip.getDate() : "";
             String tripTime = trip.getTime() != null ? trip.getTime() : "00:00";
 
+            // Lọc thời gian thực tế: Không hiển thị chuyến trong quá khứ
             if (tripDate.compareTo(nowStrDate) < 0) continue;
             if (tripDate.equals(nowStrDate) && tripTime.compareTo(nowStrTime) < 0) continue;
 

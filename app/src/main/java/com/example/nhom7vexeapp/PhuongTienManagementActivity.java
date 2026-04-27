@@ -15,68 +15,67 @@ public class PhuongTienManagementActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phuongtien_management);
 
-        initViews();
-        setupBottomNavigation();
-    }
-
-    private void initViews() {
-        // Nút Back trên Toolbar
-        View btnBack = findViewById(R.id.btnBack);
-        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
-
-        // 1. Nút "Quản lý Loại xe" (Nút bên trên)
+        // 1. Nút "Quản lý Loại xe"
         CardView btnCarType = findViewById(R.id.btnGoToCarType);
         if (btnCarType != null) {
             btnCarType.setOnClickListener(v -> {
-                startActivity(new Intent(this, CarTypeManagementActivity.class));
+                Intent intent = new Intent(PhuongTienManagementActivity.this, CarTypeManagementActivity.class);
+                startActivity(intent);
             });
         }
 
-        // 2. NÚT "QUẢN LÝ PHƯƠNG TIỆN" (Nút bên dưới - Dẫn đến danh sách xe thực tế)
+        // 2. NÚT "QUẢN LÝ PHƯƠNG TIỆN"
         CardView btnManageVehicle = findViewById(R.id.btnManageVehicleMain);
         if (btnManageVehicle != null) {
             btnManageVehicle.setOnClickListener(v -> {
-                // Đảm bảo mở đúng QLPhuongTienActivity (màn hình có danh sách và icon thùng rác)
                 try {
-                    Intent intent = new Intent(this, QLPhuongTienActivity.class);
+                    Intent intent = new Intent(PhuongTienManagementActivity.this, QLPhuongTienActivity.class);
                     startActivity(intent);
                 } catch (Exception e) {
-                    Toast.makeText(this, "Lỗi: Chưa khai báo QLPhuongTienActivity trong Manifest!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Không thể mở danh sách xe: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
         }
+
+        // 3. Nút quay lại trên Toolbar
+        View btnBack = findViewById(R.id.btnBack);
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> finish());
+        }
+
+        setupBottomNavigation();
     }
 
     private void setupBottomNavigation() {
-        // Đồng bộ logic quay về trang chủ
-        View navHome = findViewById(R.id.nav_home_op_main);
-        if (navHome == null) navHome = findViewById(R.id.nav_home_op);
-        
+        // Trang chủ -> OperatorMainActivity
+        LinearLayout navHome = findViewById(R.id.nav_home_op_main);
         if (navHome != null) {
             navHome.setOnClickListener(v -> {
                 Intent intent = new Intent(this, OperatorMainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                finish();
-            });
-        }
-
-        // Tab Tuyến xe
-        View navRoute = findViewById(R.id.nav_route_op);
-        if (navRoute != null) {
-            navRoute.setOnClickListener(v -> {
-                startActivity(new Intent(this, QLTuyenxeActivity.class));
-                finish();
             });
         }
         
-        // Tab Chuyến xe
-        View navTrip = findViewById(R.id.nav_trip_op);
-        if (navTrip != null) {
-            navTrip.setOnClickListener(v -> {
-                startActivity(new Intent(this, TripListActivity.class));
-                finish();
+        // Tài xế -> DriverSelectionActivity (Đã sửa từ QLNhaxeActivity sang DriverSelectionActivity)
+        LinearLayout navDriver = findViewById(R.id.nav_driver_op);
+        if (navDriver != null) {
+            navDriver.setOnClickListener(v -> {
+                Intent intent = new Intent(this, DriverSelectionActivity.class);
+                startActivity(intent);
             });
+        }
+
+        // Chuyến xe -> TripListActivity
+        LinearLayout navTrip = findViewById(R.id.nav_trip_op);
+        if (navTrip != null) {
+            navTrip.setOnClickListener(v -> startActivity(new Intent(this, TripListActivity.class)));
+        }
+
+        // Tuyến xe -> QLTuyenxeActivity
+        LinearLayout navRoute = findViewById(R.id.nav_route_op);
+        if (navRoute != null) {
+            navRoute.setOnClickListener(v -> startActivity(new Intent(this, QLTuyenxeActivity.class)));
         }
     }
 }

@@ -40,6 +40,7 @@ public class QLPhuongTienActivity extends AppCompatActivity {
         initViews();
         setupRecyclerView();
         setupObservers();
+        setupBottomNavigation();
 
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         nhaXeId = pref.getString("op_uid", "NX00001"); 
@@ -54,12 +55,18 @@ public class QLPhuongTienActivity extends AppCompatActivity {
         ImageView btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
-        // Bắt sự kiện cho nút Thêm xe
         LinearLayout btnAddVehicle = findViewById(R.id.btnAddVehicle);
         if (btnAddVehicle != null) {
             btnAddVehicle.setOnClickListener(v -> {
                 Intent intent = new Intent(QLPhuongTienActivity.this, CreateVehicleActivity.class);
                 startActivityForResult(intent, 1001);
+            });
+        }
+
+        View imgOpProfile = findViewById(R.id.imgOpProfile);
+        if (imgOpProfile != null) {
+            imgOpProfile.setOnClickListener(v -> {
+                startActivity(new Intent(this, OperatorProfileActivity.class));
             });
         }
     }
@@ -106,6 +113,43 @@ public class QLPhuongTienActivity extends AppCompatActivity {
                 Toast.makeText(this, "Thao tác thành công!", Toast.LENGTH_SHORT).show();
                 viewModel.fetchVehicles(nhaXeId);
             }
+        });
+    }
+
+    private void setupBottomNavigation() {
+        // TRANG CHỦ
+        View navHome = findViewById(R.id.nav_home_op_main);
+        if (navHome != null) navHome.setOnClickListener(v -> {
+            startActivity(new Intent(this, OperatorMainActivity.class));
+            finish();
+        });
+
+        // TÀI XẾ
+        View navDriver = findViewById(R.id.nav_driver_op);
+        if (navDriver != null) navDriver.setOnClickListener(v -> {
+            startActivity(new Intent(this, DriverSelectionActivity.class));
+            finish();
+        });
+
+        // PHƯƠNG TIỆN (Chuyển đến màn hình quản lý chung)
+        View navVehicle = findViewById(R.id.nav_vehicle_op);
+        if (navVehicle != null) navVehicle.setOnClickListener(v -> {
+            startActivity(new Intent(this, PhuongTienManagementActivity.class));
+            finish();
+        });
+
+        // CHUYẾN XE
+        View navTrip = findViewById(R.id.nav_trip_op);
+        if (navTrip != null) navTrip.setOnClickListener(v -> {
+            startActivity(new Intent(this, TripListActivity.class));
+            finish();
+        });
+
+        // TUYẾN XE
+        View navRoute = findViewById(R.id.nav_route_op);
+        if (navRoute != null) navRoute.setOnClickListener(v -> {
+            startActivity(new Intent(this, QLTuyenxeActivity.class));
+            finish();
         });
     }
 

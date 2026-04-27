@@ -122,11 +122,33 @@
             android:textStyle="bold"
             android:layout_marginBottom="15dp"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvTickets"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical" />
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTickets"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvEmptyMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Bạn chưa có đơn đặt vé nào."
+                android:textColor="#888888"
+                android:textSize="16sp"
+                android:visibility="gone" />
+        </FrameLayout>
 
     </LinearLayout>
 

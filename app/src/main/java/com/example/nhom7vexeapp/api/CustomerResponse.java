@@ -18,19 +18,20 @@ public class CustomerResponse {
     @SerializedName(value = "MatKhau", alternate = {"MATKHAU", "matkhau"})
     private String MatKhau;
 
-    // LIÊN KẾT ĐẾN BẢNG KHACHHANG VÀ NHAXE
-    @SerializedName("KhachHang")
-    private String KhachHang;
-
-    @SerializedName("Nhaxe")
+    @SerializedName(value = "Nhaxe", alternate = {"nhaxe", "NhaXe"})
     private String Nhaxe;
 
-    // Các getter cần thiết
+    // ✅ BỔ SUNG TRƯỜNG KHÁCH HÀNG
+    @SerializedName(value = "KhachHang", alternate = {"khachhang", "Khachhang"})
+    private String KhachHang;
+
     public String getUserID() { return UserID; }
     public String getVaitro() { return Vaitro; }
     public String getSdt() { return SoDienThoai; }
     public String getTenKhachHang() { return TenDangNhap; }
     public String getMatKhau() { return MatKhau; }
-    public String getKhachHang() { return KhachHang; }
     public String getNhaxe() { return Nhaxe; }
+    
+    // ✅ BỔ SUNG GETTER
+    public String getKhachHang() { return KhachHang; }
 }

@@ -8,38 +8,42 @@ import java.util.Map;
  * Model khớp tuyệt đối 100% với class Xe(models.Model) trong Django
  */
 public class VehicleManaged implements Serializable {
-    @SerializedName("XeID") // Khớp với XeID trong Django
+    @SerializedName("XeID") 
     private String XeID;
 
-    @SerializedName("BienSoXe") // Khớp với BienSoXe trong Django
+    @SerializedName("BienSoXe") 
     private String BienSoXe;
 
-    @SerializedName("TrangThai") // Khớp với TrangThai trong Django
+    @SerializedName("TrangThai") 
     private String TrangThai;
 
-    @SerializedName("SoGhe") // Khớp với SoGhe trong Django
+    @SerializedName("SoGhe") 
     private Integer SoGhe;
 
-    @SerializedName("Loaixe") // Khớp với Loaixe trong Django
+    @SerializedName("Loaixe") 
     private Object Loaixe; 
 
-    @SerializedName("Nhaxe") // Khớp với Nhaxe trong Django
+    @SerializedName("Nhaxe") 
     private Object Nhaxe;
 
     public VehicleManaged() {}
 
-    // Getters
     public String getXeID() { return XeID != null ? XeID : "N/A"; }
-    public String getBienSoXe() { return BienSoXe != null ? BienSoXe : "N/A"; }
-    public String getTrangThai() { return TrangThai != null ? TrangThai : "Đang hoạt động"; }
-    public Integer getSoGhe() { return SoGhe; }
-
-    // Setters - Bổ sung để sửa lỗi "cannot find symbol"
     public void setXeID(String xeID) { this.XeID = xeID; }
+
+    public String getBienSoXe() { return BienSoXe != null ? BienSoXe : "N/A"; }
     public void setBienSoXe(String bienSoXe) { this.BienSoXe = bienSoXe; }
+
+    public String getTrangThai() { return TrangThai != null ? TrangThai : "Đang hoạt động"; }
     public void setTrangThai(String trangThai) { this.TrangThai = trangThai; }
+
+    public Integer getSoGhe() { return SoGhe; }
     public void setSoGhe(Integer soGhe) { this.SoGhe = soGhe; }
+
+    public Object getLoaixe() { return Loaixe; }
     public void setLoaixe(Object loaixe) { this.Loaixe = loaixe; }
+
+    public Object getNhaxe() { return Nhaxe; }
     public void setNhaxe(Object nhaxe) { this.Nhaxe = nhaxe; }
 
     /**

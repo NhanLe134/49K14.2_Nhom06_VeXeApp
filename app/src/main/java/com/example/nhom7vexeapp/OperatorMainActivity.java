@@ -223,10 +223,10 @@ public class OperatorMainActivity extends AppCompatActivity {
             startActivity(new Intent(this, QLTuyenxeActivity.class));
         });
 
-        // PHƯƠNG TIỆN
+        // PHƯƠNG TIỆN (Chuyển đến màn hình quản lý chung thay vì danh sách)
         View navVehicle = findViewById(R.id.nav_vehicle_op);
         if (navVehicle != null) navVehicle.setOnClickListener(v -> {
-            startActivity(new Intent(this, QLPhuongTienActivity.class));
+            startActivity(new Intent(this, PhuongTienManagementActivity.class));
         });
     }
 }

@@ -32,52 +32,119 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".SearchTicketActivity" android:exported="false" />
-        <activity android:name=".VeResultsActivity" android:exported="false" />
-        <activity android:name=".DatVeActivity" android:exported="false" />
-        <activity android:name=".ThongTinChiTietActivity" android:exported="false" />
-        <activity android:name=".LoginActivity" android:exported="false" />
-        <activity android:name=".OperatorMainActivity" android:exported="false" />
-        <activity android:name=".PhuongTienManagementActivity" android:exported="false" />
-        <activity android:name=".CarTypeManagementActivity" android:exported="false" />
-        <activity android:name=".TripListActivity" android:exported="false" />
-        <activity android:name=".CreateTripActivity" android:exported="false" />
-        <activity android:name=".TripDetailActivity" android:exported="false" />
-        <activity android:name=".DriverSelectionActivity" android:exported="false" />
-        <activity android:name=".RegisterActivity" android:exported="false" />
-        <activity android:name=".CustomerRegisterActivity" android:exported="false" />
-        <activity android:name=".CustomerProfileActivity" android:exported="false" />
-        <activity android:name=".EditCustomerProfileActivity" android:exported="false" />
-        <activity android:name=".QLNhaxeActivity" android:exported="false" />
-        <activity android:name=".QLTuyenxeActivity" android:exported="false" />
-        <activity android:name=".QLVeXeActivity" android:exported="false" />
-        <activity android:name=".PhanHoiActivity" android:exported="false" />
-        <activity android:name=".VietNhanXetActivity" android:exported="false" android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".SearchTicketActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.nhom7vexeapp.VeResultsActivity"
+            android:exported="false" />
 
-        <!-- THÊM KHAI BÁO CHO MÀN HÌNH PHÂN CÔNG TÀI XẾ MỚI -->
-        <activity android:name=".AssignDriverActivity" android:exported="false" />
-
-        <activity android:name=".QLPhuongTienActivity" android:exported="false" />
-        <activity android:name=".OperatorProfileActivity" android:exported="false" />
-        <activity android:name=".EditOperatorProfileActivity" android:exported="false" />
-        <activity android:name=".VehicleDetailActivity" android:exported="false" />
-        <activity android:name=".EditVehicleActivity" android:exported="false" />
+        <activity
+            android:name=".DatVeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ThongTinChiTietActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCjKLkqL_kcIQcltdubSO4SLD_VhDYbilo" />
 
         <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".OperatorMainActivity"
+            android:exported="false" />
+        <activity android:name=".PhuongTienManagementActivity"
+            android:exported="false" />
+        <activity android:name=".CarTypeManagementActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".TripListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CreateTripActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".TripDetailActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".TripRouteActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".DriverSelectionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CustomerRegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CustomerProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".EditCustomerProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".OperatorProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".EditOperatorProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".QLNhaxeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".QLTuyenxeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".QLVeXeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PhanHoiActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".VietNhanXetActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name=".CreateDriverAccountActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".DriverScheduleMonitoringActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AssignDriverActivity"
+            android:exported="false" />
+
         <!-- MÀN HÌNH THÊM PHƯƠNG TIỆN -->
         <activity
             android:name=".CreateVehicleActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".QLPhuongTienActivity"
             android:exported="false" />
 
     </application>

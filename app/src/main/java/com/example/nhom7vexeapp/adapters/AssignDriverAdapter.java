@@ -37,10 +37,6 @@ public class AssignDriverAdapter extends RecyclerView.Adapter<AssignDriverAdapte
         holder.tvName.setText(driver.getName());
         holder.tvPhone.setText("SĐT: " + driver.getPhone());
         
-        // Mock data for pickup/dropoff as per design if not available in DB
-        holder.tvPickup.setText("Khu vực: Đà Nẵng - Huế");
-        holder.tvDropoff.setText("Kinh nghiệm: 5 năm");
-
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) listener.onDriverSelected(driver);
         });
@@ -52,14 +48,12 @@ public class AssignDriverAdapter extends RecyclerView.Adapter<AssignDriverAdapte
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvPhone, tvPickup, tvDropoff;
+        TextView tvName, tvPhone;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvName = itemView.findViewById(R.id.tvDriverName);
-            tvPhone = itemView.findViewById(R.id.tvDriverPhone);
-            tvPickup = itemView.findViewById(R.id.tvPickup);
-            tvDropoff = itemView.findViewById(R.id.tvDropoff);
+            tvName = itemView.findViewById(R.id.tvAssignDriverName);
+            tvPhone = itemView.findViewById(R.id.tvAssignDriverPhone);
         }
     }
 }

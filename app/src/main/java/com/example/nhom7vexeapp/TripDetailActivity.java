@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -139,7 +140,6 @@ public class TripDetailActivity extends AppCompatActivity {
                     tvStatus.setText(newStatus.equalsIgnoreCase("Đã hoàn thành") ? "Hoàn thành" : newStatus);
                     updateStatusStyle(tvStatus, newStatus);
                     
-                    // ✅ QUAN TRỌNG: Cập nhật trạng thái Đánh giá cho tất cả các vé thuộc chuyến này
                     if (newStatus.equalsIgnoreCase("Hoàn thành") || newStatus.equalsIgnoreCase("Đã hoàn thành")) {
                         updateAllTicketsToWaitingReview();
                     }
@@ -161,7 +161,6 @@ public class TripDetailActivity extends AppCompatActivity {
                         String veId = findVal(ticket, "VeID", "id", "VEID");
                         if (!veId.isEmpty()) {
                             Map<String, Object> patchData = new HashMap<>();
-                            // ✅ Cập nhật đồng thời cả TrangThai chuyến và TrangThaiDanhGia
                             patchData.put("TrangThaiDanhGia", "Chờ đánh giá"); 
                             
                             apiService.patchTicket(veId, patchData).enqueue(new Callback<Void>() {
@@ -204,7 +203,7 @@ public class TripDetailActivity extends AppCompatActivity {
     }
 
     private void loadDurationFromRoute() {
-        apiService.getRoutes().enqueue(new Callback<List<Route>>() {
+        apiService.getRoutesModel().enqueue(new Callback<List<Route>>() {
             @Override
             public void onResponse(Call<List<Route>> call, Response<List<Route>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -254,12 +253,17 @@ public class TripDetailActivity extends AppCompatActivity {
         updateButtonState();
 
         btnAssign.setOnClickListener(v -> {
-            if (trip.getTaiXeID() == null || trip.getTaiXeID().isEmpty() || trip.getTaiXeID().equalsIgnoreCase("null")) {
-                Intent intent = new Intent(this, AssignDriverActivity.class);
+            String driverId = trip.getTaiXeID();
+            Log.d("TripDetail", "Driver ID check: " + driverId);
+            
+            if (driverId == null || driverId.isEmpty() || driverId.equalsIgnoreCase("null") || driverId.equals("0")) {
+                Log.d("TripDetail", "Navigating to AssignDriverActivity");
+                Intent intent = new Intent(TripDetailActivity.this, AssignDriverActivity.class);
                 intent.putExtra("tripId", trip.getId());
                 startActivityForResult(intent, 500);
             } else {
-                Intent intent = new Intent(this, TripRouteActivity.class);
+                Log.d("TripDetail", "Navigating to TripRouteActivity");
+                Intent intent = new Intent(TripDetailActivity.this, TripRouteActivity.class);
                 intent.putExtra("trip_data", trip);
                 startActivity(intent);
             }
@@ -335,7 +339,8 @@ public class TripDetailActivity extends AppCompatActivity {
     }
 
     private void updateButtonState() {
-        if (trip.getTaiXeID() != null && !trip.getTaiXeID().isEmpty() && !trip.getTaiXeID().equalsIgnoreCase("null")) {
+        String driverId = trip.getTaiXeID();
+        if (driverId != null && !driverId.isEmpty() && !driverId.equalsIgnoreCase("null") && !driverId.equals("0")) {
             btnAssign.setText("Hiển thị lộ trình chuyến");
             btnAssign.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
         } else {
@@ -401,6 +406,8 @@ public class TripDetailActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 500 && resultCode == RESULT_OK) loadData();
+        if ((requestCode == 500 || requestCode == 102) && resultCode == RESULT_OK) {
+            loadData();
+        }
     }
 }

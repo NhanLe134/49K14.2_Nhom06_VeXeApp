@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="280dp"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="8dp">
 
     <LinearLayout
@@ -13,22 +13,22 @@
         android:orientation="vertical"
         android:padding="30dp">
 
-        <!-- Sửa lỗi: Thay ic_check_circle bằng baseline_check_circle_outline_24 -->
         <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:src="@drawable/baseline_check_circle_outline_24"
             app:tint="#4CAF50" />
 
         <TextView
+            android:id="@+id/tvPaymentSuccessMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Phân công tài xế thành công"
-            android:textColor="#333333"
+            android:gravity="center"
+            android:text="Vui lòng chuẩn bị tiền khi lên xe"
+            android:textColor="#000000"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:gravity="center"/>
+            android:textStyle="bold" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

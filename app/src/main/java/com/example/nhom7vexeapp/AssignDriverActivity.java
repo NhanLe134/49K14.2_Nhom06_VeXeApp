@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
@@ -42,7 +43,15 @@ public class AssignDriverActivity extends AppCompatActivity implements AssignDri
 
         SharedPreferences pref = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         currentOpId = pref.getString("op_uid", "");
+        
         tripId = getIntent().getStringExtra("tripId");
+        Log.d("AssignDriver", "Received Trip ID: " + tripId);
+
+        if (tripId == null || tripId.isEmpty()) {
+            Toast.makeText(this, "Lỗi: Không tìm thấy ID chuyến xe!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
         
         apiService = ApiClient.getClient().create(ApiService.class);
 
@@ -72,21 +81,30 @@ public class AssignDriverActivity extends AppCompatActivity implements AssignDri
                         if (resC.isSuccessful() && resC.body() != null) {
                             driverList.clear();
                             for (Map<String, Object> map : resC.body()) {
-                                String nxeId = findVal(map, "Nhaxe", "nhaxe");
+                                String nxeId = findVal(map, "Nhaxe", "nhaxe", "NhaXeID");
                                 if (nxeId.equalsIgnoreCase(currentOpId)) {
-                                    String txId = findVal(map, "Taixe", "TaiXeID");
-                                    String name = findVal(map, "HoTen", "hoten");
+                                    String txId = findVal(map, "Taixe", "TaiXeID", "taixe", "id");
+                                    String name = findVal(map, "HoTen", "hoten", "TenTaiXe");
                                     String phone = phoneMap.getOrDefault(txId, "090XXXXXXXX");
-                                    driverList.add(new Driver(txId, name, phone, ""));
+                                    if (!txId.isEmpty()) {
+                                        driverList.add(new Driver(txId, name, phone, ""));
+                                    }
                                 }
                             }
                             adapter.notifyDataSetChanged();
+                            if (driverList.isEmpty()) {
+                                Log.w("AssignDriver", "No drivers found for Operator: " + currentOpId);
+                            }
                         }
                     }
-                    @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {}
+                    @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {
+                        Log.e("AssignDriver", "Failed to fetch drivers", t);
+                    }
                 });
             }
-            @Override public void onFailure(Call<List<UserModel>> call, Throwable t) {}
+            @Override public void onFailure(Call<List<UserModel>> call, Throwable t) {
+                Log.e("AssignDriver", "Failed to fetch users", t);
+            }
         });
     }
 
@@ -94,7 +112,12 @@ public class AssignDriverActivity extends AppCompatActivity implements AssignDri
         if (map == null) return "";
         for (String k : keys) {
             Object v = map.get(k);
-            if (v != null) return v.toString();
+            if (v != null) {
+                if (v instanceof Map) {
+                    return findVal((Map<String, Object>) v, "id", "ID", "TaiXeID");
+                }
+                return v.toString();
+            }
         }
         return "";
     }
@@ -143,7 +166,7 @@ public class AssignDriverActivity extends AppCompatActivity implements AssignDri
     private void showSuccessDialog() {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_success); // Sử dụng dialog_success đồng bộ
+        dialog.setContentView(R.layout.dialog_success);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
@@ -156,7 +179,6 @@ public class AssignDriverActivity extends AppCompatActivity implements AssignDri
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         
-        // Khi nhấn vào popup sẽ quay về màn hình Chi tiết chuyến xe
         dialog.setOnDismissListener(d -> {
             setResult(RESULT_OK);
             finish();
@@ -172,7 +194,20 @@ public class AssignDriverActivity extends AppCompatActivity implements AssignDri
     }
 
     private void setupBottomNavigation() {
-        findViewById(R.id.nav_home_op_main).setOnClickListener(v -> finish());
-        findViewById(R.id.nav_trip_op).setOnClickListener(v -> startActivity(new Intent(this, TripListActivity.class)));
+        View navHome = findViewById(R.id.nav_home_op_main);
+        if (navHome != null) {
+            navHome.setOnClickListener(v -> {
+                startActivity(new Intent(this, OperatorMainActivity.class));
+                finish();
+            });
+        }
+        
+        View navTrip = findViewById(R.id.nav_trip_op);
+        if (navTrip != null) {
+            navTrip.setOnClickListener(v -> {
+                startActivity(new Intent(this, TripListActivity.class));
+                finish();
+            });
+        }
     }
 }
