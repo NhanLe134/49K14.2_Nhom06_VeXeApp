@@ -1,17 +1,19 @@
 package com.example.nhom7vexeapp;
 
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nhom7vexeapp.api.ApiClient;
@@ -45,7 +47,6 @@ public class EditCustomerProfileActivity extends AppCompatActivity {
 
         initViews();
         
-        // Ưu tiên hiển thị SĐT đã lưu trong máy trước
         String savedPhone = pref.getString("customerPhone", "");
         if (!savedPhone.isEmpty()) tvPhone.setText(savedPhone);
         
@@ -53,7 +54,10 @@ public class EditCustomerProfileActivity extends AppCompatActivity {
 
         edtDob.setOnClickListener(v -> showDatePicker());
         btnSave.setOnClickListener(v -> updateProfile());
-        btnCancel.setOnClickListener(v -> finish());
+        
+        // Cập nhật sự kiện nút Hủy để hiện popup xác nhận
+        btnCancel.setOnClickListener(v -> showConfirmCancelDialog());
+        
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
     }
 
@@ -67,8 +71,6 @@ public class EditCustomerProfileActivity extends AppCompatActivity {
 
     private void loadData() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        
-        // 1. Lấy thông tin chi tiết khách hàng (Tên, Ngày sinh)
         apiService.getKhachHangDetail(customerUid).enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
@@ -83,7 +85,6 @@ public class EditCustomerProfileActivity extends AppCompatActivity {
             @Override public void onFailure(Call<Map<String, Object>> call, Throwable t) {}
         });
 
-        // 2. Lấy SĐT từ Auth API nếu chưa có
         apiService.getUserAuthDetail(customerUid).enqueue(new Callback<CustomerResponse>() {
             @Override
             public void onResponse(Call<CustomerResponse> call, Response<CustomerResponse> response) {
@@ -115,7 +116,7 @@ public class EditCustomerProfileActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    showSuccess();
+                    showSuccessPopup();
                 } else {
                     Toast.makeText(EditCustomerProfileActivity.this, "Lỗi cập nhật", Toast.LENGTH_SHORT).show();
                 }
@@ -124,6 +125,57 @@ public class EditCustomerProfileActivity extends AppCompatActivity {
                 Toast.makeText(EditCustomerProfileActivity.this, "Lỗi kết nối!", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void showConfirmCancelDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm_cancel);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvMsg = dialog.findViewById(R.id.tvDialogMessage);
+        Button btnNo = dialog.findViewById(R.id.btnNo);
+        Button btnYes = dialog.findViewById(R.id.btnYes);
+
+        if (tvMsg != null) tvMsg.setText("Bạn có chắc muốn hủy thao tác này?");
+
+        if (btnNo != null) {
+            btnNo.setOnClickListener(v -> dialog.dismiss());
+        }
+        if (btnYes != null) {
+            btnYes.setOnClickListener(v -> {
+                dialog.dismiss();
+                finish();
+            });
+        }
+
+        dialog.show();
+    }
+
+    private void showSuccessPopup() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_success);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvMsg = dialog.findViewById(R.id.tvMessage);
+        if (tvMsg != null) {
+            tvMsg.setText("Cập nhật thông tin khách hàng\nthành công");
+        }
+
+        dialog.show();
+
+        new Handler().postDelayed(() -> {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+                setResult(RESULT_OK);
+                finish();
+            }
+        }, 2000);
     }
 
     private void showDatePicker() {
@@ -139,13 +191,5 @@ public class EditCustomerProfileActivity extends AppCompatActivity {
             }
         }
         return "";
-    }
-
-    private void showSuccess() {
-        View dv = getLayoutInflater().inflate(R.layout.dialog_success, null);
-        AlertDialog d = new AlertDialog.Builder(this).setView(dv).create();
-        if (d.getWindow() != null) d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        d.show();
-        new Handler().postDelayed(() -> { if (d.isShowing()) { d.dismiss(); setResult(RESULT_OK); finish(); } }, 1500);
     }
 }

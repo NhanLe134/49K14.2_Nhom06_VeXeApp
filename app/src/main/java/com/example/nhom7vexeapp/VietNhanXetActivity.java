@@ -30,6 +30,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// #Trang
 public class VietNhanXetActivity extends AppCompatActivity {
 
     private static final String TAG = "VietNhanXet";
@@ -130,17 +131,8 @@ public class VietNhanXetActivity extends AppCompatActivity {
         data.put("Diemso", (int)rating);
         data.put("Nhanxet", comment);
 
-        // IN LOG ĐỂ KIỂM TRA TRƯỚC KHI GỬI
-        Log.e(TAG, "------------------------------------------");
         Log.e(TAG, "DỮ LIỆU GỬI LÊN SERVER:");
-        Log.e(TAG, "{");
-        Log.e(TAG, "  \"DanhGiaID\": \"" + id + "\",");
-        Log.e(TAG, "  \"Ve\": \"" + ticketId + "\",");
-        Log.e(TAG, "  \"KhachHang\": \"" + khId + "\",");
-        Log.e(TAG, "  \"Diemso\": " + (int)rating + ",");
-        Log.e(TAG, "  \"Nhanxet\": \"" + comment + "\"");
-        Log.e(TAG, "}");
-        Log.e(TAG, "------------------------------------------");
+        Log.e(TAG, data.toString());
 
         apiService.sendFeedback(data).enqueue(new Callback<Void>() {
             @Override
@@ -150,19 +142,14 @@ public class VietNhanXetActivity extends AppCompatActivity {
                 } else {
                     String errorBody = "";
                     try {
-                        if (response.errorBody() != null) {
-                            errorBody = response.errorBody().string();
-                        }
+                        if (response.errorBody() != null) errorBody = response.errorBody().string();
                     } catch (Exception e) {}
-                    
-                    Log.e(TAG, "GỬI THẤT BẠI - MÃ LỖI: " + response.code());
-                    Log.e(TAG, "CHI TIẾT LỖI TỪ SERVER: " + errorBody);
-                    
+                    Log.e(TAG, "GỬI THẤT BẠI: " + response.code() + " - " + errorBody);
                     Toast.makeText(VietNhanXetActivity.this, "Lỗi: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
             @Override public void onFailure(Call<Void> call, Throwable t) {
-                Log.e(TAG, "LỖI KẾT NỐI SERVER: " + t.getMessage());
+                Log.e(TAG, "LỖI KẾT NỐI: " + t.getMessage());
                 Toast.makeText(VietNhanXetActivity.this, "Lỗi kết nối!", Toast.LENGTH_SHORT).show();
             }
         });

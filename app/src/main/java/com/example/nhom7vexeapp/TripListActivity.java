@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.nhom7vexeapp.adapters.TripAdapter;
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
+import com.example.nhom7vexeapp.models.Route;
 import com.example.nhom7vexeapp.models.Trip;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,17 +69,18 @@ public class TripListActivity extends AppCompatActivity implements TripAdapter.O
         }
 
         // Bước 1: Lấy tất cả tuyến xe để tìm xem tuyến nào thuộc nhà xe này
-        apiService.getRoutes().enqueue(new Callback<List<Map<String, Object>>>() {
+        apiService.getRoutes().enqueue(new Callback<List<Route>>() {
             @Override
-            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> resR) {
+            public void onResponse(Call<List<Route>> call, Response<List<Route>> resR) {
                 List<String> myRouteIds = new ArrayList<>();
                 if (resR.isSuccessful() && resR.body() != null) {
-                    for (Map<String, Object> r : resR.body()) {
-                        // Tìm mã nhà xe trong tuyến xe (chấp nhận cả String ID hoặc Object chứa ID)
-                        String nxeId = findVal(r, "Nhaxe", "NhaxeID", "nhaxe", "nhaXe");
-                        if (nxeId.equalsIgnoreCase(opUid)) {
-                            String rid = findVal(r, "TuyenXeID", "id", "tuyenXeID");
-                            if (!rid.isEmpty()) myRouteIds.add(rid);
+                    for (Route r : resR.body()) {
+                        // Kiểm tra nếu tuyến xe thuộc nhà xe hiện tại qua nhaXeId trong model Route
+                        if (r.getNhaXeId() != null && r.getNhaXeId().equalsIgnoreCase(opUid)) {
+                            String rid = r.getId();
+                            if (rid != null && !rid.isEmpty()) {
+                                myRouteIds.add(rid);
+                            }
                         }
                     }
                 }
@@ -107,7 +109,7 @@ public class TripListActivity extends AppCompatActivity implements TripAdapter.O
                     }
                 });
             }
-            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {
+            @Override public void onFailure(Call<List<Route>> call, Throwable t) {
                 Toast.makeText(TripListActivity.this, "Lỗi kết nối tuyến xe", Toast.LENGTH_SHORT).show();
             }
         });

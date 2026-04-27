@@ -136,6 +136,7 @@
             android:layout_marginTop="16dp">
 
             <TextView
+                android:id="@+id/labelPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Giá vé:"
@@ -152,9 +153,10 @@
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/labelTotal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/tvPrice"
+                android:layout_below="@id/labelPrice"
                 android:layout_marginTop="12dp"
                 android:text="Tổng tiền:"
                 android:textColor="@color/black"
@@ -172,6 +174,19 @@
                 android:textSize="16sp" />
 
         </RelativeLayout>
+
+        <Button
+            android:id="@+id/btnPayment"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_below="@id/layoutPricing"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#00B0FF"
+            android:text="Thanh toán"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

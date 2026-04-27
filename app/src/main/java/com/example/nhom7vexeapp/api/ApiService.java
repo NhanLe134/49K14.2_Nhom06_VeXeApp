@@ -4,6 +4,7 @@ import com.example.nhom7vexeapp.models.BookingRequest;
 import com.example.nhom7vexeapp.models.KhachHang;
 import com.example.nhom7vexeapp.models.Loaixe;
 import com.example.nhom7vexeapp.models.Seat;
+import com.example.nhom7vexeapp.models.Ticket;
 import com.example.nhom7vexeapp.models.Trip;
 import com.example.nhom7vexeapp.models.TripSearchResult;
 import com.example.nhom7vexeapp.models.TaixeModel;
@@ -11,6 +12,7 @@ import com.example.nhom7vexeapp.models.ChiTietTaiXeModel;
 import com.example.nhom7vexeapp.models.UserModel;
 import com.example.nhom7vexeapp.models.NhaXe;
 import com.example.nhom7vexeapp.models.Route;
+import com.example.nhom7vexeapp.models.VehicleManaged;
 import com.example.nhom7vexeapp.TicketModel;
 import com.example.nhom7vexeapp.api.CustomerResponse;
 import com.example.nhom7vexeapp.api.LoginResponse;
@@ -58,6 +60,33 @@ public interface ApiService {
     @GET("api/taixe/")
     Call<List<TaixeModel>> getTaixeList(@Query("Method") String method);
 
+    // --- 3. QUẢN LÝ PHƯƠNG TIỆN ---
+    @GET("api/xe/")
+    Call<List<VehicleManaged>> getVehicles();
+
+    @POST("api/xe/")
+    Call<Void> createVehicle(@Body Map<String, Object> data);
+
+    @PUT("api/xe/{id}/")
+    Call<VehicleManaged> updateVehicle(@Path("id") String id, @Body VehicleManaged vehicle);
+
+    @DELETE("api/xe/{id}/")
+    Call<Void> deleteVehicle(@Path("id") String id);
+
+    // --- 4. QUẢN LÝ TUYẾN XE ---
+    @GET("api/tuyenxe/")
+    Call<List<Route>> getRoutes();
+
+    @POST("api/tuyenxe/")
+    Call<Void> createRoute(@Body Map<String, String> data);
+
+    @PUT("api/tuyenxe/{id}/")
+    Call<Void> updateRoute(@Path("id") String id, @Body Map<String, String> data);
+
+    @DELETE("api/tuyenxe/{id}/")
+    Call<Void> deleteRoute(@Path("id") String id);
+
+    // --- 5. TÀI XẾ ---
     @GET("api/taixe/")
     Call<List<Map<String, Object>>> getDriversRaw();
 
@@ -118,6 +147,12 @@ public interface ApiService {
     Call<Void> bookTicket(@Body BookingRequest bookingRequest);
 
     @GET("api/ve/")
+    Call<List<Ticket>> getTickets(
+        @Query("KhachHang") String khachHangId,
+        @Query("TrangThai") String trangThai
+    );
+
+    @GET("api/ve/")
     Call<List<Map<String, Object>>> getTicketsByTrip(@Query("ChuyenXe") String tripId);
 
     @GET("api/ve/")
@@ -125,6 +160,9 @@ public interface ApiService {
 
     @PATCH("api/ve/{id}/")
     Call<Void> patchTicket(@Path("id") String id, @Body Map<String, Object> data);
+
+    @DELETE("api/ve/{id}/")
+    Call<Void> deleteTicket(@Path("id") String id);
 
     @GET("api/khachhang/{id}/lich-su-ve/")
     Call<List<TicketModel>> getTicketHistory(@Path("id") String id);
@@ -140,19 +178,10 @@ public interface ApiService {
 
     // --- 6. TUYẾN XE (ROUTE) ---
     @GET("api/tuyenxe/")
-    Call<List<Map<String, Object>>> getRoutes();
+    Call<List<Map<String, Object>>> getRoutesRaw();
 
     @GET("api/tuyenxe/")
     Call<List<Route>> getRoutesModel();
-
-    @POST("api/tuyenxe/")
-    Call<Void> createRoute(@Body Map<String, String> data);
-
-    @PUT("api/tuyenxe/{id}/")
-    Call<Void> updateRoute(@Path("id") String id, @Body Map<String, String> data);
-
-    @DELETE("api/tuyenxe/{id}/")
-    Call<Void> deleteRoute(@Path("id") String id);
 
 
     // --- 7. QUẢN LÝ KHÁCH HÀNG (CUSTOMER) ---
@@ -210,11 +239,11 @@ public interface ApiService {
     @PATCH("api/nhaxe/{id}/")
     Call<Void> patchNhaXeProfile(@Path("id") String id, @Body Map<String, Object> data);
 
-
     // --- 9. XE & LOẠI XE (VEHICLES) ---
     @GET("api/xe/")
-    Call<List<Map<String, Object>>> getVehicles();
+    Call<List<Map<String, Object>>> getVehiclesRaw();
 
+    // --- 10. LOẠI XE ---
     @GET("api/loaixe/")
     Call<List<Loaixe>> getLoaixe();
 

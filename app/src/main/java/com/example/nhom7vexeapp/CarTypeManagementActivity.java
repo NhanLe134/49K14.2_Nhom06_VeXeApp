@@ -114,7 +114,7 @@ public class CarTypeManagementActivity extends AppCompatActivity {
 
         LinearLayout navDriver = findViewById(R.id.nav_driver_op);
         if (navDriver != null) {
-            navDriver.setOnClickListener(v -> startActivity(new Intent(this, QLNhaxeActivity.class)));
+            navDriver.setOnClickListener(v -> startActivity(new Intent(this, DriverSelectionActivity.class)));
         }
     }
 }

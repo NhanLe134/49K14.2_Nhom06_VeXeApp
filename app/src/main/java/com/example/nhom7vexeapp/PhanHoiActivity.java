@@ -32,6 +32,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// #Trang
 public class PhanHoiActivity extends AppCompatActivity {
 
     private LinearLayout layoutFeedbackList;
@@ -140,7 +141,6 @@ public class PhanHoiActivity extends AppCompatActivity {
             String trangThaiDanhGia = getString(ticket, "TrangThaiDanhGia");
             String ngayKetThuc = getString(ticket, "NgayKetThuc");
 
-            // KIỂM TRA: Vé này đã có đánh giá thực tế trong bảng DanhGia chưa?
             boolean alreadyHasReview = false;
             for (Map<String, Object> fb : allFeedbacks) {
                 if (ticketId.equals(getFieldId(fb.get("Ve")))) {
@@ -149,8 +149,7 @@ public class PhanHoiActivity extends AppCompatActivity {
                 }
             }
 
-            // CHỈ HIỆN: Chờ đánh giá + Chưa quá 7 ngày + CHƯA CÓ TRONG BẢNG DANHGIA
-            if ("Chờ đánh giá".equals(trangThaiDanhGia) && !isOver7Days(ngayKetThuc) && !alreadyHasReview) {
+            if (trangThaiDanhGia.equalsIgnoreCase("Chờ đánh giá") && !isOver7Days(ngayKetThuc) && !alreadyHasReview) {
                 hasData = true;
                 View itemView = inflater.inflate(R.layout.item_phan_hoi, layoutFeedbackList, false);
                 TicketInfo info = extractTicketInfo(ticket);
@@ -189,7 +188,6 @@ public class PhanHoiActivity extends AppCompatActivity {
         boolean hasData = false;
 
         for (Map<String, Object> fb : allFeedbacks) {
-            // Chỉ hiện đánh giá của chính khách hàng này
             if (!customerId.equals(getFieldId(fb.get("KhachHang")))) continue;
 
             hasData = true;

@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Button;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,6 +41,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// #Trang
 public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter.OnRouteActionListener {
 
     private RecyclerView rvRoutes;
@@ -106,7 +108,7 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
 
     private void fetchRoutesFromApi() {
         if (opUid == null || opUid.isEmpty()) return;
-        apiService.getRoutes().enqueue(new Callback<List<Map<String, Object>>>() {
+        apiService.getRoutesRaw().enqueue(new Callback<List<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -273,12 +275,15 @@ public class QLTuyenxeActivity extends AppCompatActivity implements RouteAdapter
     }
 
     private void showCancelConfirmationDialog(Runnable onConfirm) {
-        View dv = getLayoutInflater().inflate(R.layout.dialog_cancel_confirmation, null);
+        View dv = getLayoutInflater().inflate(R.layout.dialog_confirm_cancel, null);
         AlertDialog dialog = new AlertDialog.Builder(this).setView(dv).create();
         if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        dv.findViewById(R.id.btnDialogNo).setOnClickListener(v -> dialog.dismiss());
-        dv.findViewById(R.id.btnDialogYes).setOnClickListener(v -> {
+        TextView tvMsg = dv.findViewById(R.id.tvDialogMessage);
+        if (tvMsg != null) tvMsg.setText("Bạn có thông tin chỉnh sửa chưa lưu,\nxác nhận hủy?");
+
+        dv.findViewById(R.id.btnNo).setOnClickListener(v -> dialog.dismiss());
+        dv.findViewById(R.id.btnYes).setOnClickListener(v -> {
             dialog.dismiss();
             onConfirm.run();
         });

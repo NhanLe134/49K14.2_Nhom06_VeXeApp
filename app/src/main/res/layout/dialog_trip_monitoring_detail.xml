@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_button_rounded"
+    android:backgroundTint="@color/white"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvDetailTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chi tiết chuyến xe"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnCloseDialog"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="#666666" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tvDetailRoute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Tuyến: Đà Nẵng - Huế"
+        android:textColor="#0091D5"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayoutDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        app:tabIndicatorColor="#0091D5"
+        app:tabSelectedTextColor="#0091D5"
+        app:tabTextColor="#666666"
+        app:tabMode="fixed"
+        app:tabGravity="fill"
+        app:tabRippleColor="@null">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thông tin xe" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lộ trình" />
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <FrameLayout
+        android:id="@+id/containerDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:minHeight="150dp">
+
+        <!-- CONTENT LỘ TRÌNH -->
+        <LinearLayout
+            android:id="@+id/layoutTabRoute"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRoutePoints"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="300dp" />
+
+            <TextView
+                android:id="@+id/tvNoTickets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="20dp"
+                android:text="Chưa có khách hàng đặt vé"
+                android:textColor="#999999"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- CONTENT THÔNG TIN XE -->
+        <LinearLayout
+            android:id="@+id/layoutTabVehicle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp">
+                <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Biển số xe:" android:textColor="#666666" />
+                <TextView android:id="@+id/tvVehiclePlate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="---" android:textColor="#000000" android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp">
+                <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Số ghế:" android:textColor="#666666" />
+                <TextView android:id="@+id/tvVehicleSeats" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="---" android:textColor="#000000" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp">
+                <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Trạng thái:" android:textColor="#666666" />
+                <TextView android:id="@+id/tvVehicleStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="---" android:textColor="#4CAF50" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp">
+                <TextView android:layout_width="100dp" android:layout_height="wrap_content" android:text="Loại xe:" android:textColor="#666666" />
+                <TextView android:id="@+id/tvVehicleType" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="---" android:textColor="#000000" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>

@@ -1,95 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="260dp"
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
     app:cardCornerRadius="20dp"
-    app:cardElevation="10dp"
+    app:cardElevation="8dp"
     android:layout_gravity="center">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="@android:color/white">
+        android:padding="16dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cập nhật trạng thái"
+            android:text="Chọn trạng thái mới"
             android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:gravity="start"
-            android:paddingStart="8dp"
+            android:gravity="center"
             android:paddingBottom="16dp" />
 
-        <!-- Đang hoạt động -->
         <LinearLayout
             android:id="@+id/btnStatusActive"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:gravity="center_vertical"
+            android:layout_height="50dp"
             android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="30dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true">
-            <View android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/ic_dot_green" />
+            <View
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/ic_dot_green"
+                android:layout_marginEnd="15dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Đang hoạt động"
-                android:layout_marginStart="12dp"
                 android:textSize="16sp"
-                android:textColor="#333333" />
+                android:textColor="#000000" />
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#EEEEEE" />
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginHorizontal="10dp" />
 
-        <!-- Bảo trì -->
         <LinearLayout
             android:id="@+id/btnStatusMaintain"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:gravity="center_vertical"
+            android:layout_height="50dp"
             android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="30dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true">
-            <View android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/bg_status_yellow" />
+            <View
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/ic_dot_yellow"
+                android:layout_marginEnd="15dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Bảo trì"
-                android:layout_marginStart="12dp"
                 android:textSize="16sp"
-                android:textColor="#333333" />
+                android:textColor="#000000" />
         </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#EEEEEE" />
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginHorizontal="10dp" />
 
-        <!-- Ngưng hoạt động -->
         <LinearLayout
             android:id="@+id/btnStatusStop"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:gravity="center_vertical"
+            android:layout_height="50dp"
             android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
+            android:gravity="start|center_vertical"
+            android:paddingHorizontal="30dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true">
-            <View android:layout_width="12dp" android:layout_height="12dp" android:background="@drawable/ic_dot_red" />
+            <View
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:background="@drawable/ic_dot_red"
+                android:layout_marginEnd="15dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ngưng hoạt động"
-                android:layout_marginStart="12dp"
                 android:textSize="16sp"
-                android:textColor="#333333" />
+                android:textColor="#000000" />
         </LinearLayout>
 
     </LinearLayout>

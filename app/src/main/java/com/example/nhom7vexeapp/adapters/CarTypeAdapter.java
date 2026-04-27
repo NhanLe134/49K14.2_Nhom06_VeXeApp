@@ -2,6 +2,7 @@ package com.example.nhom7vexeapp.adapters;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
@@ -50,6 +51,15 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
         }
     }
 
+    private int getColorBySeats(int soCho) {
+        switch (soCho) {
+            case 4: return Color.parseColor("#13B5F6"); // Xanh dương
+            case 7: return Color.parseColor("#81C784"); // Xanh lá
+            case 9: return Color.parseColor("#BA68C8"); // Tím
+            default: return Color.parseColor("#13B5F6");
+        }
+    }
+
     @NonNull
     @Override
     public CarTypeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -61,13 +71,19 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
     public void onBindViewHolder(@NonNull CarTypeViewHolder holder, int position) {
         Loaixe car = carList.get(position);
         String displayName = getDisplayNameBySeats(car.getSoCho());
+        int themeColor = getColorBySeats(car.getSoCho());
 
         holder.tvName.setText(displayName);
         if (displayName.contains(" ")) {
             holder.tvIcon.setText(displayName.substring(displayName.length() - 1));
         }
 
-        holder.tvSeats.setText(car.getSoCho() + " chỗ");
+        // Cập nhật màu sắc theo yêu cầu
+        holder.viewHeader.setBackgroundColor(themeColor);
+        holder.tvIcon.setBackgroundTintList(ColorStateList.valueOf(themeColor));
+        holder.btnEdit.setBackgroundTintList(ColorStateList.valueOf(themeColor));
+
+        holder.tvSeats.setText("• " + car.getSoCho() + " chỗ");
         
         try {
             double gia = Double.parseDouble(car.getGiaVe());
@@ -187,6 +203,7 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
 
     public static class CarTypeViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvSeats, tvPrice, tvDate, tvIcon;
+        View viewHeader;
         Button btnEdit;
 
         public CarTypeViewHolder(@NonNull View itemView) {
@@ -197,6 +214,7 @@ public class CarTypeAdapter extends RecyclerView.Adapter<CarTypeAdapter.CarTypeV
             tvDate = itemView.findViewById(R.id.tvLastUpdate);
             tvIcon = itemView.findViewById(R.id.tvIcon);
             btnEdit = itemView.findViewById(R.id.btnUpdatePrice);
+            viewHeader = itemView.findViewById(R.id.viewHeaderColor);
         }
     }
 }

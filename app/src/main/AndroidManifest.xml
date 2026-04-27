@@ -130,6 +130,23 @@
             android:name=".CreateDriverAccountActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".DriverScheduleMonitoringActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AssignDriverActivity"
+            android:exported="false" />
+
+        <!-- MÀN HÌNH THÊM PHƯƠNG TIỆN -->
+        <activity
+            android:name=".CreateVehicleActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".QLPhuongTienActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

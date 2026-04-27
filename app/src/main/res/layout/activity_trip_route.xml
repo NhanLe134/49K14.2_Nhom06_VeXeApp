@@ -34,47 +34,43 @@
     <LinearLayout
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="340dp"
         android:background="@drawable/bg_input_white"
         android:elevation="8dp"
         android:orientation="vertical"
-        android:padding="15dp"
+        android:padding="16dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <!-- Title Section -->
+        <TextView
+            android:id="@+id/tvTitleList"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp">
+            android:text="Danh sách điểm đón"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp"
+            android:textStyle="bold"/>
 
-            <TextView
-                android:id="@+id/tvTitleList"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:text="Danh sách điểm đón"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/tvDurationInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="#E1F5FE"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                android:text="Thời gian dự kiến: 2h"
-                android:textColor="#0277BD"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </RelativeLayout>
+        <!-- Duration Info - Moved below the title and added more space -->
+        <TextView
+            android:id="@+id/tvDurationInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="#E1F5FE"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="8dp"
+            android:text="Thời gian dự kiến: 2h"
+            android:textColor="#0277BD"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:fadeScrollbars="false"
+            android:scrollbarSize="4dp">
             <LinearLayout
                 android:id="@+id/layoutPickupPoints"
                 android:layout_width="match_parent"

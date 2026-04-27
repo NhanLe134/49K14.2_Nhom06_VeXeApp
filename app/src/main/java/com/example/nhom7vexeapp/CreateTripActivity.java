@@ -2,9 +2,13 @@ package com.example.nhom7vexeapp;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
 import android.view.View;
+import android.view.Window;
 import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,7 +16,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
 import com.example.nhom7vexeapp.models.Loaixe;
+import com.example.nhom7vexeapp.models.Route;
 import com.example.nhom7vexeapp.models.Trip;
+import com.example.nhom7vexeapp.models.VehicleManaged;
 
 import java.util.*;
 import java.text.SimpleDateFormat;
@@ -37,8 +43,8 @@ public class CreateTripActivity extends AppCompatActivity {
 
     private List<String> routeNames = new ArrayList<>(), routeIds = new ArrayList<>();
     private List<String> vehicleNames = new ArrayList<>(), vehicleIds = new ArrayList<>();
-    private List<Map<String, Object>> fullVehicles = new ArrayList<>();
-    private List<Map<String, Object>> fullRoutes = new ArrayList<>();
+    private List<VehicleManaged> fullVehicles = new ArrayList<>();
+    private List<Route> fullRoutes = new ArrayList<>();
     private List<Loaixe> carTypeList = new ArrayList<>();
 
     @Override
@@ -91,17 +97,17 @@ public class CreateTripActivity extends AppCompatActivity {
     }
 
     private void loadRoutesFromServer() {
-        apiService.getRoutes().enqueue(new Callback<List<Map<String, Object>>>() {
+        apiService.getRoutes().enqueue(new Callback<List<Route>>() {
             @Override
-            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
+            public void onResponse(Call<List<Route>> call, Response<List<Route>> response) {
                 routeNames.clear(); routeIds.clear(); fullRoutes.clear();
-                routeNames.add("Chọn tuyến xe"); routeIds.add(""); fullRoutes.add(new HashMap<>());
+                routeNames.add("Chọn tuyến xe"); routeIds.add(""); fullRoutes.add(null);
 
                 if (response.isSuccessful() && response.body() != null) {
-                    for (Map<String, Object> r : response.body()) {
-                        String id = findValueInMap(r, "TuyenXeID", "id");
-                        String name = findValueInMap(r, "TenTuyen", "name");
-                        if (!id.isEmpty()) {
+                    for (Route r : response.body()) {
+                        String id = r.getId();
+                        String name = r.getName();
+                        if (id != null && !id.isEmpty()) {
                             routeNames.add(name + " (" + id + ")");
                             routeIds.add(id);
                             fullRoutes.add(r);
@@ -111,22 +117,22 @@ public class CreateTripActivity extends AppCompatActivity {
                 updateSpinner(spRoute, routeNames);
                 if (editingTrip != null) setSpinnerSelection(spRoute, routeIds, editingTrip.getTuyenXeID());
             }
-            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {}
+            @Override public void onFailure(Call<List<Route>> call, Throwable t) {}
         });
     }
 
     private void loadVehiclesFromServer() {
-        apiService.getVehicles().enqueue(new Callback<List<Map<String, Object>>>() {
+        apiService.getVehicles().enqueue(new Callback<List<VehicleManaged>>() {
             @Override
-            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
+            public void onResponse(Call<List<VehicleManaged>> call, Response<List<VehicleManaged>> response) {
                 vehicleNames.clear(); vehicleIds.clear(); fullVehicles.clear();
                 vehicleNames.add("Chọn xe"); vehicleIds.add("");
-                fullVehicles.add(new HashMap<>());
+                fullVehicles.add(null);
                 if (response.isSuccessful() && response.body() != null) {
-                    for (Map<String, Object> v : response.body()) {
-                        String id = findValueInMap(v, "XeID", "id");
-                        String bs = findValueInMap(v, "BienSo", "license");
-                        if (!id.isEmpty()) {
+                    for (VehicleManaged v : response.body()) {
+                        String id = v.getXeID();
+                        String bs = v.getBienSoXe();
+                        if (id != null && !id.isEmpty()) {
                             vehicleNames.add(bs + " (" + id + ")");
                             vehicleIds.add(id);
                             fullVehicles.add(v);
@@ -136,7 +142,7 @@ public class CreateTripActivity extends AppCompatActivity {
                 updateSpinner(spVehicle, vehicleNames);
                 if (editingTrip != null) setSpinnerSelection(spVehicle, vehicleIds, editingTrip.getXeID());
             }
-            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {}
+            @Override public void onFailure(Call<List<VehicleManaged>> call, Throwable t) {}
         });
     }
 
@@ -161,7 +167,7 @@ public class CreateTripActivity extends AppCompatActivity {
             @Override public void onNothingSelected(AdapterView<?> p) {}
         });
         btnSave.setOnClickListener(v -> validateAndSave());
-        btnCancel.setOnClickListener(v -> finish());
+        btnCancel.setOnClickListener(v -> showConfirmCancelDialog());
     }
 
     private void validateAndSave() {
@@ -233,7 +239,7 @@ public class CreateTripActivity extends AppCompatActivity {
                     if (editingTrip == null) {
                         createSeatsForNewTrip(tripId);
                     } else {
-                        showSuccessDialog();
+                        showSuccessDialog(true);
                     }
                 } else {
                     Toast.makeText(CreateTripActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
@@ -269,7 +275,7 @@ public class CreateTripActivity extends AppCompatActivity {
                 @Override public void onFailure(Call<Void> call, Throwable t) {}
             });
         }
-        showSuccessDialog();
+        showSuccessDialog(false);
     }
 
     private String calculateEndTime(String startTime) {
@@ -277,14 +283,15 @@ public class CreateTripActivity extends AppCompatActivity {
             int routePos = spRoute.getSelectedItemPosition();
             String durationStr = "02:00:00";
             if (routePos > 0 && routePos < fullRoutes.size()) {
-                durationStr = findValueInMap(fullRoutes.get(routePos), "THOIGIAN", "ThoiGian", "ThoiGianDiChuyen");
+                Route r = fullRoutes.get(routePos);
+                if (r != null) durationStr = r.getTime();
             }
             int durH = 0, durM = 0;
-            if (durationStr.contains("h")) {
+            if (durationStr != null && durationStr.contains("h")) {
                 String[] parts = durationStr.split("h");
                 durH = Integer.parseInt(parts[0].trim());
                 if (parts.length > 1 && !parts[1].isEmpty()) durM = Integer.parseInt(parts[1].trim());
-            } else if (durationStr.contains(":")) {
+            } else if (durationStr != null && durationStr.contains(":")) {
                 String[] parts = durationStr.split(":");
                 durH = Integer.parseInt(parts[0]);
                 durM = Integer.parseInt(parts[1]);
@@ -299,17 +306,19 @@ public class CreateTripActivity extends AppCompatActivity {
 
     private void updateVehicleInfo(int position) {
         if (position > 0 && position < fullVehicles.size()) {
-            Map<String, Object> vehicle = fullVehicles.get(position);
-            String typeId = findValueInMap(vehicle, "LoaiXe", "loaixe");
-            Loaixe matchedType = null;
-            for (Loaixe type : carTypeList) {
-                if (type.getLoaixeID().equalsIgnoreCase(typeId)) { matchedType = type; break; }
-            }
-            if (matchedType != null) {
-                currentSeats = String.valueOf(matchedType.getSoCho());
-                currentPrice = matchedType.getGiaVe();
-                tvSeats.setText("Số ghế: " + currentSeats);
-                tvPrice.setText("Giá vé: " + currentPrice + " VND");
+            VehicleManaged vehicle = fullVehicles.get(position);
+            if (vehicle != null) {
+                String typeId = vehicle.getLoaiXeIDStr();
+                Loaixe matchedType = null;
+                for (Loaixe type : carTypeList) {
+                    if (type.getLoaixeID().equalsIgnoreCase(typeId)) { matchedType = type; break; }
+                }
+                if (matchedType != null) {
+                    currentSeats = String.valueOf(matchedType.getSoCho());
+                    currentPrice = matchedType.getGiaVe();
+                    tvSeats.setText("Số ghế: " + currentSeats);
+                    tvPrice.setText("Giá vé: " + currentPrice + " VND");
+                }
             }
             layoutInfo.setVisibility(View.VISIBLE);
         } else { layoutInfo.setVisibility(View.GONE); }
@@ -332,40 +341,91 @@ public class CreateTripActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
     }
 
-    private void setSpinnerSelection(Spinner spinner, List<String> list, String targetId) {
-        if (targetId == null || list == null) return;
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).equalsIgnoreCase(targetId)) {
-                spinner.setSelection(i); break;
-            }
+    private void setSpinnerSelection(Spinner spinner, List<String> ids, String targetId) {
+        if (targetId == null) return;
+        for (int i = 0; i < ids.size(); i++) {
+            if (ids.get(i).equalsIgnoreCase(targetId)) { spinner.setSelection(i); break; }
         }
     }
 
     private void setupDatePicker() {
         etDate.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
-            new DatePickerDialog(this, (view, y, m, d) -> etDate.setText(String.format("%d-%02d-%02d", y, m + 1, d)),
-                    c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+            new DatePickerDialog(this, (view, y, m, d) -> {
+                etDate.setText(String.format("%04d-%02d-%02d", y, m + 1, d));
+            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
     }
 
-    private String findValueInMap(Map<String, Object> map, String... keys) {
-        for (String key : keys) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(key) && entry.getValue() != null) return entry.getValue().toString();
-            }
+    private void showSuccessDialog(boolean isUpdate) {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_success);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        return "";
+
+        TextView tvMsg = dialog.findViewById(R.id.tvMessage);
+        if (tvMsg != null) {
+            tvMsg.setText(isUpdate ? "Cập nhật chuyến xe thành công" : "Tạo chuyến xe thành công");
+        }
+
+        dialog.setCancelable(true);
+        dialog.setCanceledOnTouchOutside(true);
+        
+        // Logic điều hướng khi đóng popup
+        dialog.setOnDismissListener(d -> {
+            if (isUpdate) {
+                // Nếu là Cập nhật -> Quay về màn hình Chi tiết chuyến xe (màn hình trước đó)
+                setResult(RESULT_OK);
+                finish();
+            } else {
+                // Nếu là Tạo mới -> Quay về màn hình Danh sách chuyến xe
+                Intent intent = new Intent(CreateTripActivity.this, TripListActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        // Ấn vào bất kỳ đâu trên popup cũng sẽ thực hiện đóng và chuyển màn hình
+        View dialogView = dialog.findViewById(android.R.id.content);
+        if (dialogView != null) {
+            dialogView.setOnClickListener(v -> dialog.dismiss());
+        }
+
+        dialog.show();
+
+        // Tự động đóng sau 2.5 giây
+        new Handler().postDelayed(() -> {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }, 2500);
     }
 
-    private void showSuccessDialog() {
+    private void showConfirmCancelDialog() {
         final Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.dialog_success);
-        dialog.show();
-        new android.os.Handler().postDelayed(() -> {
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm_cancel);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        TextView tvMsg = dialog.findViewById(R.id.tvDialogMessage);
+        Button btnNo = dialog.findViewById(R.id.btnNo);
+        Button btnYes = dialog.findViewById(R.id.btnYes);
+
+        if (tvMsg != null) {
+            tvMsg.setText("Bạn có thông tin chỉnh sửa chưa lưu,\nxác nhận hủy?");
+        }
+
+        if (btnNo != null) btnNo.setOnClickListener(v -> dialog.dismiss());
+        if (btnYes != null) btnYes.setOnClickListener(v -> {
             dialog.dismiss();
-            setResult(RESULT_OK);
             finish();
-        }, 1500);
+        });
+
+        dialog.show();
     }
 }
