@@ -114,15 +114,36 @@
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEditProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="30dp"
+                    app:backgroundTint="#00B0FF"
+                    android:text="Chỉnh sửa thông tin"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    app:cornerRadius="8dp" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogout"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:layout_marginTop="40dp"
+                    android:layout_marginTop="12dp"
                     app:backgroundTint="#FF3D00"
                     android:text="Đăng xuất"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
                     app:cornerRadius="8dp" />
+
+                <TextView
+                    android:id="@+id/btnDeleteAccount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Xóa tài khoản"
+                    android:textColor="#FF3D00"
+                    android:textSize="14sp"
+                    android:padding="8dp"/>
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -139,9 +160,9 @@
         android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent">
         <LinearLayout android:id="@+id/nav_home_profile" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/home" app:tint="#757575"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trang chủ" android:textSize="10sp"/></LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/search" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tìm kiếm" android:textSize="10sp"/></LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ticket" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vé của tôi" android:textSize="10sp"/></LinearLayout>
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/feedback" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đánh giá" android:textSize="10sp"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_search" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/search" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tìm kiếm" android:textSize="10sp"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_tickets" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ticket" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vé của tôi" android:textSize="10sp"/></LinearLayout>
+        <LinearLayout android:id="@+id/nav_feedback" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:orientation="vertical"><ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/feedback" app:tint="#757575" /><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đánh giá" android:textSize="10sp"/></LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

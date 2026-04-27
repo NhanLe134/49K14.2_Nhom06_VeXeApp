@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,16 +16,20 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.nhom7vexeapp.adapters.PassengerAdapter;
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
+import com.example.nhom7vexeapp.models.Driver;
 import com.example.nhom7vexeapp.models.Passenger;
 import com.example.nhom7vexeapp.models.Trip;
 import com.google.android.material.button.MaterialButton;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,14 +40,18 @@ public class TripDetailActivity extends AppCompatActivity {
     private MaterialButton btnAssign;
     private RecyclerView rvPassengers;
     private Trip trip;
+    private int position; // Từ file 1
     private List<Passenger> passengerList = new ArrayList<>();
     private PassengerAdapter adapter;
     private ImageView imgOpProfile, btnBack;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_detail);
+
+        apiService = ApiClient.getClient().create(ApiService.class);
 
         initViews();
         loadInitialData();
@@ -62,23 +70,25 @@ public class TripDetailActivity extends AppCompatActivity {
         rvPassengers = findViewById(R.id.rvPassengers);
         imgOpProfile = findViewById(R.id.imgOpProfile);
         btnBack = findViewById(R.id.btnBack);
-        
+
+        // Khởi tạo RecyclerView (File 2)
         if (rvPassengers != null) {
             rvPassengers.setLayoutManager(new LinearLayoutManager(this));
             adapter = new PassengerAdapter(passengerList);
             rvPassengers.setAdapter(adapter);
         }
 
+        // Sự kiện Profile (File 2)
         if (imgOpProfile != null) {
-            imgOpProfile.setOnClickListener(v -> {
-                startActivity(new Intent(this, OperatorProfileActivity.class));
-            });
+            imgOpProfile.setOnClickListener(v -> startActivity(new Intent(this, OperatorProfileActivity.class)));
         }
 
+        // Sự kiện Back (File 2)
         if (btnBack != null) {
             btnBack.setOnClickListener(v -> finish());
         }
 
+        // Logic đổi trạng thái chuyến xe (File 2)
         if (tvStatus != null) {
             tvStatus.setOnClickListener(v -> {
                 if (trip == null || tvStatusOption == null) return;
@@ -97,92 +107,55 @@ public class TripDetailActivity extends AppCompatActivity {
         }
 
         if (tvStatusOption != null) {
-            tvStatusOption.setOnClickListener(v -> {
-                showConfirmStatusDialog(tvStatusOption.getText().toString());
-            });
+            tvStatusOption.setOnClickListener(v -> showConfirmStatusDialog(tvStatusOption.getText().toString()));
         }
     }
 
-    private void showConfirmStatusDialog(String newStatus) {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_confirm_status);
-        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+    private void loadInitialData() {
+        trip = (Trip) getIntent().getSerializableExtra("trip");
+        position = getIntent().getIntExtra("position", -1);
 
-        View btnCancel = dialog.findViewById(R.id.btnCancel);
-        View btnConfirm = dialog.findViewById(R.id.btnConfirm);
-
-        if (btnCancel != null) {
-            btnCancel.setOnClickListener(v -> {
-                if (tvStatusOption != null) tvStatusOption.setVisibility(View.GONE);
-                dialog.dismiss();
-            });
+        if (trip != null) {
+            updateUI();
+            refreshTripData(); // Lấy data mới nhất từ server
         }
-        
-        if (btnConfirm != null) {
-            btnConfirm.setOnClickListener(v -> {
-                updateTripStatusOnServer(newStatus);
-                dialog.dismiss();
-            });
-        }
-
-        dialog.show();
     }
 
-    private void updateTripStatusOnServer(String newStatus) {
+    private void updateUI() {
         if (trip == null) return;
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        Map<String, Object> data = new HashMap<>();
-        data.put("TrangThai", newStatus);
+        if (tvRouteName != null) tvRouteName.setText("Tuyến xe: " + trip.getRouteName());
+        if (tvTime != null) tvTime.setText("Giờ xuất phát: " + trip.getTime());
+        if (tvTotalSeats != null) tvTotalSeats.setText("Tổng số ghế: " + trip.getSeats());
 
-        apiService.patchTrip(trip.getId(), data).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    trip.setStatus(newStatus);
-                    updateStatusUI(newStatus);
-                    setResult(RESULT_OK);
-                    
-                    // ✅ CẬP NHẬT TRẠNG THÁI ĐÁNH GIÁ CỦA VÉ KHI CHUYẾN XE HOÀN THÀNH
-                    if (newStatus.equalsIgnoreCase("Hoàn thành")) {
-                        updateAllTicketsToPendingReview();
-                    }
-                    
-                    Toast.makeText(TripDetailActivity.this, "Đã cập nhật trạng thái", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(TripDetailActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(TripDetailActivity.this, "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
-            }
-        });
+        updateStatusUI(trip.getStatus());
+        updateButtonState();
+        fetchPassengersFromDB(); // Lấy danh sách hành khách thực tế
     }
 
-    private void updateAllTicketsToPendingReview() {
-        if (trip == null) return;
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        apiService.getTicketsByTrip(trip.getId()).enqueue(new Callback<List<Map<String, Object>>>() {
-            @Override
-            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    for (Map<String, Object> ticket : response.body()) {
-                        String ticketId = findVal(ticket, "VeID", "id", "veid");
-                        if (!ticketId.isEmpty()) {
-                            Map<String, Object> patchData = new HashMap<>();
-                            patchData.put("TrangThaiDanhGia", "Chờ đánh giá");
-                            apiService.patchTicket(ticketId, patchData).enqueue(new Callback<Void>() {
-                                @Override public void onResponse(Call<Void> call, Response<Void> response) {}
-                                @Override public void onFailure(Call<Void> call, Throwable t) {}
-                            });
-                        }
-                    }
-                }
-            }
-            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {}
-        });
+    private void updateButtonState() {
+        if (btnAssign == null || trip == null) return;
+
+        // Kiểm tra xem đã có tài xế chưa (kết hợp cả TaiXeID và getAssignedDriver)
+        boolean hasDriver = (trip.getAssignedDriver() != null) ||
+                (trip.getTaiXeID() != null && !trip.getTaiXeID().isEmpty() && !trip.getTaiXeID().equals("null"));
+
+        if (hasDriver) {
+            btnAssign.setText("Hiển thị lộ trình chuyến");
+            btnAssign.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
+            btnAssign.setOnClickListener(v -> {
+                Intent intent = new Intent(this, TripRouteActivity.class);
+                intent.putExtra("trip_data", trip);
+                startActivity(intent);
+            });
+        } else {
+            btnAssign.setText("Phân công tài xế");
+            btnAssign.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#00B0FF")));
+            btnAssign.setOnClickListener(v -> {
+                Intent intent = new Intent(this, DriverSelectionActivity.class);
+                intent.putExtra("tripId", trip.getId());
+                startActivityForResult(intent, 500);
+            });
+        }
     }
 
     private void updateStatusUI(String status) {
@@ -198,72 +171,8 @@ public class TripDetailActivity extends AppCompatActivity {
         if (tvStatusOption != null) tvStatusOption.setVisibility(View.GONE);
     }
 
-    private void loadInitialData() {
-        trip = (Trip) getIntent().getSerializableExtra("trip");
-        if (trip != null) {
-            updateUI();
-            refreshTripData();
-        }
-    }
-
-    private void refreshTripData() {
-        if (trip == null) return;
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        apiService.getTrips().enqueue(new Callback<List<Trip>>() {
-            @Override
-            public void onResponse(Call<List<Trip>> call, Response<List<Trip>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    for (Trip t : response.body()) {
-                        if (t.getId().equals(trip.getId())) {
-                            trip = t;
-                            updateUI();
-                            break;
-                        }
-                    }
-                }
-            }
-            @Override public void onFailure(Call<List<Trip>> call, Throwable t) {}
-        });
-    }
-
-    private void updateUI() {
-        if (trip == null) return;
-        if (tvRouteName != null) tvRouteName.setText(trip.getRouteName());
-        if (tvTime != null) tvTime.setText("Giờ xuất phát: " + trip.getTime());
-        if (tvTotalSeats != null) tvTotalSeats.setText("Tổng số ghế: " + trip.getSeats());
-        updateStatusUI(trip.getStatus());
-        updateButtonState();
-        fetchPassengersFromDB();
-        
-        if (btnAssign != null) {
-            btnAssign.setOnClickListener(v -> {
-                if (trip.getTaiXeID() == null || trip.getTaiXeID().isEmpty() || trip.getTaiXeID().equals("null")) {
-                    Intent intent = new Intent(this, DriverSelectionActivity.class);
-                    intent.putExtra("tripId", trip.getId());
-                    startActivityForResult(intent, 500);
-                } else {
-                    Intent intent = new Intent(this, TripRouteActivity.class);
-                    intent.putExtra("trip_data", trip);
-                    startActivity(intent);
-                }
-            });
-        }
-    }
-
-    private void updateButtonState() {
-        if (btnAssign == null || trip == null) return;
-        if (trip.getTaiXeID() != null && !trip.getTaiXeID().isEmpty() && !trip.getTaiXeID().equals("null")) {
-            btnAssign.setText("Hiển thị lộ trình chuyến");
-            btnAssign.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
-        } else {
-            btnAssign.setText("Phân công tài xế");
-            btnAssign.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#00B0FF")));
-        }
-    }
-
     private void fetchPassengersFromDB() {
         if (trip == null) return;
-        ApiService apiService = ApiClient.getClient().create(ApiService.class);
         apiService.getKhachHangList().enqueue(new Callback<List<Map<String, Object>>>() {
             @Override
             public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> resK) {
@@ -290,12 +199,11 @@ public class TripDetailActivity extends AppCompatActivity {
                                     String pickup = findVal(map, "DiemDon", "pickup");
                                     String dropoff = findVal(map, "DiemTra", "dropoff");
                                     String seat = findVal(map, "Ghe", "MaGhe");
-                                    
+
                                     String displaySeat = seat;
                                     if (seat.startsWith(trip.getId())) {
                                         displaySeat = seat.substring(trip.getId().length());
                                     }
-                                    
                                     passengerList.add(new Passenger(name, phone, pickup, dropoff, displaySeat));
                                 }
                             }
@@ -310,36 +218,144 @@ public class TripDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void refreshTripData() {
+        if (trip == null) return;
+        apiService.getTrips().enqueue(new Callback<List<Trip>>() {
+            @Override
+            public void onResponse(Call<List<Trip>> call, Response<List<Trip>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Trip t : response.body()) {
+                        if (t.getId().equals(trip.getId())) {
+                            trip = t;
+                            updateUI();
+                            break;
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<List<Trip>> call, Throwable t) {}
+        });
+    }
+
+    private void updateTripStatusOnServer(String newStatus) {
+        if (trip == null) return;
+        Map<String, Object> data = new HashMap<>();
+        data.put("TrangThai", newStatus);
+
+        apiService.patchTrip(trip.getId(), data).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    trip.setStatus(newStatus);
+                    updateStatusUI(newStatus);
+                    setResult(RESULT_OK);
+                    if (newStatus.equalsIgnoreCase("Hoàn thành")) updateAllTicketsToPendingReview();
+                    Toast.makeText(TripDetailActivity.this, "Đã cập nhật trạng thái", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(TripDetailActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void updateAllTicketsToPendingReview() {
+        apiService.getTicketsByTrip(trip.getId()).enqueue(new Callback<List<Map<String, Object>>>() {
+            @Override
+            public void onResponse(Call<List<Map<String, Object>>> call, Response<List<Map<String, Object>>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Map<String, Object> ticket : response.body()) {
+                        String ticketId = findVal(ticket, "VeID", "id", "veid");
+                        if (!ticketId.isEmpty()) {
+                            Map<String, Object> patchData = new HashMap<>();
+                            patchData.put("TrangThaiDanhGia", "Chờ đánh giá");
+                            apiService.patchTicket(ticketId, patchData).enqueue(new Callback<Void>() {
+                                @Override public void onResponse(Call<Void> call, Response<Void> response) {}
+                                @Override public void onFailure(Call<Void> call, Throwable t) {}
+                            });
+                        }
+                    }
+                }
+            }
+            @Override public void onFailure(Call<List<Map<String, Object>>> call, Throwable t) {}
+        });
+    }
+
+    private void showConfirmStatusDialog(String newStatus) {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_confirm_status);
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        View btnCancel = dialog.findViewById(R.id.btnCancel);
+        View btnConfirm = dialog.findViewById(R.id.btnConfirm);
+
+        if (btnCancel != null) btnCancel.setOnClickListener(v -> {
+            if (tvStatusOption != null) tvStatusOption.setVisibility(View.GONE);
+            dialog.dismiss();
+        });
+
+        if (btnConfirm != null) btnConfirm.setOnClickListener(v -> {
+            updateTripStatusOnServer(newStatus);
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 500 && resultCode == RESULT_OK) {
+            if (data != null && data.hasExtra("selectedDriver")) {
+                Driver driver = (Driver) data.getSerializableExtra("selectedDriver");
+                showSuccessDialog(driver);
+            } else {
+                refreshTripData();
+            }
+            setResult(RESULT_OK);
+        }
+    }
+
+    private void showSuccessDialog(Driver driver) {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_success);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(false);
+
+        TextView tvMsg = dialog.findViewById(R.id.tvMessage);
+        if (tvMsg != null) tvMsg.setText("Phân công tài xế thành công");
+        dialog.show();
+
+        new android.os.Handler().postDelayed(() -> {
+            dialog.dismiss();
+            trip.setAssignedDriver(driver);
+            updateButtonState();
+
+            Intent intent = new Intent();
+            intent.putExtra("updatedTrip", trip);
+            intent.putExtra("position", position);
+            setResult(RESULT_OK, intent);
+        }, 1500);
+    }
+
     private void setupBottomNavigation() {
-        LinearLayout navHome = findViewById(R.id.nav_home_op_main);
-        if (navHome != null) navHome.setOnClickListener(v -> {
-            startActivity(new Intent(this, OperatorMainActivity.class));
-            finish();
-        });
+        // Hợp nhất các sự kiện click từ File 2
+        int[] ids = {R.id.nav_home_op_main, R.id.nav_trip_op, R.id.nav_driver_op, R.id.nav_vehicle_op, R.id.nav_route_op};
+        Class<?>[] classes = {OperatorMainActivity.class, TripListActivity.class, QLNhaxeActivity.class, PhuongTienManagementActivity.class, QLTuyenxeActivity.class};
 
-        LinearLayout navTrip = findViewById(R.id.nav_trip_op);
-        if (navTrip != null) navTrip.setOnClickListener(v -> {
-            startActivity(new Intent(this, TripListActivity.class));
-            finish();
-        });
-
-        LinearLayout navDriver = findViewById(R.id.nav_driver_op);
-        if (navDriver != null) navDriver.setOnClickListener(v -> {
-            startActivity(new Intent(this, QLNhaxeActivity.class));
-            finish();
-        });
-
-        LinearLayout navVehicle = findViewById(R.id.nav_vehicle_op);
-        if (navVehicle != null) navVehicle.setOnClickListener(v -> {
-            startActivity(new Intent(this, PhuongTienManagementActivity.class));
-            finish();
-        });
-
-        LinearLayout navRoute = findViewById(R.id.nav_route_op);
-        if (navRoute != null) navRoute.setOnClickListener(v -> {
-            startActivity(new Intent(this, QLTuyenxeActivity.class));
-            finish();
-        });
+        for (int i = 0; i < ids.length; i++) {
+            View nav = findViewById(ids[i]);
+            if (nav != null) {
+                final int index = i;
+                nav.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, classes[index]);
+                    if (index == 0) intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                });
+            }
+        }
     }
 
     private String findVal(Map<String, Object> map, String... keys) {
@@ -348,14 +364,5 @@ public class TripDetailActivity extends AppCompatActivity {
             if (map.containsKey(k) && map.get(k) != null) return map.get(k).toString();
         }
         return "";
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 500 && resultCode == RESULT_OK) {
-            setResult(RESULT_OK);
-            refreshTripData();
-        }
     }
 }

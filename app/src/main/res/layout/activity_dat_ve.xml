@@ -76,7 +76,7 @@
                             android:layout_height="12dp"
                             android:layout_marginStart="9dp"
                             android:layout_marginTop="5dp"
-                            android:src="@drawable/ic_launcher_background"
+                            android:src="@drawable/ic_dot_green"
                             app:tint="#27AE60" />
 
                         <ImageView
@@ -85,7 +85,7 @@
                             android:layout_height="20dp"
                             android:layout_marginStart="5dp"
                             android:layout_marginTop="85dp"
-                            android:src="@drawable/ic_location_pin"
+                            android:src="@drawable/ic_dot_red"
                             app:tint="#EF2A39" />
 
                         <LinearLayout
@@ -101,6 +101,7 @@
                                 android:textSize="14sp" />
 
                             <TextView
+                                android:id="@+id/tvOriginSelect"
                                 android:layout_width="match_parent"
                                 android:layout_height="45dp"
                                 android:layout_marginTop="5dp"
@@ -119,6 +120,7 @@
                                 android:textSize="14sp" />
 
                             <TextView
+                                android:id="@+id/tvDestSelect"
                                 android:layout_width="match_parent"
                                 android:layout_height="45dp"
                                 android:layout_marginTop="5dp"
@@ -155,18 +157,12 @@
                                 android:background="#F0F0F0"
                                 android:paddingHorizontal="10dp">
                                 <TextView
+                                    android:id="@+id/tvDateSelect"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_centerVertical="true"
                                     android:text="26/02/2026"
                                     android:textColor="@color/black" />
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_alignParentEnd="true"
-                                    android:layout_centerVertical="true"
-                                    android:src="@drawable/search"
-                                    app:tint="@color/black" />
                             </RelativeLayout>
                         </LinearLayout>
 
@@ -188,18 +184,12 @@
                                 android:background="#F0F0F0"
                                 android:paddingHorizontal="10dp">
                                 <TextView
+                                    android:id="@+id/tvTimeSelect"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_centerVertical="true"
-                                    android:text="07:00 - 09:30"
+                                    android:text="07:00"
                                     android:textColor="@color/black" />
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_alignParentEnd="true"
-                                    android:layout_centerVertical="true"
-                                    android:src="@android:drawable/ic_menu_recent_history"
-                                    app:tint="@color/black" />
                             </RelativeLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -218,73 +208,66 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="15dp">
+                    android:orientation="horizontal"
+                    android:weightSum="3">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="3">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <View
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="#888888" />
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-                            <View
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:background="#888888" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Ghế đã bán"
-                                android:textSize="11sp" />
-                        </LinearLayout>
+                            android:layout_marginStart="8dp"
+                            android:text="Ghế đã bán"
+                            android:textSize="11sp" />
+                    </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <View
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="#FFD700" />
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-                            <View
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:background="#FFD700" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Ghế đang chọn"
-                                android:textSize="11sp" />
-                        </LinearLayout>
+                            android:layout_marginStart="8dp"
+                            android:text="Ghế đang chọn"
+                            android:textSize="11sp" />
+                    </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="0dp"
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <View
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:background="#34B5F1" />
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-                            <View
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:background="#34B5F1" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Ghế còn trống"
-                                android:textSize="11sp" />
-                        </LinearLayout>
+                            android:layout_marginStart="8dp"
+                            android:text="Ghế còn trống"
+                            android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- SEAT GRID -->
+            <!-- SEAT GRID CONTAINER -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -294,50 +277,13 @@
                 app:cardUseCompatPadding="true">
 
                 <GridLayout
+                    android:id="@+id/gridSeats"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:columnCount="3"
                     android:padding="20dp"
-                    android:useDefaultMargins="true">
-
-                    <!-- SEAT B5 (Sold) -->
-                    <LinearLayout android:id="@+id/seat_B5" android:orientation="vertical" android:gravity="center" android:layout_margin="10dp" android:clickable="true" android:focusable="true">
-                        <ImageView android:layout_width="65dp" android:layout_height="65dp" android:src="@drawable/ic_seat" app:tint="#888888" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B5" />
-                    </LinearLayout>
-
-                    <!-- SEAT B6 (Empty) -->
-                    <LinearLayout android:id="@+id/seat_B6" android:orientation="vertical" android:gravity="center" android:layout_margin="10dp" android:clickable="true" android:focusable="true">
-                        <ImageView android:layout_width="65dp" android:layout_height="65dp" android:src="@drawable/ic_seat" app:tint="#34B5F1" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B6" />
-                    </LinearLayout>
-
-                    <!-- SEAT B7 (Sold) -->
-                    <LinearLayout android:id="@+id/seat_B7" android:orientation="vertical" android:gravity="center" android:layout_margin="10dp" android:clickable="true" android:focusable="true">
-                        <ImageView android:layout_width="65dp" android:layout_height="65dp" android:src="@drawable/ic_seat" app:tint="#888888" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B7" />
-                    </LinearLayout>
-
-                    <!-- SEAT B8 (Empty) -->
-                    <LinearLayout android:id="@+id/seat_B8" android:orientation="vertical" android:gravity="center" android:layout_margin="10dp" android:clickable="true" android:focusable="true">
-                        <ImageView android:layout_width="65dp" android:layout_height="65dp" android:src="@drawable/ic_seat" app:tint="#34B5F1" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B8" />
-                    </LinearLayout>
-
-                    <!-- SEAT B9 (Sold) -->
-                    <LinearLayout android:id="@+id/seat_B9" android:orientation="vertical" android:gravity="center" android:layout_margin="10dp" android:clickable="true" android:focusable="true">
-                        <ImageView android:layout_width="65dp" android:layout_height="65dp" android:src="@drawable/ic_seat" app:tint="#888888" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B9" />
-                    </LinearLayout>
-
-                    <!-- SEAT B10 (Empty) -->
-                    <LinearLayout android:id="@+id/seat_B10" android:orientation="vertical" android:gravity="center" android:layout_margin="10dp" android:clickable="true" android:focusable="true">
-                        <ImageView android:layout_width="65dp" android:layout_height="65dp" android:src="@drawable/ic_seat" app:tint="#34B5F1" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B10" />
-                    </LinearLayout>
-
-                </GridLayout>
+                    android:useDefaultMargins="true" />
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

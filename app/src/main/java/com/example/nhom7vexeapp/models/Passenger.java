@@ -9,6 +9,9 @@ public class Passenger implements Serializable {
     private String dropoffPoint;
     private String seatNumber;
 
+    public Passenger() {
+    }
+
     public Passenger(String name, String phone, String pickupPoint, String dropoffPoint, String seatNumber) {
         this.name = name;
         this.phone = phone;

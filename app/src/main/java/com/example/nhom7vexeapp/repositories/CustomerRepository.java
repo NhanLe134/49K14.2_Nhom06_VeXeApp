@@ -1,8 +1,8 @@
 package com.example.nhom7vexeapp.repositories;
 
 import com.example.nhom7vexeapp.models.KhachHang;
-import com.example.nhom7vexeapp.network.ApiService;
-import com.example.nhom7vexeapp.network.RetrofitClient;
+import com.example.nhom7vexeapp.api.ApiService;
+import com.example.nhom7vexeapp.RetrofitClient;
 import java.util.Map;
 import retrofit2.Call;
 
@@ -18,7 +18,7 @@ public class CustomerRepository {
     }
 
     public Call<KhachHang> login(Map<String, String> body) {
-        return apiService.login(body);
+        return apiService.loginWithMap(body);
     }
 
     public Call<KhachHang> getProfile(String id) {

@@ -68,7 +68,7 @@
                             android:layout_width="12dp"
                             android:layout_height="12dp"
                             android:layout_centerVertical="true"
-                            android:src="@drawable/ic_launcher_background"
+                            android:src="@drawable/ic_dot_green"
                             app:tint="#27AE60" />
 
                         <View
@@ -86,7 +86,7 @@
                             android:layout_height="20dp"
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
-                            android:src="@drawable/ic_location_pin"
+                            android:src="@drawable/ic_dot_red"
                             app:tint="#EF2A39" />
                     </RelativeLayout>
 
@@ -95,12 +95,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp">
                         <TextView
+                            android:id="@+id/tvOriginDetail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Đà Nẵng"
                             android:textColor="@color/black"
                             android:textStyle="bold" />
                         <TextView
+                            android:id="@+id/tvDestDetail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
@@ -123,18 +125,12 @@
                             android:background="#F0F0F0"
                             android:paddingHorizontal="10dp">
                             <TextView
+                                android:id="@+id/tvDateDetail"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerVertical="true"
                                 android:text="26/02/2026"
                                 android:textColor="@color/black" />
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true"
-                                android:src="@drawable/search"
-                                app:tint="@color/black" />
                         </RelativeLayout>
 
                         <RelativeLayout
@@ -145,18 +141,12 @@
                             android:background="#F0F0F0"
                             android:paddingHorizontal="10dp">
                             <TextView
+                                android:id="@+id/tvTimeDetail"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerVertical="true"
                                 android:text="07:00 - 09:30"
                                 android:textColor="@color/black" />
-                            <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:layout_alignParentEnd="true"
-                                android:layout_centerVertical="true"
-                                android:src="@android:drawable/ic_menu_recent_history"
-                                app:tint="@color/black" />
                         </RelativeLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -199,11 +189,11 @@
                         android:layout_height="50dp"
                         android:layout_marginTop="5dp"
                         android:background="@drawable/bg_input_white"
-                        android:hint="Vd: 123 Nguyễn Văn Linh, Hải Châu, Đà Nẵng"
+                        android:hint="Vd: Bến xe Đà Nẵng"
                         android:inputType="text"
+                        android:importantForAutofill="no"
                         android:paddingHorizontal="15dp"
-                        android:textSize="15sp"
-                        android:textStyle="italic"/>
+                        android:textSize="15sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -218,11 +208,11 @@
                         android:layout_height="50dp"
                         android:layout_marginTop="5dp"
                         android:background="@drawable/bg_input_white"
-                        android:hint="Vd: 123 Nguyễn Văn Linh, Hải Châu, Đà Nẵng"
+                        android:hint="Vd: Bến xe Huế"
                         android:inputType="text"
+                        android:importantForAutofill="no"
                         android:paddingHorizontal="15dp"
-                        android:textSize="15sp"
-                        android:textStyle="italic"/>
+                        android:textSize="15sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -237,11 +227,11 @@
                         android:layout_height="50dp"
                         android:layout_marginTop="5dp"
                         android:background="@drawable/bg_input_white"
-                        android:hint="Vd: Nguyễn Văn A"
+                        android:hint="Nhập họ tên"
                         android:inputType="textPersonName"
+                        android:importantForAutofill="no"
                         android:paddingHorizontal="15dp"
-                        android:textSize="15sp"
-                        android:textStyle="italic"/>
+                        android:textSize="15sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -256,11 +246,11 @@
                         android:layout_height="50dp"
                         android:layout_marginTop="5dp"
                         android:background="@drawable/bg_input_white"
-                        android:hint="Vd: 0379945787"
+                        android:hint="Nhập số điện thoại"
                         android:inputType="phone"
+                        android:importantForAutofill="no"
                         android:paddingHorizontal="15dp"
-                        android:textSize="15sp"
-                        android:textStyle="italic"/>
+                        android:textSize="15sp" />
 
                     <Button
                         android:id="@+id/btnContinue"
@@ -270,7 +260,7 @@
                         android:layout_marginTop="30dp"
                         android:backgroundTint="#34B5F1"
                         android:paddingHorizontal="30dp"
-                        android:text="Tiếp tục"
+                        android:text="Đặt vé"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
                         app:cornerRadius="8dp" />
@@ -280,7 +270,7 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- BOTTOM NAVIGATION MENU -->
+    <!-- BOTTOM NAV (MOCK) -->
     <LinearLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
@@ -289,94 +279,6 @@
         android:elevation="10dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
-
-        <LinearLayout
-            android:id="@+id/nav_home"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/home"
-                app:tint="#555555"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Trang chủ"
-                android:textColor="#555555"
-                android:textSize="11sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_search"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/search"
-                app:tint="#0091D5"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Tìm kiếm vé"
-                android:textColor="#0091D5"
-                android:textSize="11sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_tickets"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/ticket"
-                app:tint="#555555"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Vé của tôi"
-                android:textColor="#555555"
-                android:textSize="11sp"
-                android:textStyle="bold"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nav_feedback"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical">
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/feedback"
-                app:tint="#555555"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Đánh giá"
-                android:textColor="#555555"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

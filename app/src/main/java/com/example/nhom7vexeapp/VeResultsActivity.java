@@ -14,9 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.nhom7vexeapp.adapters.VeResultAdapter;
 import com.example.nhom7vexeapp.models.TripSearchResult;
+import com.example.nhom7vexeapp.api.ApiClient;
+import com.example.nhom7vexeapp.api.ApiService;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,30 +35,30 @@ public class VeResultsActivity extends AppCompatActivity {
     private ImageView btnBack;
     private ProgressBar progressBar;
     private List<TripSearchResult> tripList = new ArrayList<>();
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ve_results);
 
+        apiService = ApiClient.getClient().create(ApiService.class);
+
         initViews();
 
-        // Nhận dữ liệu tìm kiếm
         Intent intent = getIntent();
         String origin = intent.getStringExtra("ORIGIN_KEY");
         String destination = intent.getStringExtra("DESTINATION_KEY");
-        String searchDate = intent.getStringExtra("DATE_KEY"); // Định dạng dd/MM/yyyy
+        String searchDate = intent.getStringExtra("DATE_KEY");
+        String searchTime = intent.getStringExtra("TIME_KEY");
 
-        // Hiển thị thông tin tìm kiếm lên header
         tvRouteTitle.setText(origin + " - " + destination);
-        tvDateTitle.setText(searchDate);
+        tvDateTitle.setText((searchDate == null || searchDate.isEmpty()) ? "Tất cả ngày" : searchDate);
 
         btnBack.setOnClickListener(v -> finish());
 
         setupRecyclerView();
-        
-        // Gọi API lấy dữ liệu thật
-        fetchTripsFromServer(searchDate);
+        fetchTripsFromServer(origin, destination, searchDate, searchTime);
     }
 
     private void initViews() {
@@ -75,63 +80,107 @@ public class VeResultsActivity extends AppCompatActivity {
         rvVeResults.setAdapter(adapter);
     }
 
-    private void fetchTripsFromServer(String searchDate) {
+    private void fetchTripsFromServer(String origin, String destination, String date, String time) {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        tvNoResult.setVisibility(View.GONE);
 
-        RetrofitClient.getApiService().getChuyenXe().enqueue(new Callback<List<TripSearchResult>>() {
+        apiService.getChuyenXe().enqueue(new Callback<List<TripSearchResult>>() {
             @Override
             public void onResponse(Call<List<TripSearchResult>> call, Response<List<TripSearchResult>> response) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
                 
                 if (response.isSuccessful() && response.body() != null) {
                     List<TripSearchResult> allTrips = response.body();
-                    filterAndDisplayTrips(allTrips, searchDate);
+                    if (allTrips != null && !allTrips.isEmpty()) {
+                        applySmartFilter(allTrips, origin, destination, date, time);
+                    } else {
+                        showNoResults();
+                    }
                 } else {
-                    Toast.makeText(VeResultsActivity.this, "Không thể lấy dữ liệu chuyến xe!", Toast.LENGTH_SHORT).show();
+                    Log.e("API_ERROR", "Response Code: " + response.code());
+                    Toast.makeText(VeResultsActivity.this, "Lỗi khi lấy dữ liệu!", Toast.LENGTH_SHORT).show();
+                    showNoResults();
                 }
             }
 
             @Override
             public void onFailure(Call<List<TripSearchResult>> call, Throwable t) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                Log.e("API_ERROR", "Fetch trips failed: " + t.getMessage());
-                Toast.makeText(VeResultsActivity.this, "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(VeResultsActivity.this, "Lỗi kết nối server!", Toast.LENGTH_LONG).show();
+                showNoResults();
             }
         });
     }
 
-    private void filterAndDisplayTrips(List<TripSearchResult> allTrips, String searchDate) {
+    private void applySmartFilter(List<TripSearchResult> allTrips, String sOrigin, String sDest, String sDate, String sTime) {
         tripList.clear();
         
-        // Định dạng ngày từ API thường là yyyy-MM-dd
-        String formattedSearchDate = convertDateFormat(searchDate);
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        
+        String nowStrDate = sdfDate.format(new Date());
+        String nowStrTime = sdfTime.format(new Date());
+        String formattedSearchDate = convertDateFormat(sDate);
 
         for (TripSearchResult trip : allTrips) {
-            if (trip.getDate() != null && trip.getDate().equals(formattedSearchDate)) {
+            // Lọc trạng thái: Chỉ lấy những chuyến "Chưa hoàn thành"
+            String status = trip.getStatus();
+            if (status != null && !status.equalsIgnoreCase("Chưa hoàn thành")) {
+                continue;
+            }
+
+            String tripDate = trip.getDate() != null ? trip.getDate() : "";
+            String tripTime = trip.getTime() != null ? trip.getTime() : "00:00";
+
+            // Lọc thời gian thực tế: Không hiển thị chuyến trong quá khứ
+            if (tripDate.compareTo(nowStrDate) < 0) continue;
+            if (tripDate.equals(nowStrDate) && tripTime.compareTo(nowStrTime) < 0) continue;
+
+            boolean matchOrigin = sOrigin.equals("Tất cả") || (trip.getTuyenXeName() != null && trip.getTuyenXeName().contains(sOrigin));
+            boolean matchDest = sDest.equals("Tất cả") || (trip.getTuyenXeName() != null && trip.getTuyenXeName().contains(sDest));
+            boolean matchDate = (sDate == null || sDate.isEmpty()) || tripDate.equals(formattedSearchDate);
+
+            boolean matchTime = true;
+            if (sTime != null && !sTime.isEmpty()) {
+                matchTime = isWithinThreeHours(tripTime, sTime);
+            }
+
+            if (matchOrigin && matchDest && matchDate && matchTime) {
                 tripList.add(trip);
             }
         }
 
         adapter.notifyDataSetChanged();
-
         if (tripList.isEmpty()) {
-            if (tvNoResult != null) tvNoResult.setVisibility(View.VISIBLE);
+            showNoResults();
         } else {
-            if (tvNoResult != null) tvNoResult.setVisibility(View.GONE);
+            tvNoResult.setVisibility(View.GONE);
         }
     }
 
-    private String convertDateFormat(String date) {
-        if (date == null) return "";
-        try {
-            // Chuyển từ dd/MM/yyyy sang yyyy-MM-dd
-            String[] parts = date.split("/");
-            if (parts.length == 3) {
-                return parts[2] + "-" + parts[1] + "-" + parts[0];
-            }
-        } catch (Exception e) {
-            return date;
+    private void showNoResults() {
+        if (tvNoResult != null) {
+            tvNoResult.setVisibility(View.VISIBLE);
+            tvNoResult.setText("Không tìm thấy chuyến phù hợp");
         }
+    }
+
+    private boolean isWithinThreeHours(String tripTime, String searchTime) {
+        try {
+            String[] tParts = tripTime.split(":");
+            String[] sParts = searchTime.split(":");
+            int tMin = Integer.parseInt(tParts[0]) * 60 + Integer.parseInt(tParts[1]);
+            int sMin = Integer.parseInt(sParts[0]) * 60 + Integer.parseInt(sParts[1]);
+            return Math.abs(tMin - sMin) <= 180;
+        } catch (Exception e) { return true; }
+    }
+
+    private String convertDateFormat(String date) {
+        if (date == null || date.isEmpty()) return "";
+        try {
+            String[] parts = date.split("/");
+            if (parts.length == 3) return parts[2] + "-" + parts[1] + "-" + parts[0];
+        } catch (Exception e) {}
         return date;
     }
 }

@@ -22,6 +22,9 @@ public class UserModel {
     @SerializedName("Taixe")
     private String taixe;
 
+    @SerializedName("Hovaten")
+    private String hovaten;
+
     public String getUserID() { return userID; }
     public void setUserID(String userID) { this.userID = userID; }
     public String getTenDangNhap() { return tenDangNhap; }
@@ -39,4 +42,7 @@ public class UserModel {
     
     public String getTaixe() { return taixe; }
     public void setTaixe(String taixe) { this.taixe = taixe; }
+
+    public String getHovaten() { return hovaten; }
+    public void setHovaten(String hovaten) { this.hovaten = hovaten; }
 }

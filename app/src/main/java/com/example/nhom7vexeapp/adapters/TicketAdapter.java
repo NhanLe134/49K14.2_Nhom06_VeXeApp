@@ -1,4 +1,4 @@
-package com.example.nhom7vexeapp;
+package com.example.nhom7vexeapp.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -9,19 +9,24 @@ import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.nhom7vexeapp.R;
+import com.example.nhom7vexeapp.models.Ticket;
+
 import java.util.List;
 
 public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketViewHolder> {
 
-    private List<TicketModel> ticketList;
+    private List<Ticket> ticketList;
     private Context context;
     private OnTicketClickListener listener;
 
     public interface OnTicketClickListener {
-        void onTicketClick(TicketModel ticket);
+        void onTicketClick(Ticket ticket);
+        void onCancelClick(Ticket ticket);
     }
 
-    public TicketAdapter(Context context, List<TicketModel> ticketList, OnTicketClickListener listener) {
+    public TicketAdapter(Context context, List<Ticket> ticketList, OnTicketClickListener listener) {
         this.context = context;
         this.ticketList = ticketList;
         this.listener = listener;
@@ -36,24 +41,34 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
 
     @Override
     public void onBindViewHolder(@NonNull TicketViewHolder holder, int position) {
-        TicketModel ticket = ticketList.get(position);
-        holder.tvTime.setText(ticket.getTime());
-        holder.tvDate.setText(ticket.getDate());
-        holder.tvRoute.setText(ticket.getRoute());
-        holder.tvCar.setText(ticket.getCar());
-        holder.tvSeatCount.setText(ticket.getSeatCount());
-        holder.tvSeats.setText(ticket.getSeats());
+        Ticket ticket = ticketList.get(position);
+        holder.tvTime.setText(ticket.getGioDi());
+        holder.tvDate.setText(ticket.getNgayKhoiHanh());
+        holder.tvRoute.setText(ticket.getTenTuyen());
+        holder.tvCar.setText(ticket.getTenNhaXe());
+        holder.tvSeatCount.setText("Số lượng ghế: " + String.format("%02d", ticket.getSoLuongGhe()));
+        holder.tvSeats.setText("Mã số ghế: " + ticket.getFormattedSeats());
 
-        // Cấu hình nút dựa trên trạng thái
-        if (ticket.getStatus().equals("Booked")) {
+        // Cấu hình nút dựa trên trạng thái (Tiếng Việt khớp với Backend)
+        String status = ticket.getTrangThai();
+        if ("Đã đặt".equals(status)) {
             holder.btnAction.setText("Hủy");
             holder.btnAction.setBackgroundColor(Color.parseColor("#EF2A39"));
-        } else if (ticket.getStatus().equals("Completed")) {
-            holder.btnAction.setText("Đã hoàn thành");
+            holder.btnAction.setEnabled(true);
+            holder.btnAction.setOnClickListener(v -> {
+                if (listener != null) listener.onCancelClick(ticket);
+            });
+        } else if ("Đã đi".equals(status)) {
+            holder.btnAction.setText("Đã đi");
             holder.btnAction.setBackgroundColor(Color.parseColor("#FFC107"));
-        } else if (ticket.getStatus().equals("Cancelled")) {
+            holder.btnAction.setEnabled(false);
+        } else if ("Đã hủy".equals(status)) {
             holder.btnAction.setText("Đã hủy");
             holder.btnAction.setBackgroundColor(Color.parseColor("#34B5F1"));
+            holder.btnAction.setEnabled(false);
+        } else {
+            holder.btnAction.setText(status);
+            holder.btnAction.setEnabled(false);
         }
 
         holder.itemView.setOnClickListener(v -> listener.onTicketClick(ticket));
@@ -61,7 +76,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.TicketView
 
     @Override
     public int getItemCount() {
-        return ticketList.size();
+        return ticketList != null ? ticketList.size() : 0;
     }
 
     public static class TicketViewHolder extends RecyclerView.ViewHolder {
