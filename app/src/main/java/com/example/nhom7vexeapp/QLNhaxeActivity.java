@@ -39,6 +39,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// #Trang
 public class QLNhaxeActivity extends AppCompatActivity {
 
     private static final String TAG = "QLNhaxeActivity";
@@ -144,6 +145,12 @@ public class QLNhaxeActivity extends AppCompatActivity {
         View home = findViewById(R.id.nav_home_op_main);
         if (home != null) home.setOnClickListener(v -> {
             startActivity(new Intent(this, OperatorMainActivity.class));
+            finish();
+        });
+        
+        View navRoute = findViewById(R.id.nav_route_op);
+        if (navRoute != null) navRoute.setOnClickListener(v -> {
+            startActivity(new Intent(this, QLTuyenxeActivity.class));
             finish();
         });
     }

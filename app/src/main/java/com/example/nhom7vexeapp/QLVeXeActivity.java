@@ -29,6 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// #Trang
 public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.OnTicketClickListener {
 
     private RecyclerView rvTickets;
@@ -87,7 +88,6 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
                     for (Map<String, Object> map : response.body()) {
                         String tKh = getFieldId(map.get("KhachHang"));
                         if (customerId.equals(tKh)) {
-                            // Phân tích dữ liệu từ API để tạo TicketModel
                             Object tripObj = map.get("ChuyenXe");
                             String busName = "Nhà xe";
                             String route = "Tuyến đường";
@@ -101,7 +101,6 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
                             String date = String.valueOf(map.get("NgayDi") != null ? map.get("NgayDi") : "");
                             String status = String.valueOf(map.get("TrangThai") != null ? map.get("TrangThai") : "");
                             
-                            // Chuyển đổi trạng thái API sang trạng thái App (Booked, Completed, Cancelled)
                             String appStatus = "Booked";
                             if ("Đã đi".equals(status) || "Completed".equalsIgnoreCase(status)) appStatus = "Completed";
                             else if ("Đã hủy".equals(status) || "Cancelled".equalsIgnoreCase(status)) appStatus = "Cancelled";
@@ -111,7 +110,7 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
                             ));
                         }
                     }
-                    switchTab("Booked"); // Mặc định hiển thị vé đã đặt
+                    switchTab("Booked");
                 }
             }
 
