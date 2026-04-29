@@ -7,7 +7,7 @@ public class KhachHang implements Serializable {
     @SerializedName("KhachHangID")
     private String khachHangID;
     
-    @SerializedName("hoTen")
+    @SerializedName("Hovaten")
     private String hoTen;
     
     @SerializedName("Email")

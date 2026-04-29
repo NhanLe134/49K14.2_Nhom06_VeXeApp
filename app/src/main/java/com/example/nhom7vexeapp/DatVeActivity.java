@@ -77,21 +77,21 @@ public class DatVeActivity extends AppCompatActivity {
     }
 
     private void kiemTraVaLayDanhSachGhe() {
-        if (chuyenXeDaChon == null) return;
-        com.example.nhom7vexeapp.api.ApiService apiService = ApiClient.getClient().create(com.example.nhom7vexeapp.api.ApiService.class);
+        if (chuyenXeDaChon == null)
+            return;
+        com.example.nhom7vexeapp.api.ApiService apiService = ApiClient.getClient()
+                .create(com.example.nhom7vexeapp.api.ApiService.class);
 
         apiService.getLoaixe().enqueue(new Callback<List<Loaixe>>() {
             @Override
             public void onResponse(Call<List<Loaixe>> call, Response<List<Loaixe>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     int soGheGoc = -1;
-                    String loaiXeCuaChuyen = chuyenXeDaChon.getCarType(); 
+                    String loaiXeCuaChuyen = chuyenXeDaChon.getCarType();
 
                     for (Loaixe lx : response.body()) {
-                        // Sửa logic so khớp loại xe linh hoạt hơn
-                        if (loaiXeCuaChuyen.equalsIgnoreCase(lx.getLoaixeID()) || 
-                            loaiXeCuaChuyen.contains(String.valueOf(lx.getSoCho())) ||
-                            (loaiXeCuaChuyen.toLowerCase().contains("chỗ") && loaiXeCuaChuyen.contains(String.valueOf(lx.getSoCho())))) {
+                        if (loaiXeCuaChuyen.equalsIgnoreCase(lx.getLoaixeID()) ||
+                                loaiXeCuaChuyen.contains(String.valueOf(lx.getSoCho()))) {
                             soGheGoc = lx.getSoCho();
                             break;
                         }
@@ -100,19 +100,23 @@ public class DatVeActivity extends AppCompatActivity {
                     if (soGheGoc != -1) {
                         layVaLogGhe(soGheGoc);
                     } else {
-                        // Mặc định dựa theo văn bản nếu không khớp ID
-                        if (loaiXeCuaChuyen.contains("4")) soGheGoc = 4;
-                        else if (loaiXeCuaChuyen.contains("7")) soGheGoc = 7;
-                        else if (loaiXeCuaChuyen.contains("9")) soGheGoc = 9;
-                        
+                        if (loaiXeCuaChuyen.contains("4"))
+                            soGheGoc = 4;
+                        else if (loaiXeCuaChuyen.contains("7"))
+                            soGheGoc = 7;
+                        else if (loaiXeCuaChuyen.contains("9"))
+                            soGheGoc = 9;
+
                         if (soGheGoc != -1) {
                             layVaLogGhe(soGheGoc);
                         } else {
-                            Toast.makeText(DatVeActivity.this, "Lỗi: Không xác định được số chỗ xe!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DatVeActivity.this, "Lỗi: Không xác định được số chỗ xe!",
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
             }
+
             @Override
             public void onFailure(Call<List<Loaixe>> call, Throwable t) {
                 Toast.makeText(DatVeActivity.this, "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
@@ -124,90 +128,87 @@ public class DatVeActivity extends AppCompatActivity {
         String maChuyenID = chuyenXeDaChon.getId();
         ApiClient.getClient().create(com.example.nhom7vexeapp.api.ApiService.class)
                 .getSeatsByTrip(maChuyenID).enqueue(new Callback<List<Seat>>() {
-            @Override
-            public void onResponse(Call<List<Seat>> call, Response<List<Seat>> phanHoi) {
-                if (phanHoi.isSuccessful() && phanHoi.body() != null) {
-                    List<Seat> danhSachTuServer = phanHoi.body();
-                    List<Seat> gheCuaChuyenNay = new ArrayList<>();
-                    
-                    for (Seat s : danhSachTuServer) {
-                        if (s.getChuyenXe() == null || s.getChuyenXe().equals(maChuyenID)) {
-                            gheCuaChuyenNay.add(s);
+                    @Override
+                    public void onResponse(Call<List<Seat>> call, Response<List<Seat>> phanHoi) {
+                        if (phanHoi.isSuccessful() && phanHoi.body() != null) {
+                            List<Seat> danhSachTuServer = phanHoi.body();
+
+                            if (danhSachTuServer.size() == soGheGoc) {
+                                danhSachGheTuApi.clear();
+                                danhSachGheTuApi.addAll(danhSachTuServer);
+
+                                // SẮP XẾP GHẾ THEO THỨ TỰ TỰ NHIÊN (A1, A2... B1, B2...)
+                                Collections.sort(danhSachGheTuApi, new Comparator<Seat>() {
+                                    @Override
+                                    public int compare(Seat s1, Seat s2) {
+                                        String code1 = s1.getSeatCode();
+                                        String code2 = s2.getSeatCode();
+                                        if (code1 == null || code2 == null)
+                                            return 0;
+
+                                        String alpha1 = code1.replaceAll("\\d", "");
+                                        String alpha2 = code2.replaceAll("\\d", "");
+
+                                        if (alpha1.equals(alpha2)) {
+                                            try {
+                                                int num1 = Integer.parseInt(code1.replaceAll("\\D", ""));
+                                                int num2 = Integer.parseInt(code2.replaceAll("\\D", ""));
+                                                return Integer.compare(num1, num2);
+                                            } catch (Exception e) {
+                                                return code1.compareTo(code2);
+                                            }
+                                        }
+                                        return alpha1.compareTo(alpha2);
+                                    }
+                                });
+
+                                veSoDoGhe();
+                            } else {
+                                // Nếu số lượng ghế lấy về không khớp, cố gắng hiển thị những gì có
+                                danhSachGheTuApi.clear();
+                                danhSachGheTuApi.addAll(danhSachTuServer);
+                                veSoDoGhe();
+                            }
                         }
                     }
-                    
-                    if (gheCuaChuyenNay.size() == soGheGoc) {
-                        danhSachGheTuApi.clear();
-                        danhSachGheTuApi.addAll(gheCuaChuyenNay);
-                        
-                        // SẮP XẾP GHẾ THEO THỨ TỰ TỰ NHIÊN (A1, A2... B1, B2...)
-                        Collections.sort(danhSachGheTuApi, new Comparator<Seat>() {
-                            @Override
-                            public int compare(Seat s1, Seat s2) {
-                                String code1 = s1.getSeatCode();
-                                String code2 = s2.getSeatCode();
-                                if (code1 == null || code2 == null) return 0;
-                                
-                                String alpha1 = code1.replaceAll("\\d", "");
-                                String alpha2 = code2.replaceAll("\\d", "");
-                                
-                                if (alpha1.equals(alpha2)) {
-                                    try {
-                                        int num1 = Integer.parseInt(code1.replaceAll("\\D", ""));
-                                        int num2 = Integer.parseInt(code2.replaceAll("\\D", ""));
-                                        return Integer.compare(num1, num2);
-                                    } catch (Exception e) {
-                                        return code1.compareTo(code2);
-                                    }
-                                }
-                                return alpha1.compareTo(alpha2);
-                            }
-                        });
 
-                        veSoDoGhe();
-                    } else {
-                        // Nếu số lượng ghế lấy về không khớp, cố gắng hiển thị những gì có
-                        danhSachGheTuApi.clear();
-                        danhSachGheTuApi.addAll(gheCuaChuyenNay);
-                        veSoDoGhe();
+                    @Override
+                    public void onFailure(Call<List<Seat>> call, Throwable t) {
+                        Toast.makeText(DatVeActivity.this, "Lỗi kết nối server khi lấy ghế!", Toast.LENGTH_SHORT)
+                                .show();
                     }
-                }
-            }
-            @Override
-            public void onFailure(Call<List<Seat>> call, Throwable t) {
-                Toast.makeText(DatVeActivity.this, "Lỗi kết nối server khi lấy ghế!", Toast.LENGTH_SHORT).show();
-            }
-        });
+                });
     }
 
     private void veSoDoGhe() {
-        if (gridGheNgoi == null) return;
+        if (gridGheNgoi == null)
+            return;
         gridGheNgoi.removeAllViews();
 
-        String loaiXe = chuyenXeDaChon.getCarType(); 
-        String[][] soDo;
+        String loaiXe = chuyenXeDaChon.getCarType();
+        String[][] soDo; // khai báo mảng
         int soCot = 3;
 
         // Cấu hình sơ đồ ghế linh hoạt hơn dựa trên số lượng ghế thực tế từ API
         int totalSeats = danhSachGheTuApi.size();
 
         if (loaiXe.contains("9") || totalSeats == 9) {
-            soDo = new String[][]{
-                {"A", "X", "X"}, // Hàng 1: Tài xế, Trống, Ghế 1
-                {"X", "O", "X"}, // Hàng 2: Ghế 2, 3, 4
-                {"X", "O", "X"}, // Hàng 3: Ghế 5, 6, 7
-                {"X", "X", "X"}  // Hàng 4: Ghế 8, Trống, Ghế 9
+            soDo = new String[][] {
+                    { "A", "X", "X" }, // Hàng 1: Tài xế, Trống, Ghế 1
+                    { "X", "O", "X" }, // Hàng 2: Ghế 2, 3, 4
+                    { "X", "O", "X" }, // Hàng 3: Ghế 5, 6, 7
+                    { "X", "X", "X" } // Hàng 4: Ghế 8, Trống, Ghế 9
             };
         } else if (loaiXe.contains("7") || totalSeats == 7) {
-            soDo = new String[][]{
-                {"A", "O", "X"}, // Hàng 1: Tài xế, Trống, Ghế 1
-                {"X", "X", "X"}, // Hàng 2: Ghế 2, 3, 4
-                {"X", "X", "X"}  // Hàng 3: Ghế 5, 6, 7
+            soDo = new String[][] {
+                    { "A", "O", "X" }, // Hàng 1: Tài xế, Trống, Ghế 1
+                    { "X", "X", "X" }, // Hàng 2: Ghế 2, 3, 4
+                    { "X", "X", "X" } // Hàng 3: Ghế 5, 6, 7
             };
         } else if (loaiXe.contains("4") || totalSeats == 4) {
-            soDo = new String[][]{
-                {"A", "O", "X"}, // Hàng 1: Tài xế, Trống, Ghế 1
-                {"X", "X", "X"}  // Hàng 2: Ghế 2, 3, 4
+            soDo = new String[][] {
+                    { "A", "O", "X" }, // Hàng 1: Tài xế, Trống, Ghế 1
+                    { "X", "X", "X" } // Hàng 2: Ghế 2, 3, 4
             };
         } else {
             // Mặc định hoặc cho các loại xe khác
@@ -216,12 +217,15 @@ public class DatVeActivity extends AppCompatActivity {
             int currentX = 0;
             for (int r = 0; r < rows; r++) {
                 for (int c = 0; c < 3; c++) {
-                    if (r == 0 && c == 0) soDo[r][c] = "A";
-                    else if (r == 0 && c == 1) soDo[r][c] = "O";
+                    if (r == 0 && c == 0)
+                        soDo[r][c] = "A";
+                    else if (r == 0 && c == 1)
+                        soDo[r][c] = "O";
                     else if (currentX < totalSeats) {
                         soDo[r][c] = "X";
                         currentX++;
-                    } else soDo[r][c] = "O";
+                    } else
+                        soDo[r][c] = "O";
                 }
             }
         }
@@ -232,7 +236,8 @@ public class DatVeActivity extends AppCompatActivity {
             for (int j = 0; j < soDo[i].length; j++) {
                 String kieu = soDo[i][j];
                 View view = taoOItemGhe(kieu, index);
-                if (kieu.equals("X")) index++;
+                if (kieu.equals("X"))
+                    index++;
                 gridGheNgoi.addView(view);
             }
         }
@@ -250,7 +255,7 @@ public class DatVeActivity extends AppCompatActivity {
         chuGhe.setTextSize(10);
 
         if (kieuO.equals("A")) {
-            anhGhe.setImageResource(R.drawable.ic_steering_wheel); 
+            anhGhe.setImageResource(R.drawable.ic_steering_wheel);
             anhGhe.setColorFilter(Color.DKGRAY);
             chuGhe.setText("Tài xế");
         } else if (kieuO.equals("X") && chiSo < danhSachGheTuApi.size()) {
@@ -304,11 +309,14 @@ public class DatVeActivity extends AppCompatActivity {
     }
 
     private long tinhTongTien() {
-        if (chuyenXeDaChon == null) return 0;
+        if (chuyenXeDaChon == null)
+            return 0;
         try {
             String p = chuyenXeDaChon.getPrice().replace(".", "").replace("đ", "").trim();
             return Long.parseLong(p) * danhSachGheDaChon.size();
-        } catch (Exception e) { return 0; }
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private void capNhatTomTat() {

@@ -134,17 +134,17 @@ public class CustomerProfileActivity extends AppCompatActivity {
     }
 
     private void loadAllDataFromServer(String uid) {
-        apiService.getKhachHangDetail(uid).enqueue(new Callback<Map<String, Object>>() {
+        apiService.getKhachHangDetail(uid).enqueue(new Callback<KhachHang>() {
             @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+            public void onResponse(Call<KhachHang> call, Response<KhachHang> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Map<String, Object> data = response.body();
+                    KhachHang data = response.body();
 
-                    String name = findValue(data, "Hovaten", "TenKhachHang", "HoTen");
-                    if (!name.isEmpty()) tvName.setText(name);
+                    String name = data.getHoTen();
+                    if (name != null && !name.isEmpty()) tvName.setText(name);
 
-                    String dob = findValue(data, "Ngaysinh", "NgaySinh");
-                    if (!dob.isEmpty()) {
+                    String dob = data.getNgaySinh();
+                    if (dob != null && !dob.isEmpty()) {
                         if (dob.contains("-")) {
                             try {
                                 String[] parts = dob.split("T")[0].split("-");
@@ -154,14 +154,14 @@ public class CustomerProfileActivity extends AppCompatActivity {
                         tvDob.setText(dob);
                     }
 
-                    String imgData = findValue(data, "AnhDaiDien", "AnhDaiDienURL", "Avatar");
-                    if (!imgData.isEmpty() && imgAvatar != null) {
+                    String imgData = data.getAnhDaiDienURL();
+                    if (imgData != null && !imgData.isEmpty() && imgAvatar != null) {
                         Glide.with(CustomerProfileActivity.this).load(imgData).circleCrop().into(imgAvatar);
                     }
                 }
                 fetchPhoneFromAuth(uid);
             }
-            @Override public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+            @Override public void onFailure(Call<KhachHang> call, Throwable t) {
                 fetchPhoneFromAuth(uid);
             }
         });

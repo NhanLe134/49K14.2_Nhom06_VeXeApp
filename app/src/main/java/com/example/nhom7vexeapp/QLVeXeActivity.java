@@ -22,7 +22,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
 import com.example.nhom7vexeapp.adapters.TicketAdapter;
+import com.example.nhom7vexeapp.models.KhachHang;
+import com.example.nhom7vexeapp.models.Loaixe;
+import com.example.nhom7vexeapp.models.Route;
 import com.example.nhom7vexeapp.models.Ticket;
+import com.example.nhom7vexeapp.models.Trip;
+import com.example.nhom7vexeapp.models.TripSearchResult;
 import com.google.android.material.card.MaterialCardView;
 
 import java.text.DecimalFormat;
@@ -138,8 +143,8 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
                     progressBar.setVisibility(View.GONE);
                     if (response.isSuccessful() && response.body() != null) {
                         for (Ticket ticket : response.body()) {
-                            if (currentStatus.equalsIgnoreCase(ticket.getTrangThai()) && 
-                                customerId.equals(ticket.getKhachHangID())) {
+                            if (currentStatus.equalsIgnoreCase(ticket.getTrangThai()) &&
+                                    customerId.equals(ticket.getKhachHangID())) {
                                 ticketList.add(ticket);
                             }
                         }
@@ -161,47 +166,52 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
         apiService.getVeHuy(customerId).enqueue(new Callback<List<Ticket>>() {
             @Override
             public void onResponse(Call<List<Ticket>> call, Response<List<Ticket>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    ticketList.addAll(response.body());
-                }
-                fetchCancelledFromMainTable();
-            }
-
-            @Override
-            public void onFailure(Call<List<Ticket>> call, Throwable t) {
-                fetchCancelledFromMainTable();
-            }
-        });
-    }
-
-    private void fetchCancelledFromMainTable() {
-        apiService.getTickets(customerId, "Đã hủy").enqueue(new Callback<List<Ticket>>() {
-            @Override
-            public void onResponse(Call<List<Ticket>> call, Response<List<Ticket>> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
-                    for (Ticket t : response.body()) {
-                        boolean exists = false;
-                        for (Ticket existing : ticketList) {
-                            if (t.getVeID() != null && t.getVeID().equals(existing.getVeID())) {
-                                exists = true;
-                                break;
-                            }
-                        }
-                        if (!exists && "Đã hủy".equalsIgnoreCase(t.getTrangThai())) {
-                            ticketList.add(t);
+                    List<Ticket> cancelledTickets = response.body();
+
+                    // Cập nhật danh sách một lần duy nhất ở đây để tránh lặp và giật lag
+                    ticketList.clear();
+                    ticketList.addAll(cancelledTickets);
+                    adapter.notifyDataSetChanged();
+                    updateEmptyMessage();
+
+                    for (int i = 0; i < cancelledTickets.size(); i++) {
+                        final int index = i;
+                        Ticket ticket = cancelledTickets.get(i);
+                        if (ticket.getChuyenXeID() != null) {
+                            apiService.getTripDetail(ticket.getChuyenXeID()).enqueue(new Callback<Trip>() {
+                                @Override
+                                public void onResponse(Call<Trip> call, Response<Trip> response) {
+                                    if (response.isSuccessful() && response.body() != null) {
+                                        Trip trip = response.body();
+                                        ticket.setTenTuyen(trip.getRouteName());
+                                        ticket.setTenNhaXe(trip.getTenNhaXe());
+                                        ticket.setNgayKhoiHanh(trip.getDate());
+                                        ticket.setGioDi(trip.getTime());
+
+                                        // Chỉ cập nhật đúng ô vé vừa lấy được thông tin
+                                        adapter.notifyItemChanged(index);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Trip> call, Throwable t) {
+                                    Log.e("ENRICH_ERROR", "Không lấy được chi tiết chuyến xe: " + t.getMessage());
+                                }
+                            });
                         }
                     }
+                } else {
+                    updateEmptyMessage();
                 }
-                adapter.notifyDataSetChanged();
-                updateEmptyMessage();
             }
 
             @Override
             public void onFailure(Call<List<Ticket>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                adapter.notifyDataSetChanged();
                 updateEmptyMessage();
+                Toast.makeText(QLVeXeActivity.this, "Lỗi tải danh sách vé hủy", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -232,7 +242,8 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
 
     @Override
     public void onTicketClick(Ticket ticket) {
-        if (ticket.getVeID() == null) return;
+        if (ticket.getVeID() == null)
+            return;
         showTicketDetailDialog(ticket);
     }
 
@@ -247,20 +258,26 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
         }
 
         TextView tvTicketCode = dialogView.findViewById(R.id.tvTicketCode);
+        TextView tvRouteDetail = dialogView.findViewById(R.id.tvRouteDetail);
         TextView tvCustomerName = dialogView.findViewById(R.id.tvCustomerName);
         TextView tvDate = dialogView.findViewById(R.id.tvDate);
         TextView tvTime = dialogView.findViewById(R.id.tvTime);
         TextView tvSeatCount = dialogView.findViewById(R.id.tvSeatCount);
         TextView tvSeatNumber = dialogView.findViewById(R.id.tvSeatNumber);
+        TextView tvOperator = dialogView.findViewById(R.id.tvOperator);
+        TextView tvVehicle = dialogView.findViewById(R.id.tvVehicle);
         TextView tvStatusDetail = dialogView.findViewById(R.id.tvStatusDetail);
         TextView tvPrice = dialogView.findViewById(R.id.tvPrice);
         TextView tvTotal = dialogView.findViewById(R.id.tvTotal);
         ImageView btnClose = dialogView.findViewById(R.id.btnClose);
         Button btnPayment = dialogView.findViewById(R.id.btnPayment);
 
+        // Hiển thị thông tin cơ bản trước
         tvTicketCode.setText(ticket.getVeID());
-        String name = sharedPreferences.getString("customerName", "Khách hàng");
-        tvCustomerName.setText("Khách hàng: " + name);
+        tvRouteDetail.setText("Tuyến: " + (ticket.getTenTuyen() != null ? ticket.getTenTuyen() : "Đang tải..."));
+        tvCustomerName.setText("Khách hàng: Đang tải...");
+        tvOperator.setText("Nhà xe: " + (ticket.getTenNhaXe() != null ? ticket.getTenNhaXe() : "Đang tải..."));
+        tvVehicle.setText("Loại xe: Đang tải...");
         tvDate.setText("Ngày khởi hành: " + ticket.getNgayKhoiHanh());
         tvTime.setText("Giờ khởi hành: " + ticket.getGioDi());
         tvSeatCount.setText("Số lượng ghế: " + String.format("%02d", ticket.getSoLuongGhe()));
@@ -272,6 +289,9 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
         tvPrice.setText(formatter.format(singlePrice) + " vnđ");
         tvTotal.setText(formatter.format(ticket.getTongTien()) + " vnđ");
 
+        // TRUY VẤN NÂNG CAO ĐỂ LẤY DỮ LIỆU CHÍNH XÁC
+        fetchEnrichedData(ticket, tvCustomerName, tvRouteDetail, tvDate, tvTime, tvOperator, tvVehicle);
+
         String status = (ticket.getTrangThai() != null) ? ticket.getTrangThai().trim() : "";
         String paymentStatus = (ticket.getTrangThaiThanhToan() != null) ? ticket.getTrangThaiThanhToan().trim() : "";
 
@@ -282,14 +302,16 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
         if ("Đã đặt".equalsIgnoreCase(status)) {
             if ("Đã thanh toán".equalsIgnoreCase(paymentStatus)) {
                 btnPayment.setText("Đã thanh toán");
-                btnPayment.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F1C40F")));
+                btnPayment
+                        .setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#F1C40F")));
             } else {
                 btnPayment.setText("Thanh toán");
-                btnPayment.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#34B5F1")));
+                btnPayment
+                        .setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#34B5F1")));
                 btnPayment.setEnabled(true);
                 btnPayment.setOnClickListener(v -> {
                     dialog.dismiss();
-                    showPaymentDialog(ticket);
+                    showUpcomingDialog();
                 });
             }
         } else if ("Đã đi".equalsIgnoreCase(status)) {
@@ -306,93 +328,6 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
         dialog.show();
     }
 
-    private void showPaymentDialog(Ticket ticket) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_payment, null);
-        builder.setView(dialogView);
-
-        AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        TextView tvPayTotal = dialogView.findViewById(R.id.tvPayTotal);
-        MaterialCardView cardNote = dialogView.findViewById(R.id.cardNote);
-        MaterialCardView cardBank = dialogView.findViewById(R.id.cardBankTransfer);
-        MaterialCardView cardCash = dialogView.findViewById(R.id.cardCash);
-        ImageView imgBank = dialogView.findViewById(R.id.imgBank);
-        ImageView imgCash = dialogView.findViewById(R.id.imgCash);
-        MaterialCardView iconBankContainer = dialogView.findViewById(R.id.iconBankContainer);
-        MaterialCardView iconCashContainer = dialogView.findViewById(R.id.iconCashContainer);
-        Button btnPayConfirm = dialogView.findViewById(R.id.btnPayConfirm);
-        Button btnPayCancel = dialogView.findViewById(R.id.btnPayCancel);
-
-        ((TextView)dialogView.findViewById(R.id.tvPayTicketCode)).setText(ticket.getVeID());
-        ((TextView)dialogView.findViewById(R.id.tvPayRoute)).setText(ticket.getTenTuyen());
-        ((TextView)dialogView.findViewById(R.id.tvPayDate)).setText(ticket.getNgayKhoiHanh());
-        ((TextView)dialogView.findViewById(R.id.tvPayTime)).setText(ticket.getGioDi());
-        ((TextView)dialogView.findViewById(R.id.tvPaySeats)).setText(ticket.getFormattedSeats());
-        
-        DecimalFormat formatter = new DecimalFormat("#,###");
-        tvPayTotal.setText(formatter.format(ticket.getTongTien()) + " đ");
-        tvPayTotal.setTextColor(Color.parseColor("#2563EB"));
-
-        int activeBlue = Color.parseColor("#3B82F6");
-        int activeBg = Color.parseColor("#EEF2FF");
-        int blackBtn = Color.parseColor("#1A1C2E");
-        int grayBtn = Color.parseColor("#F5F5F5");
-        int grayBorder = Color.parseColor("#EEEEEE");
-        int grayIconBg = Color.parseColor("#F5F5F5");
-
-        btnPayConfirm.setBackgroundTintList(android.content.res.ColorStateList.valueOf(blackBtn));
-        btnPayConfirm.setTextColor(Color.WHITE);
-        btnPayCancel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(grayBtn));
-        btnPayCancel.setTextColor(Color.BLACK);
-
-        final String[] paymentMethod = {"Tiền mặt"};
-
-        Runnable updateUI = () -> {
-            if ("Tiền mặt".equals(paymentMethod[0])) {
-                cardCash.setStrokeColor(activeBlue);
-                cardCash.setCardBackgroundColor(activeBg);
-                iconCashContainer.setCardBackgroundColor(activeBlue);
-                imgCash.setColorFilter(Color.WHITE);
-                cardBank.setStrokeColor(grayBorder);
-                cardBank.setCardBackgroundColor(Color.WHITE);
-                iconBankContainer.setCardBackgroundColor(grayIconBg);
-                imgBank.setColorFilter(Color.BLACK);
-                cardNote.setVisibility(View.VISIBLE);
-            } else {
-                cardBank.setStrokeColor(activeBlue);
-                cardBank.setCardBackgroundColor(activeBg);
-                iconBankContainer.setCardBackgroundColor(activeBlue);
-                imgBank.setColorFilter(Color.WHITE);
-                cardCash.setStrokeColor(grayBorder);
-                cardCash.setCardBackgroundColor(Color.WHITE);
-                iconCashContainer.setCardBackgroundColor(grayIconBg);
-                imgCash.setColorFilter(Color.BLACK);
-                cardNote.setVisibility(View.GONE);
-            }
-        };
-
-        updateUI.run();
-        cardBank.setOnClickListener(v -> { paymentMethod[0] = "Chuyển khoản"; updateUI.run(); });
-        cardCash.setOnClickListener(v -> { paymentMethod[0] = "Tiền mặt"; updateUI.run(); });
-
-        btnPayConfirm.setOnClickListener(v -> {
-            dialog.dismiss();
-            if ("Chuyển khoản".equals(paymentMethod[0])) {
-                showUpcomingDialog();
-            } else {
-                showSuccessDialog();
-            }
-        });
-
-        btnPayCancel.setOnClickListener(v -> dialog.dismiss());
-        dialogView.findViewById(R.id.btnPaymentClose).setOnClickListener(v -> dialog.dismiss());
-        dialog.show();
-    }
-
     private void showUpcomingDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_feature_upcoming, null);
@@ -405,24 +340,8 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
         dialog.show();
     }
 
-    private void showSuccessDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_payment_success, null);
-        builder.setView(dialogView);
-        AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-        dialog.show();
-        dialogView.postDelayed(dialog::dismiss, 2500);
-    }
-
     @Override
     public void onCancelClick(Ticket ticket) {
-        showCancelConfirmationDialog(ticket);
-    }
-
-    private void showCancelConfirmationDialog(Ticket ticket) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_cancel_booking, null);
         builder.setView(dialogView);
@@ -441,8 +360,7 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
 
     private void processCancelTicket(Ticket ticket) {
         progressBar.setVisibility(View.VISIBLE);
-        
-        // DỰA TRÊN HuyVeSerializer: Chỉ cần gửi ve_id, Server sẽ tự làm hết
+
         Map<String, Object> data = new HashMap<>();
         data.put("ve_id", ticket.getVeID());
 
@@ -457,10 +375,13 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
                     loadTickets(); // Reload để thấy vé mới trong tab "Đã hủy"
                 } else {
                     try {
-                        String errorMsg = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                        String errorMsg = response.errorBody() != null ? response.errorBody().string()
+                                : "Unknown error";
                         Log.e("HUY_VE_LOG", "Lỗi: " + response.code() + " - " + errorMsg);
                         Toast.makeText(QLVeXeActivity.this, "Lỗi Server: " + errorMsg, Toast.LENGTH_LONG).show();
-                    } catch (Exception e) { e.printStackTrace(); }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -469,6 +390,112 @@ public class QLVeXeActivity extends AppCompatActivity implements TicketAdapter.O
                 progressBar.setVisibility(View.GONE);
                 Log.e("HUY_VE_LOG", "Failure: ", t);
                 Toast.makeText(QLVeXeActivity.this, "Lỗi kết nối server!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void fetchEnrichedData(Ticket ticket, TextView tvCust, TextView tvRoute, TextView tvDate, TextView tvTime,
+            TextView tvOp, TextView tvVeh) {
+        // 1. Lấy tên khách hàng từ ID
+        if (ticket.getKhachHangID() != null) {
+            apiService.getKhachHangDetail(ticket.getKhachHangID()).enqueue(new Callback<KhachHang>() {
+                @Override
+                public void onResponse(Call<KhachHang> call, Response<KhachHang> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        String name = response.body().getHoTen();
+                        if (name != null && !name.isEmpty()) {
+                            tvCust.setText("Khách hàng: " + name);
+                        } else {
+                            // Fallback: nếu tên null thì hiện Email hoặc ID
+                            String email = response.body().getEmail();
+                            tvCust.setText("Khách hàng: " + (email != null ? email : ticket.getKhachHangID()));
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<KhachHang> call, Throwable t) {
+                }
+            });
+        }
+
+        // 2. Lấy thông tin chi tiết từ chuyến xe
+        if (ticket.getChuyenXeID() != null) {
+            apiService.getTripDetail(ticket.getChuyenXeID()).enqueue(new Callback<Trip>() {
+                @Override
+                public void onResponse(Call<Trip> call, Response<Trip> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Trip trip = response.body();
+                        // Cập nhật thông tin từ chuyến xe
+                        tvDate.setText("Ngày khởi hành: " + trip.getDate());
+                        tvTime.setText("Giờ khởi hành: " + trip.getTime());
+                        tvOp.setText("Nhà xe: " + trip.getTenNhaXe());
+
+                        // Xử lý loại xe
+                        String carType = trip.getLoaiXe();
+                        if (carType != null && carType.startsWith("LX")) {
+                            fetchVehicleType(carType, tvVeh);
+                        } else {
+                            tvVeh.setText("Loại xe: " + trip.getVehicleType());
+                        }
+
+                        // Xử lý tên tuyến
+                        String routeName = trip.getRouteName();
+                        if (routeName == null || routeName.isEmpty() || routeName.contains(trip.getTuyenXeID())) {
+                            fetchRouteName(trip.getTuyenXeID(), tvRoute);
+                        } else {
+                            tvRoute.setText("Tuyến: " + routeName);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Trip> call, Throwable t) {
+                }
+            });
+        }
+    }
+
+    private void fetchVehicleType(String loaixeId, TextView tvVeh) {
+        if (loaixeId == null || loaixeId.isEmpty())
+            return;
+        apiService.getLoaixe().enqueue(new Callback<List<Loaixe>>() {
+            @Override
+            public void onResponse(Call<List<Loaixe>> call, Response<List<Loaixe>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Loaixe lx : response.body()) {
+                        if (loaixeId.equals(lx.getLoaixeID())) {
+                            tvVeh.setText("Loại xe: Xe " + lx.getSoCho() + " chỗ");
+                            break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Loaixe>> call, Throwable t) {
+            }
+        });
+    }
+
+    private void fetchRouteName(String routeId, TextView tvRoute) {
+        if (routeId == null || routeId.isEmpty() || routeId.equalsIgnoreCase("null"))
+            return;
+        apiService.getRoutes().enqueue(new Callback<List<Route>>() {
+            @Override
+            public void onResponse(Call<List<Route>> call, Response<List<Route>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Route route : response.body()) {
+                        if (routeId.equals(route.getId())) {
+                            tvRoute.setText("Tuyến: " + route.getName());
+                            break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Route>> call, Throwable t) {
             }
         });
     }

@@ -54,6 +54,11 @@ public class Ticket implements Serializable {
     public String getKhachHangID() { return khachHangID; }
     public String getChuyenXeID() { return chuyenXeID; }
 
+    public void setTenTuyen(String tenTuyen) { this.tenTuyen = tenTuyen; }
+    public void setTenNhaXe(String tenNhaXe) { this.tenNhaXe = tenNhaXe; }
+    public void setNgayKhoiHanh(String ngayKhoiHanh) { this.ngayKhoiHanh = ngayKhoiHanh; }
+    public void setGioDi(String gioDi) { this.gioDi = gioDi; }
+
     public String getOwnerId() {
         return (khachHangID != null) ? khachHangID.trim() : "";
     }

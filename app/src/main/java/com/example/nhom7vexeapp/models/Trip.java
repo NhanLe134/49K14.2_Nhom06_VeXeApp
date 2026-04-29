@@ -135,4 +135,7 @@ public class Trip implements Serializable {
 
     public String getTenNhaXe() { return tenNhaXe != null ? tenNhaXe : ""; }
     public void setTenNhaXe(String tenNhaXe) { this.tenNhaXe = tenNhaXe; }
+
+    public String getLoaiXe() { return loaiXe; }
+    public void setLoaiXe(String loaiXe) { this.loaiXe = loaiXe; }
 }

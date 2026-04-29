@@ -144,6 +144,9 @@ public interface ApiService {
     @PATCH("api/chuyenxe/{id}/")
     Call<Void> patchTrip(@Path("id") String id, @Body Map<String, Object> data);
 
+    @GET("api/chuyenxe/{id}/")
+    Call<Trip> getTripDetail(@Path("id") String id);
+
 
     // --- 4. ĐẶT VÉ & LỊCH SỬ (BOOKING & TICKETS) ---
     @POST("api/dat-ve/")
@@ -170,7 +173,7 @@ public interface ApiService {
     @DELETE("api/ve/{id}/")
     Call<Void> deleteTicket(@Path("id") String id);
 
-    @GET("api/ve-huy/")
+    @GET("api/vehuy/")
     Call<List<Ticket>> getVeHuy(@Query("KhachHang") String khachHangId);
 
     // Endpoint Thực hiện hủy vé (Sử dụng HuyVeSerializer)
@@ -221,7 +224,7 @@ public interface ApiService {
     );
 
     @GET("api/khachhang/{id}/")
-    Call<Map<String, Object>> getKhachHangDetail(@Path("id") String id);
+    Call<KhachHang> getKhachHangDetail(@Path("id") String id);
 
     @GET("api/khachhang/{id}/")
     Call<KhachHang> getProfile(@Path("id") String id);

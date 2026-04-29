@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.nhom7vexeapp.api.ApiClient;
 import com.example.nhom7vexeapp.api.ApiService;
 import com.example.nhom7vexeapp.api.CustomerResponse;
+import com.example.nhom7vexeapp.models.KhachHang;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.Calendar;
@@ -71,18 +72,20 @@ public class EditCustomerProfileActivity extends AppCompatActivity {
 
     private void loadData() {
         ApiService apiService = ApiClient.getClient().create(ApiService.class);
-        apiService.getKhachHangDetail(customerUid).enqueue(new Callback<Map<String, Object>>() {
+        apiService.getKhachHangDetail(customerUid).enqueue(new Callback<KhachHang>() {
             @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+            public void onResponse(Call<KhachHang> call, Response<KhachHang> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Map<String, Object> data = response.body();
-                    edtName.setText(find(data, "Hovaten", "TenKhachHang", "name"));
-                    String dob = find(data, "Ngaysinh", "NgaySinh");
-                    if (dob.contains("T")) dob = dob.split("T")[0];
-                    edtDob.setText(dob);
+                    KhachHang data = response.body();
+                    edtName.setText(data.getHoTen());
+                    String dob = data.getNgaySinh();
+                    if (dob != null) {
+                        if (dob.contains("T")) dob = dob.split("T")[0];
+                        edtDob.setText(dob);
+                    }
                 }
             }
-            @Override public void onFailure(Call<Map<String, Object>> call, Throwable t) {}
+            @Override public void onFailure(Call<KhachHang> call, Throwable t) {}
         });
 
         apiService.getUserAuthDetail(customerUid).enqueue(new Callback<CustomerResponse>() {
